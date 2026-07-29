@@ -1,0 +1,50 @@
+import '../../domain/entities/user.dart';
+import '../../domain/repositories/auth_repository.dart';
+import '../datasources/auth_remote_datasource.dart';
+
+/// Implementación — BLUEPRINT.md FASE 5.5.
+/// authController.js real guarda la sesión en cookies httpOnly (ver
+/// RefreshInterceptor/CookieManager en ApiClient) — no hay token que guardar
+/// a mano acá, el navegador/cliente HTTP la persiste solo.
+class AuthRepositoryImpl implements AuthRepository {
+  const AuthRepositoryImpl(this._remote);
+
+  final AuthRemoteDataSource _remote;
+
+  @override
+  Future<LoginResult> login({required String telefono, required String contrasena}) async {
+    final response = await _remote.login(telefono: telefono, contrasena: contrasena);
+    return LoginResult(
+      user: response.user.toEntity(),
+      primerInicioSesion: response.primerInicioSesion,
+    );
+  }
+
+  @override
+  Future<User> fetchProfile() async {
+    final model = await _remote.fetchProfile();
+    return model.toEntity();
+  }
+
+  @override
+  Future<void> logout() => _remote.logout();
+
+  @override
+  Future<void> requestPasswordRecovery({required RecoveryMethod method, required String contact}) {
+    return method == RecoveryMethod.correo
+        ? _remote.forgotPasswordByEmail(contact)
+        : _remote.forgotPasswordByPhone(contact);
+  }
+
+  @override
+  Future<void> resetPassword({
+    required RecoveryMethod method,
+    required String contact,
+    required String codigo,
+    required String nuevaContrasena,
+  }) {
+    return method == RecoveryMethod.correo
+        ? _remote.resetPasswordByEmail(correo: contact, codigo: codigo, contrasenaNueva: nuevaContrasena)
+        : _remote.resetPasswordByPhone(telefono: contact, codigo: codigo, contrasenaNueva: nuevaContrasena);
+  }
+}
