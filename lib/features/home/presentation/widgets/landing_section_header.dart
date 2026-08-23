@@ -36,9 +36,15 @@ class LandingSectionHeader extends StatelessWidget {
               children: [
                 const Icon(LucideIcons.sparkles, size: 13, color: AppColors.primaryHover),
                 const SizedBox(width: 6),
-                Text(
-                  eyebrow,
-                  style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryHover),
+                // Flexible es necesario: con mainAxisSize.min el Row se mide a
+                // su ancho natural sin límite, así que en pantallas angostas
+                // un eyebrow largo se sale del Row (RenderFlex overflow) en
+                // vez de ajustarse (mismo fix que ya usa landing_hero.dart).
+                Flexible(
+                  child: Text(
+                    eyebrow,
+                    style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.primaryHover),
+                  ),
                 ),
               ],
             ),

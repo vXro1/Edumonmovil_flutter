@@ -167,6 +167,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           loading: _loading,
           fullWidth: true,
           size: EdumonButtonSize.lg,
+          variant: EdumonButtonVariant.accent,
         ),
       ],
     );
@@ -192,6 +193,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
           label: 'Ir a iniciar sesión',
           fullWidth: true,
           size: EdumonButtonSize.lg,
+          variant: EdumonButtonVariant.accent,
           onPressed: () => context.go('/login'),
         ),
       ],

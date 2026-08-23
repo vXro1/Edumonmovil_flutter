@@ -39,14 +39,12 @@ class ProfileRemoteDataSource {
     }
   }
 
-  // userController.js real: PUT /users/:id (updateUser) ahora exige rol
-  // administrador/superadmin — un padre/docente editando su PROPIO perfil ya
-  // no puede usar esa ruta (403). El backend agregó updateOwnProfile
-  // (whitelist nombre/apellido/correo/telefono, nunca rol/estado/institución,
-  // el id sale siempre de req.user, nunca del param) para este caso.
-  // (⚠️) Ruta exacta no confirmada contra el routes file — se infiere
-  // '/users/me' seat el mismo prefijo que '/users/me/foto-perfil', que sí
-  // está confirmado. Verificar contra userRoutes.js real.
+  // userController.js real: PUT /users/:id (updateUser) exige rol
+  // administrador/superadmin — un padre/docente editando su PROPIO perfil no
+  // puede usar esa ruta (403). El backend expone updateOwnProfile en
+  // PUT /users/me/profile (whitelist nombre/apellido/correo/telefono, nunca
+  // rol/estado/institución, el id sale siempre de req.user, nunca del param)
+  // para este caso — confirmado contra userRoutes.js.
   Future<void> updateProfile({
     String? nombre,
     String? apellido,
@@ -55,7 +53,7 @@ class ProfileRemoteDataSource {
   }) async {
     try {
       await _dio.put(
-        '/users/me',
+        '/users/me/profile',
         data: {
           'nombre': ?nombre,
           'apellido': ?apellido,

@@ -354,7 +354,10 @@ class _ImportResultRow extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 6),
-          Text(text, style: TextStyle(color: color)),
+          // Expanded: `text` es un mensaje de error dinámico (`e.motivo`) que
+          // puede ser largo — sin esto, Row(RenderFlex) desbordaba en pantallas
+          // angostas en vez de ajustar el texto a varias líneas.
+          Expanded(child: Text(text, style: TextStyle(color: color))),
         ],
       ),
     );

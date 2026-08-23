@@ -7,7 +7,7 @@ class TareaModel {
     required this.id,
     required this.titulo,
     this.descripcion,
-    this.estado = 'activa',
+    this.estado = 'publicada',
     this.fechaEntrega,
     required this.cursoId,
     this.cursoNombre,
@@ -16,6 +16,8 @@ class TareaModel {
     this.tipoEntrega = TipoEntrega.archivo,
     this.participantesSeleccionados = const [],
     this.archivos = const [],
+    this.etiquetas = const [],
+    this.criterios,
     this.totalEntregas = 0,
     this.totalPendientes = 0,
     this.totalCalificadas = 0,
@@ -33,6 +35,8 @@ class TareaModel {
   final TipoEntrega tipoEntrega;
   final List<String> participantesSeleccionados;
   final List<Archivo> archivos;
+  final List<String> etiquetas;
+  final String? criterios;
   final int totalEntregas;
   final int totalPendientes;
   final int totalCalificadas;
@@ -62,11 +66,14 @@ class TareaModel {
     final archivosRaw = json['archivosAdjuntos'] as List?;
     final archivos = (archivosRaw ?? const []).map((e) => Archivo.fromJson(e as Map<String, dynamic>)).toList();
 
+    final etiquetasRaw = json['etiquetas'] as List?;
+    final etiquetas = (etiquetasRaw ?? const []).map((e) => e.toString()).toList();
+
     return TareaModel(
       id: (json['id'] ?? json['_id']).toString(),
       titulo: json['titulo']?.toString() ?? '',
       descripcion: json['descripcion']?.toString(),
-      estado: json['estado']?.toString() ?? 'activa',
+      estado: json['estado']?.toString() ?? 'publicada',
       fechaEntrega: json['fechaEntrega'] != null ? DateTime.tryParse(json['fechaEntrega'].toString()) : null,
       cursoId: cursoId,
       cursoNombre: cursoNombre,
@@ -75,6 +82,8 @@ class TareaModel {
       tipoEntrega: TipoEntregaX.fromApiString(json['tipoEntrega']?.toString()),
       participantesSeleccionados: participantes,
       archivos: archivos,
+      etiquetas: etiquetas,
+      criterios: json['criterios']?.toString(),
       totalEntregas: json['totalEntregas'] is num ? (json['totalEntregas'] as num).toInt() : 0,
       totalPendientes: json['totalPendientes'] is num ? (json['totalPendientes'] as num).toInt() : 0,
       totalCalificadas: json['totalCalificadas'] is num ? (json['totalCalificadas'] as num).toInt() : 0,
@@ -94,6 +103,8 @@ class TareaModel {
     tipoEntrega: tipoEntrega,
     participantesSeleccionados: participantesSeleccionados,
     archivos: archivos,
+    etiquetas: etiquetas,
+    criterios: criterios,
     totalEntregas: totalEntregas,
     totalPendientes: totalPendientes,
     totalCalificadas: totalCalificadas,

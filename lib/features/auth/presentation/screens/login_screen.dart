@@ -282,6 +282,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                               loading: loading,
                               fullWidth: true,
                               size: EdumonButtonSize.lg,
+                              // Morado = color hero de Login/Landing/marca (paleta v2).
+                              variant: EdumonButtonVariant.accent,
                             ),
                           ],
                         ),

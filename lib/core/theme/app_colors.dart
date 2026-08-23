@@ -5,15 +5,33 @@ import 'package:flutter/material.dart';
 class AppColors {
   const AppColors._();
 
-  // Colores de marca (raw) — paleta oficial EDUMON.
+  // Colores de marca (raw) — paleta oficial EDUMON v2.
+  // "Azul" (#0C6AC4) es el primario del dashboard/app en general; "Morado"
+  // (#8C38F0) es el color hero de Login/Landing/marca — mismo valor que ya
+  // tenía `eduPurple`, lo que cambia es que vuelve a usarse como color
+  // protagonista (no solo acento) en esas pantallas puntuales. "Cian"
+  // (#05C7F2) es un tono nuevo y distinto del azul primario, reservado para
+  // acentos/información — antes ese rol y el de "primario" compartían el
+  // mismo valor (#0DC5E2), ya no.
+  static const Color eduBlue = Color(0xFF0C6AC4);
   static const Color eduPurple = Color(0xFF8C38F0);
   static const Color eduPink = Color(0xFFF23D7F);
-  static const Color eduCyan = Color(0xFF0DC5E2);
+  static const Color eduCyan = Color(0xFF05C7F2);
   static const Color eduGreen = Color(0xFF41D958);
   static const Color eduYellow = Color(0xFFFCBD00);
   static const Color eduCream = Color(0xFFFCF7ED);
   static const Color eduDark = Color(0xFF0D0D0D);
   static const Color eduWhite = Color(0xFFFFFFFF);
+
+  // Escala Blue (primario del dashboard/app)
+  static const Color blue50 = Color(0xFFEAF3FC);
+  static const Color blue100 = Color(0xFFCCE2F7);
+  static const Color blue200 = Color(0xFF9AC5EF);
+  static const Color blue300 = Color(0xFF63A4E4);
+  static const Color blue400 = Color(0xFF3686D6);
+  static const Color blue500 = eduBlue;
+  static const Color blue600 = Color(0xFF0A5599);
+  static const Color blue700 = Color(0xFF08427A);
 
   // Escala Purple
   static const Color purple50 = Color(0xFFF7F0FE);
@@ -37,15 +55,15 @@ class AppColors {
   static const Color pink600 = Color(0xFFD42B68);
   static const Color pink700 = Color(0xFFB01B52);
 
-  // Escala Cyan (azul de marca — color primario)
-  static const Color cyan50 = Color(0xFFEBFAFD);
-  static const Color cyan100 = Color(0xFFCEF1F9);
-  static const Color cyan200 = Color(0xFF9AE4F3);
-  static const Color cyan300 = Color(0xFF5DD2EA);
-  static const Color cyan400 = Color(0xFF2CC5E5);
+  // Escala Cyan (acento/información — distinto del azul primario)
+  static const Color cyan50 = Color(0xFFE7FAFE);
+  static const Color cyan100 = Color(0xFFC3F2FC);
+  static const Color cyan200 = Color(0xFF86E4FA);
+  static const Color cyan300 = Color(0xFF43D2F5);
+  static const Color cyan400 = Color(0xFF19C7F3);
   static const Color cyan500 = eduCyan;
-  static const Color cyan600 = Color(0xFF0A9CB5);
-  static const Color cyan700 = Color(0xFF097B8F);
+  static const Color cyan600 = Color(0xFF0499BD);
+  static const Color cyan700 = Color(0xFF047690);
 
   // Escala Green
   static const Color green50 = Color(0xFFF0FDF4);
@@ -81,19 +99,26 @@ class AppColors {
   static const Color neutral800 = Color(0xFF262626);
   static const Color neutral900 = Color(0xFF171717);
 
-  // Tokens semánticos — azul de marca como color primario (paleta oficial).
-  static const Color primary = eduCyan;
-  static const Color primaryHover = cyan600;
-  static const Color primaryLight = cyan50;
+  // Tokens semánticos — azul de marca como color primario (paleta oficial v2).
+  static const Color primary = eduBlue;
+  static const Color primaryHover = blue600;
+  static const Color primaryLight = blue50;
 
   static const Color secondary = eduPink;
   static const Color secondaryHover = pink600;
   static const Color secondaryLight = pink50;
 
-  // El morado se conserva como acento secundario, no como color principal.
+  // El morado es el color hero de Login/Landing/marca (EdumonButtonVariant.accent
+  // en esas pantallas puntuales) — en el resto de la app funciona como acento.
   static const Color accent = eduPurple;
   static const Color accentHover = purple600;
   static const Color accentLight = purple50;
+
+  /// Acento de información — antes compartía valor con `primary`, ahora es
+  /// un cian distinto reservado para badges/íconos informativos.
+  static const Color info = eduCyan;
+  static const Color infoHover = cyan600;
+  static const Color infoLight = cyan50;
 
   static const Color success = eduGreen;
   static const Color successHover = green600;
@@ -139,27 +164,54 @@ class AppColors {
   // Bordes
   static const Color borderNormal = neutral200;
   static const Color borderStrong = neutral300;
-  static const Color borderFocus = cyan400;
+  static const Color borderFocus = blue400;
 
   // Sidebar web — fondo oscuro distintivo (azul marino, no el negro genérico
   // de fondo oscuro), como pide el brief para NAVEGACIÓN WEB.
   static const Color sidebarBg = Color(0xFF0A1B3D);
   static const Color sidebarText = Color(0xCCFFFFFF); // rgba(255,255,255,.8)
-  static const Color sidebarActive = eduCyan;
+  static const Color sidebarActive = eduBlue;
 
   // Color por sección (sidebar/tabs)
-  static const Color sectionInicio = eduCyan;
+  static const Color sectionInicio = eduBlue;
   static const Color sectionCursos = eduPurple;
   static const Color sectionTareas = eduGreen;
   static const Color sectionForos = eduPink;
   static const Color sectionCalendario = eduYellow;
 
   // Sombras 3D de botones (offset sólido)
-  static const Color shadowBtnPrimary = cyan700;
+  static const Color shadowBtnPrimary = blue700;
   static const Color shadowBtnSuccess = green700;
   static const Color shadowBtnDanger = Color(0xFFB91C1C);
   static const Color shadowBtnWarning = yellow700;
   static const Color shadowBtnAccent = purple700;
+
+  // Colores extra (no son colores de marca) para diferenciar cursos entre sí
+  // en `showEdumonColorPicker` — vivos y distinguibles entre ellos, pensados
+  // para complementar los colores de marca en esa paleta puntual.
+  static const Color paletteRed = Color(0xFFEF4444);
+  static const Color paletteOrange = Color(0xFFF97316);
+  static const Color paletteTeal = Color(0xFF14B8A6);
+  static const Color paletteBlue = Color(0xFF3B82F6);
+  static const Color paletteIndigo = Color(0xFF6366F1);
+  static const Color palettePink = Color(0xFFEC4899);
+  static const Color paletteLime = Color(0xFF84CC16);
+  static const Color paletteSky = Color(0xFF06B6D4);
+  static const Color palettePurple = Color(0xFFA855F7);
+  static const Color paletteSlate = Color(0xFF64748B);
+
+  static const List<Color> coursePaletteExtras = [
+    paletteRed,
+    paletteOrange,
+    paletteTeal,
+    paletteBlue,
+    paletteIndigo,
+    palettePink,
+    paletteLime,
+    paletteSky,
+    palettePurple,
+    paletteSlate,
+  ];
 
   // Modo oscuro — BLUEPRINT.md paleta oficial, fondo #121212 / superficie #1E1E1E.
   static const Color backgroundDark = Color(0xFF121212);

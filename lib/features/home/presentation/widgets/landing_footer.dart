@@ -55,7 +55,7 @@ class LandingFooter extends StatelessWidget {
                       'Familias aprendiendo y creciendo juntas',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.85),
+                        color: AppColors.textInverse.withValues(alpha: 0.85),
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.2,
@@ -95,7 +95,7 @@ class LandingFooter extends StatelessWidget {
               const Text(
                 'Aprender a criar, un reto a la vez.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.w600),
+                style: TextStyle(color: AppColors.textInverse, fontSize: 14, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: AppSpacing.md),
               Wrap(
@@ -106,22 +106,22 @@ class LandingFooter extends StatelessWidget {
                   const Icon(LucideIcons.heart, size: 13, color: AppColors.eduPink),
                   Text(
                     'Hecho con cariño en Colombia',
-                    style: TextStyle(color: Colors.white.withValues(alpha: 0.75), fontSize: 12.5),
+                    style: TextStyle(color: AppColors.textInverse.withValues(alpha: 0.75), fontSize: 12.5),
                   ),
                 ],
               ),
               const SizedBox(height: 4),
               Text(
                 'Por Verónica Mancilla y Bryan Yepes',
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 12),
+                style: TextStyle(color: AppColors.textInverse.withValues(alpha: 0.5), fontSize: 12),
               ),
               const SizedBox(height: AppSpacing.lg),
-              Container(height: 1, color: Colors.white.withValues(alpha: 0.1)),
+              Container(height: 1, color: AppColors.textInverse.withValues(alpha: 0.1)),
               const SizedBox(height: AppSpacing.md),
               Text(
                 '© 2026 Edumont. Proyecto educativo para familias.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white.withValues(alpha: 0.45), fontSize: 12),
+                style: TextStyle(color: AppColors.textInverse.withValues(alpha: 0.45), fontSize: 12),
               ),
             ],
           ),

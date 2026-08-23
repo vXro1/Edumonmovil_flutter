@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/design_system/avatars/curso_thumbnail.dart';
 import '../../../../core/design_system/buttons/edumon_button.dart';
 import '../../../../core/design_system/cards/edumon_card.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -43,16 +44,18 @@ class AdminDashboard extends ConsumerWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(LucideIcons.school, color: Colors.white, size: 28),
+                  const Icon(LucideIcons.school, color: AppColors.textInverse, size: 28),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: institucionAsync.when(
                       data: (institucion) => Text(
                         institucion?.nombre ?? 'Tu institución',
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w700, fontSize: 18),
                       ),
-                      loading: () => const Text('Cargando…', style: TextStyle(color: Colors.white)),
-                      error: (_, _) => const Text('Tu institución', style: TextStyle(color: Colors.white)),
+                      loading: () => const Text('Cargando…', style: TextStyle(color: AppColors.textInverse)),
+                      error: (_, _) => const Text('Tu institución', style: TextStyle(color: AppColors.textInverse)),
                     ),
                   ),
                 ],
@@ -132,13 +135,12 @@ class AdminDashboard extends ConsumerWidget {
                             onTap: () => context.push('/cursos/${curso.id}'),
                             child: Row(
                               children: [
-                                CircleAvatar(
+                                CursoThumbnail(
+                                  imageUrl: curso.imagenUrl,
                                   radius: 20,
+                                  icon: LucideIcons.bookOpen,
+                                  iconColor: AppColors.accent,
                                   backgroundColor: AppColors.accentLight,
-                                  backgroundImage: curso.imagenUrl != null ? NetworkImage(curso.imagenUrl!) : null,
-                                  child: curso.imagenUrl == null
-                                      ? const Icon(LucideIcons.bookOpen, color: AppColors.accent, size: 18)
-                                      : null,
                                 ),
                                 const SizedBox(width: AppSpacing.sm),
                                 Expanded(

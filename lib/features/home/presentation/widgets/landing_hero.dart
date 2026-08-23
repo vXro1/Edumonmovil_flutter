@@ -102,6 +102,7 @@ class LandingHero extends StatelessWidget {
                 label: 'Quiero saber más',
                 rightIcon: LucideIcons.arrowRight,
                 size: EdumonButtonSize.lg,
+                variant: EdumonButtonVariant.accent,
                 onPressed: onPrimaryCta,
               ),
               EdumonButton(

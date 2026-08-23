@@ -286,7 +286,7 @@ class _CarouselArrow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: isDark ? AppColors.surfaceDark : Colors.white,
+      color: isDark ? AppColors.surfaceDark : AppColors.surface,
       shape: const CircleBorder(),
       elevation: 2,
       child: InkWell(

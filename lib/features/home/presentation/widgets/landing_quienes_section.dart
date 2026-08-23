@@ -120,7 +120,18 @@ class LandingQuienesSection extends StatelessWidget {
                     children: [
                       Expanded(flex: 6, child: textColumn),
                       const SizedBox(width: AppSpacing.xl),
-                      SizedBox(width: 220, child: teamRow),
+                      // Antes un SizedBox(width: 220) fijo: en anchos "medium"
+                      // apenas por encima del breakpoint compacto dejaba muy
+                      // poco espacio a textColumn. flex + maxWidth deja que
+                      // se achique en vez de exprimir el resto del layout, y
+                      // no crece sin límite en pantallas ultrawide.
+                      Expanded(
+                        flex: 3,
+                        child: ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 260),
+                          child: teamRow,
+                        ),
+                      ),
                     ],
                   ),
           ),
@@ -153,7 +164,7 @@ class _MiembroCard extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 miembro.iniciales,
-                style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: Colors.white),
+                style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w700, color: AppColors.textInverse),
               ),
             ),
             const SizedBox(height: AppSpacing.xs),
@@ -201,7 +212,7 @@ class _MiembroCardHorizontal extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               miembro.iniciales,
-              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: Colors.white),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textInverse),
             ),
           ),
           const SizedBox(width: AppSpacing.md),

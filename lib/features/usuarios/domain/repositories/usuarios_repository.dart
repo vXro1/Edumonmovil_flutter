@@ -28,6 +28,11 @@ abstract class UsuariosRepository {
     String? institucionId,
   });
 
+  /// userController.js real (updateUser): rol/estado/institucionId se borran
+  /// de updateData antes de guardar — ese endpoint no puede cambiarlos, así
+  /// que ni siquiera se aceptan acá para no sugerir que sí. Usá
+  /// [activarUsuario]/[suspenderUsuario] para estado; rol/institución no
+  /// tienen endpoint de reasignación en este backend.
   Future<User> updateUsuario({
     required String id,
     String? nombre,
@@ -35,8 +40,6 @@ abstract class UsuariosRepository {
     String? cedula,
     String? correo,
     String? telefono,
-    UserRole? rol,
-    String? institucionId,
   });
 
   /// DELETE /users/:id real: soft-delete a estado 'suspendido'.

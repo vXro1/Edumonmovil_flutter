@@ -52,8 +52,6 @@ class UsuariosRepositoryImpl implements UsuariosRepository {
     String? cedula,
     String? correo,
     String? telefono,
-    UserRole? rol,
-    String? institucionId,
   }) async {
     final result = await _remote.updateUsuario(
       id: id,
@@ -62,8 +60,6 @@ class UsuariosRepositoryImpl implements UsuariosRepository {
       cedula: cedula,
       correo: correo,
       telefono: telefono,
-      rol: rol,
-      institucionId: institucionId,
     );
     return result.toEntity();
   }

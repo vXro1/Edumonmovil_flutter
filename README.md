@@ -49,7 +49,7 @@ Si además Gradle queda "trabado" con un `FileSystemException` de un archivo en 
 
 ## Assets (SVG de marca) — ojo con las subcarpetas
 
-`assets/img/` tiene subcarpetas (`logo/`, `Shapes/`, `circulos/`) con el logo, el wordmark "EDUMON" y las figuras decorativas (`shapeN.svg` / `circuloN.svg`), todas en SVG (sin PNG, sin emoji, por regla de diseño del proyecto). `Shapes/` son las formas orgánicas usadas por defecto en `EdumonShapeBackdrop`; `circulos/` son los círculos usados específicamente en el login (`ShapeSpec(folder: 'circulos', ...)`).
+`assets/img/` tiene subcarpetas (`logo/`, `circulos/`, `recursos/`) con el logo, el wordmark "EDUMON" y las figuras decorativas (`circuloN.svg`), todas en SVG (sin PNG, sin emoji, por regla de diseño del proyecto). `circulos/` son los círculos usados por `EdumonShapeBackdrop` (login, forgot/reset-password, wizard); `recursos/` son ilustraciones puntuales del Home web. La carpeta `Shapes/` (formas orgánicas `shapeN.svg`) existió en una versión anterior y ya no está en el repo — no volver a agregarla a `pubspec.yaml` sin que exista en disco.
 
 **Importante**: en `pubspec.yaml`, declarar una carpeta en `assets:` **no es recursivo** — Flutter no incluye automáticamente las subcarpetas. Por eso `assets:` lista cada subcarpeta explícitamente:
 
@@ -58,8 +58,8 @@ flutter:
   assets:
     - assets/img/
     - assets/img/logo/
-    - assets/img/Shapes/
     - assets/img/circulos/
+    - assets/img/recursos/
 ```
 
 Si en algún momento se agrega una subcarpeta nueva dentro de `assets/img/` (por ejemplo `assets/img/badges/`), hay que sumarla acá a mano — si no, esos archivos compilan sin error pero fallan en tiempo de ejecución con `Unable to load asset: ...` (así se manifestó este bug la primera vez: sin errores de build, pero el logo y las figuras nunca cargaban en ningún modo, debug o release).
@@ -111,4 +111,4 @@ docs/flutter-migration/BLUEPRINT.md   # spec técnica completa pantalla por pant
 
 - Login por **teléfono + contraseña** (no hay registro público de usuarios — las cuentas las crea un admin/superadmin).
 - Primer ingreso pasa por un wizard (`first_login_wizard_screen.dart`) para elegir foto, confirmar datos y cambiar la contraseña temporal.
-- Sesión en cookies httpOnly; en la app nativa se persisten en disco (`path_provider` + `cookie_jar`), en Web se usa un `CookieJar` en memoria (no hay filesystem en el navegador, así que la sesión no sobrevive a un refresh de página en Web — sí en Android/iOS).
+- Sesión en cookies httpOnly; en la app nativa se persisten en disco (`path_provider` + `cookie_jar`). En Web no hay filesystem, así que se usa un `CookieJar` en memoria — pero ahí es casi vestigial: la cookie real la maneja el propio navegador vía `withCredentials` (ver `lib/core/network/api_client.dart`), independiente de ese CookieJar, así que la sesión sí sobrevive a un refresh de página en Web mientras la cookie del backend siga vigente.

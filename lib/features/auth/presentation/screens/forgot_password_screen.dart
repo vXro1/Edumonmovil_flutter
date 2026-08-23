@@ -170,6 +170,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
           loading: _loading,
           fullWidth: true,
           size: EdumonButtonSize.lg,
+          variant: EdumonButtonVariant.accent,
         ),
       ],
     );
@@ -210,6 +211,7 @@ class _SentState extends StatelessWidget {
           label: 'Ingresar código',
           fullWidth: true,
           size: EdumonButtonSize.lg,
+          variant: EdumonButtonVariant.accent,
           onPressed: () => context.push('/reset-password', extra: {'contact': contact, 'method': method}),
         ),
       ],

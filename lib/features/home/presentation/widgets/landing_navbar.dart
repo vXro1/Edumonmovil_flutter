@@ -39,7 +39,7 @@ class LandingNavbar extends StatelessWidget {
     final showButtonLabel = width >= 340;
 
     return Material(
-      color: isDark ? AppColors.backgroundDark : Colors.white,
+      color: isDark ? AppColors.backgroundDark : AppColors.surface,
       elevation: 0,
       child: Container(
         decoration: BoxDecoration(
@@ -66,6 +66,7 @@ class LandingNavbar extends StatelessWidget {
               label: showButtonLabel ? 'Iniciar sesión' : '',
               leftIcon: LucideIcons.logIn,
               size: buttonSize,
+              variant: EdumonButtonVariant.accent,
               onPressed: onLogin,
             ),
           ],

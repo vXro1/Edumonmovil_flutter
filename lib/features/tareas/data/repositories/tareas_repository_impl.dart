@@ -24,12 +24,15 @@ class TareasRepositoryImpl implements TareasRepository {
     required String titulo,
     String? descripcion,
     required String cursoId,
-    String? moduloId,
+    required String moduloId,
     DateTime? fechaEntrega,
     required AsignacionTipo asignacionTipo,
     required TipoEntrega tipoEntrega,
     List<String>? participantesSeleccionados,
+    List<String>? etiquetas,
+    String? criterios,
     List<ArchivoUpload>? archivos,
+    List<EnlaceInput>? enlaces,
   }) async {
     final result = await _remote.createTarea(
       titulo: titulo,
@@ -40,7 +43,10 @@ class TareasRepositoryImpl implements TareasRepository {
       asignacionTipo: asignacionTipo,
       tipoEntrega: tipoEntrega,
       participantesSeleccionados: participantesSeleccionados,
+      etiquetas: etiquetas,
+      criterios: criterios,
       archivos: archivos,
+      enlaces: enlaces,
     );
     return result.toEntity();
   }
@@ -50,21 +56,31 @@ class TareasRepositoryImpl implements TareasRepository {
     required String id,
     String? titulo,
     String? descripcion,
+    String? moduloId,
     DateTime? fechaEntrega,
     AsignacionTipo? asignacionTipo,
     TipoEntrega? tipoEntrega,
     List<String>? participantesSeleccionados,
+    List<String>? etiquetas,
+    String? criterios,
     List<ArchivoUpload>? archivosNuevos,
+    List<EnlaceInput>? enlacesNuevos,
+    List<String>? archivosAEliminar,
   }) async {
     final result = await _remote.updateTarea(
       id: id,
       titulo: titulo,
       descripcion: descripcion,
+      moduloId: moduloId,
       fechaEntrega: fechaEntrega,
       asignacionTipo: asignacionTipo,
       tipoEntrega: tipoEntrega,
       participantesSeleccionados: participantesSeleccionados,
+      etiquetas: etiquetas,
+      criterios: criterios,
       archivosNuevos: archivosNuevos,
+      enlacesNuevos: enlacesNuevos,
+      archivosAEliminar: archivosAEliminar,
     );
     return result.toEntity();
   }

@@ -162,6 +162,16 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
                 const SizedBox(height: AppSpacing.sm),
                 Text(tarea.descripcion!),
               ],
+              if (tarea.etiquetas.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: tarea.etiquetas
+                      .map((e) => _Badge(text: e, color: AppColors.mutedText(context)))
+                      .toList(),
+                ),
+              ],
               if (tarea.fechaEntrega != null) ...[
                 const SizedBox(height: AppSpacing.md),
                 EdumonCard(
@@ -176,6 +186,12 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
                   ),
                 ),
               ],
+              if (tarea.criterios != null && tarea.criterios!.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.md),
+                const Text('Criterios de evaluación', style: TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: AppSpacing.sm),
+                Text(tarea.criterios!),
+              ],
               if (tarea.archivos.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.md),
                 const Text('Archivos', style: TextStyle(fontWeight: FontWeight.w700)),
@@ -183,9 +199,18 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
                 ...tarea.archivos.map((a) => EdumonCard(
                       child: Row(
                         children: [
-                          Icon(LucideIcons.file, size: 18, color: AppColors.mutedText(context)),
+                          Icon(a.esEnlace ? LucideIcons.link : LucideIcons.file, size: 18, color: AppColors.mutedText(context)),
                           const SizedBox(width: AppSpacing.xs),
-                          Expanded(child: Text(a.nombre, overflow: TextOverflow.ellipsis)),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(a.nombre, overflow: TextOverflow.ellipsis),
+                                if (a.esEnlace)
+                                  Text(a.url, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.mutedText(context), fontSize: 12)),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                     )),

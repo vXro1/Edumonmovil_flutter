@@ -23,6 +23,7 @@ class GradientRingBackdrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       width: size,
       height: size,
@@ -41,7 +42,15 @@ class GradientRingBackdrop extends StatelessWidget {
       ),
       child: Padding(
         padding: EdgeInsets.all(size * thickness),
-        child: const DecoratedBox(decoration: BoxDecoration(color: Colors.white, shape: BoxShape.circle)),
+        // Centro "hueco" del anillo — coincide con la superficie de fondo de
+        // la sección (no un blanco fijo) para que se siga leyendo como anillo
+        // en vez de disco sólido también en modo oscuro.
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: isDark ? AppColors.surfaceDark : AppColors.surface,
+            shape: BoxShape.circle,
+          ),
+        ),
       ),
     );
   }

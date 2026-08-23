@@ -107,7 +107,7 @@ class ProfileScreen extends ConsumerWidget {
                         child: Container(
                           padding: const EdgeInsets.all(4),
                           decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
-                          child: const Icon(LucideIcons.pencil, size: 12, color: Colors.white),
+                          child: const Icon(LucideIcons.pencil, size: 12, color: AppColors.textInverse),
                         ),
                       ),
                     ],

@@ -146,9 +146,9 @@ class AppShell extends ConsumerWidget {
               backgroundColor: isDark ? AppColors.sidebarBg : AppColors.surface,
               indicatorColor: AppColors.primary,
               indicatorShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadius.md)),
-              selectedIconTheme: const IconThemeData(color: Colors.white),
+              selectedIconTheme: const IconThemeData(color: AppColors.textInverse),
               unselectedIconTheme: IconThemeData(color: isDark ? AppColors.sidebarText : AppColors.textSubtle),
-              selectedLabelTextStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+              selectedLabelTextStyle: const TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w600),
               unselectedLabelTextStyle: TextStyle(color: isDark ? AppColors.sidebarText : AppColors.textMuted),
             ),
             child: NavigationRail(
@@ -216,7 +216,7 @@ class _AppShellAppBar extends ConsumerWidget implements PreferredSizeWidget {
                   child: Text(
                     unreadCount.value! > 9 ? '9+' : '${unreadCount.value}',
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.w700),
+                    style: const TextStyle(color: AppColors.textInverse, fontSize: 9, fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

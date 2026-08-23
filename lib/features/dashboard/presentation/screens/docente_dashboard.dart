@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/design_system/avatars/curso_thumbnail.dart';
 import '../../../../core/design_system/buttons/edumon_button.dart';
 import '../../../../core/design_system/cards/edumon_card.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -133,13 +134,12 @@ class DocenteDashboard extends ConsumerWidget {
                             onTap: () => context.push('/cursos/${curso.id}'),
                             child: Row(
                               children: [
-                                CircleAvatar(
+                                CursoThumbnail(
+                                  imageUrl: curso.imagenUrl,
                                   radius: 20,
+                                  icon: LucideIcons.bookOpen,
+                                  iconColor: AppColors.accent,
                                   backgroundColor: AppColors.accentLight,
-                                  backgroundImage: curso.imagenUrl != null ? NetworkImage(curso.imagenUrl!) : null,
-                                  child: curso.imagenUrl == null
-                                      ? const Icon(LucideIcons.bookOpen, color: AppColors.accent, size: 18)
-                                      : null,
                                 ),
                                 const SizedBox(width: AppSpacing.sm),
                                 Expanded(

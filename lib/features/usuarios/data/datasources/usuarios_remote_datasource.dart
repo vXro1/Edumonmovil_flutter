@@ -77,6 +77,9 @@ class UsuariosRemoteDataSource {
     }
   }
 
+  // userController.js real (updateUser): rol/estado/institucionId se borran
+  // de updateData antes del save, aunque el request los incluya — nunca se
+  // mandan más para no fingir un cambio que el backend descarta en silencio.
   Future<UserModel> updateUsuario({
     required String id,
     String? nombre,
@@ -84,9 +87,6 @@ class UsuariosRemoteDataSource {
     String? cedula,
     String? correo,
     String? telefono,
-    UserRole? rol,
-    String? institucionId,
-    String? estado,
   }) async {
     try {
       final response = await _dio.put(
@@ -97,9 +97,6 @@ class UsuariosRemoteDataSource {
           'cedula': ?cedula,
           'correo': ?correo,
           'telefono': ?telefono,
-          if (rol != null) 'rol': rol.toApiString,
-          'institucionId': ?institucionId,
-          'estado': ?estado,
         },
       );
       final data = response.data as Map<String, dynamic>;

@@ -38,12 +38,14 @@ class SuperadminDashboard extends ConsumerWidget {
               ),
               child: const Row(
                 children: [
-                  Icon(LucideIcons.shieldCheck, color: Colors.white, size: 28),
+                  Icon(LucideIcons.shieldCheck, color: AppColors.textInverse, size: 28),
                   SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
                       'Panel de super administración',
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 18),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: AppColors.textInverse, fontWeight: FontWeight.w700, fontSize: 18),
                     ),
                   ),
                 ],

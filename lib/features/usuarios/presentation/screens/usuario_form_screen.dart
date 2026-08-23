@@ -133,6 +133,11 @@ class _UsuarioFormScreenState extends ConsumerState<UsuarioFormScreen> {
       // aunque la contraseña fuera la correcta.
       final telefonoConPrefijo = '+57$telefono';
       if (_isEditing) {
+        // userValidator.js real (updateUser): el controlador borra
+        // rol/estado/institucionId de updateData ANTES de guardar — no se
+        // mandan más porque el backend los ignora en silencio (no es un
+        // "no autorizado", el request "funciona" pero el cambio nunca se
+        // aplica). Ver el bloque de solo-lectura en build() más abajo.
         await repo.updateUsuario(
           id: widget.userId!,
           nombre: nombre,
@@ -140,8 +145,6 @@ class _UsuarioFormScreenState extends ConsumerState<UsuarioFormScreen> {
           cedula: cedula,
           telefono: telefonoConPrefijo,
           correo: correo.isEmpty ? null : correo,
-          rol: _rol,
-          institucionId: _needsInstitucion ? _institucionId : null,
         );
       } else {
         await repo.createUsuario(
@@ -150,10 +153,12 @@ class _UsuarioFormScreenState extends ConsumerState<UsuarioFormScreen> {
           cedula: cedula,
           telefono: telefonoConPrefijo,
           rol: _rol,
-          // Contraseña inicial = la cédula, sin prefijos ni caracteres extra
-          // (decisión de producto). Requiere que createUserValidator.contraseña
-          // en el backend ya no exija mayúscula/minúscula — ver diff pedido aparte.
-          contrasena: cedula,
+          // BUG REAL corregido: createUserValidator.contraseña exige al
+          // menos una minúscula, una mayúscula y un dígito — la cédula sola
+          // (todo dígitos) nunca cumplía eso y el alta fallaba siempre con
+          // 400. "Cc" + cédula es la contraseña que ya se le mostraba al
+          // admin en pantalla, pero nunca era la que en verdad se mandaba.
+          contrasena: 'Cc$cedula',
           correo: correo.isEmpty ? null : correo,
           institucionId: _needsInstitucion ? _institucionId : null,
         );
@@ -210,19 +215,47 @@ class _UsuarioFormScreenState extends ConsumerState<UsuarioFormScreen> {
                   const SizedBox(height: AppSpacing.sm),
                   const Text('Rol', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   const SizedBox(height: 6),
-                  DropdownButtonFormField<UserRole>(
-                    initialValue: _rol,
-                    items: UserRole.values
-                        .where((r) => isSuperAdmin || r != UserRole.superAdmin)
-                        .map((r) => DropdownMenuItem(value: r, child: Text(r.label)))
-                        .toList(),
-                    onChanged: (value) => setState(() => _rol = value ?? _rol),
-                  ),
+                  // userController.js real (updateUser) borra "rol" de
+                  // updateData antes de guardar — PUT /users/:id no puede
+                  // reasignar el rol de un usuario existente. Mostrarlo
+                  // editable acá era engañoso (mismo patrón ya corregido
+                  // para el docente titular en curso_form_screen.dart).
+                  _isEditing
+                      ? Text(_rol.label, style: TextStyle(color: AppColors.mutedText(context)))
+                      : DropdownButtonFormField<UserRole>(
+                          initialValue: _rol,
+                          items: UserRole.values
+                              .where((r) => isSuperAdmin || r != UserRole.superAdmin)
+                              .map((r) => DropdownMenuItem(value: r, child: Text(r.label)))
+                              .toList(),
+                          onChanged: (value) => setState(() => _rol = value ?? _rol),
+                        ),
                   if (_needsInstitucion) ...[
                     const SizedBox(height: AppSpacing.sm),
                     const Text('Institución', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                     const SizedBox(height: 6),
-                    if (isSuperAdmin)
+                    if (_isEditing)
+                      Consumer(
+                        builder: (context, ref, _) {
+                          // institucionId tampoco se puede reasignar al
+                          // editar (mismo motivo que "rol" arriba) — se
+                          // resuelve el nombre solo para mostrarlo, nunca
+                          // para mandarlo de vuelta.
+                          final institucionesAsync = ref.watch(institucionesProvider);
+                          return institucionesAsync.when(
+                            data: (instituciones) {
+                              final nombre = instituciones
+                                  .where((i) => i.id == _institucionId)
+                                  .map((i) => i.nombre)
+                                  .firstOrNull;
+                              return Text(nombre ?? 'Sin institución', style: TextStyle(color: AppColors.mutedText(context)));
+                            },
+                            loading: () => const LinearProgressIndicator(),
+                            error: (_, _) => Text('—', style: TextStyle(color: AppColors.mutedText(context))),
+                          );
+                        },
+                      )
+                    else if (isSuperAdmin)
                       Consumer(
                         builder: (context, ref, _) {
                           final institucionesAsync = ref.watch(institucionesProvider);

@@ -345,6 +345,9 @@ class _FirstLoginWizardScreenState extends ConsumerState<FirstLoginWizardScreen>
               fullWidth: true,
               size: EdumonButtonSize.lg,
               rightIcon: LucideIcons.arrowRight,
+              // Morado = color hero de Login/Landing/marca (paleta v2) —
+              // el wizard de primer ingreso es parte de ese flujo.
+              variant: EdumonButtonVariant.accent,
             ),
           ],
         );
@@ -417,6 +420,7 @@ class _FirstLoginWizardScreenState extends ConsumerState<FirstLoginWizardScreen>
           fullWidth: true,
           size: EdumonButtonSize.lg,
           rightIcon: LucideIcons.arrowRight,
+          variant: EdumonButtonVariant.accent,
         ),
       ],
     );
@@ -461,6 +465,7 @@ class _FirstLoginWizardScreenState extends ConsumerState<FirstLoginWizardScreen>
           fullWidth: true,
           size: EdumonButtonSize.lg,
           rightIcon: LucideIcons.arrowRight,
+          variant: EdumonButtonVariant.accent,
         ),
       ],
     );
@@ -486,6 +491,7 @@ class _FirstLoginWizardScreenState extends ConsumerState<FirstLoginWizardScreen>
           label: 'Ir a mi cuenta',
           fullWidth: true,
           size: EdumonButtonSize.lg,
+          variant: EdumonButtonVariant.accent,
           onPressed: () => ref.read(authControllerProvider.notifier).completeFirstLogin(),
         ),
       ],

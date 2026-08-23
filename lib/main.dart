@@ -28,8 +28,15 @@ void main() async {
   // reinicios de la app, igual que hacía antes el token en secure storage.
   // En web no hay filesystem (path_provider no implementa
   // getApplicationSupportDirectory ahí), así que se usa un CookieJar en
-  // memoria: la sesión no sobrevive a un refresh de página, pero la app
-  // arranca en vez de crashear en el primer frame.
+  // memoria en su lugar — pero ahí es en gran parte vestigial: las cookies
+  // httpOnly cross-origin nunca son legibles por JS/Dart, así que
+  // dio_cookie_manager jamás las captura en web de todas formas. La sesión
+  // real la persiste el propio navegador (Set-Cookie + `withCredentials`,
+  // ver api_client.dart) de forma completamente independiente de este
+  // CookieJar, así que sí sobrevive a un refresh de página mientras la
+  // cookie del backend siga vigente. Este CookieJar en memoria solo evita
+  // que la app intente tocar el filesystem (inexistente en el navegador) y
+  // crashee en el primer frame.
   final cookieJar = kIsWeb
       ? CookieJar()
       : PersistCookieJar(storage: FileStorage('${(await getApplicationSupportDirectory()).path}/.cookies'));

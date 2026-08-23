@@ -41,6 +41,7 @@ class _CursoFormScreenState extends ConsumerState<CursoFormScreen> {
   Uint8List? _portadaBytes;
   String? _portadaFilename;
   String? _portadaUrlExistente;
+  bool _portadaLoadFailed = false;
 
   bool _loadingCurso = false;
   bool _saving = false;
@@ -76,6 +77,7 @@ class _CursoFormScreenState extends ConsumerState<CursoFormScreen> {
         _docenteId = curso.docenteId;
         _docenteNombreActual = curso.docente?.nombreCompleto;
         _portadaUrlExistente = curso.imagenUrl;
+        _portadaLoadFailed = false;
         _loadingCurso = false;
       });
     } catch (e) {
@@ -92,6 +94,7 @@ class _CursoFormScreenState extends ConsumerState<CursoFormScreen> {
     setState(() {
       _portadaBytes = bytes;
       _portadaFilename = picked.name;
+      _portadaLoadFailed = false;
     });
   }
 
@@ -109,6 +112,17 @@ class _CursoFormScreenState extends ConsumerState<CursoFormScreen> {
 
     final errors = <String, String>{};
     if (nombre.isEmpty) errors['nombre'] = 'Ingresá el nombre del curso.';
+    // Curso.js real: descripcion es `required`, y createCursoValidator/
+    // updateCursoValidator exigen entre 10 y 500 caracteres — sin este
+    // chequeo cliente, guardar con la descripción vacía o corta siempre
+    // fallaba con un 400 genérico (la UI la mostraba como "(opcional)").
+    if (descripcion.isEmpty) {
+      errors['descripcion'] = 'Ingresá una descripción.';
+    } else if (descripcion.length < 10) {
+      errors['descripcion'] = 'La descripción debe tener al menos 10 caracteres.';
+    } else if (descripcion.length > 500) {
+      errors['descripcion'] = 'La descripción no puede superar los 500 caracteres.';
+    }
     if (!_isEditing && _docenteId == null) errors['docenteId'] = 'Seleccioná un docente.';
     if (color.isNotEmpty && !AppConstants.hexColorRegex.hasMatch(color)) {
       errors['color'] = 'Usá un color hex válido, ej. #4F46E5.';
@@ -178,11 +192,15 @@ class _CursoFormScreenState extends ConsumerState<CursoFormScreen> {
                           borderRadius: BorderRadius.circular(AppRadius.lg),
                           image: _portadaBytes != null
                               ? DecorationImage(image: MemoryImage(_portadaBytes!), fit: BoxFit.cover)
-                              : (_portadaUrlExistente != null
-                                    ? DecorationImage(image: NetworkImage(_portadaUrlExistente!), fit: BoxFit.cover)
+                              : (_portadaUrlExistente != null && !_portadaLoadFailed
+                                    ? DecorationImage(
+                                        image: NetworkImage(_portadaUrlExistente!),
+                                        fit: BoxFit.cover,
+                                        onError: (_, _) => setState(() => _portadaLoadFailed = true),
+                                      )
                                     : null),
                         ),
-                        child: (_portadaBytes == null && _portadaUrlExistente == null)
+                        child: (_portadaBytes == null && (_portadaUrlExistente == null || _portadaLoadFailed))
                             ? Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -197,7 +215,12 @@ class _CursoFormScreenState extends ConsumerState<CursoFormScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   EdumonTextField(controller: _nombreController, label: 'Nombre del curso', errorText: _fieldErrors['nombre']),
-                  EdumonTextField(controller: _descripcionController, label: 'Descripción (opcional)'),
+                  EdumonTextField(
+                    controller: _descripcionController,
+                    label: 'Descripción',
+                    maxLines: 3,
+                    errorText: _fieldErrors['descripcion'],
+                  ),
                   const Text('Color del curso (opcional)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   const SizedBox(height: 6),
                   InkWell(

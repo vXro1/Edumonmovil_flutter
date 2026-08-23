@@ -169,7 +169,7 @@ class _LandingContactoSectionState extends ConsumerState<LandingContactoSection>
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.lg),
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDark : Colors.white,
+          color: isDark ? AppColors.surfaceDark : AppColors.surface,
           borderRadius: BorderRadius.circular(AppRadius.xl2),
           border: isDark ? Border.all(color: AppColors.borderNormalDark) : null,
           boxShadow: isDark
@@ -261,6 +261,7 @@ class _LandingContactoSectionState extends ConsumerState<LandingContactoSection>
           leftIcon: LucideIcons.send,
           fullWidth: true,
           loading: _loading,
+          variant: EdumonButtonVariant.accent,
           onPressed: _loading ? null : _submit,
         ),
         const SizedBox(height: AppSpacing.xs),

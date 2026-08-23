@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/design_system/avatars/curso_thumbnail.dart';
 import '../../../../core/design_system/cards/edumon_card.dart';
 import '../../../../core/design_system/loading/loading_screen.dart';
 import '../../../../core/network/network_exceptions.dart';
@@ -15,10 +16,18 @@ import '../providers/cursos_providers.dart';
 
 const _pageSize = 15;
 
-/// Lista de cursos — BLUEPRINT.md FASE 3.4.1 / FASE 3.7.2. Docente ve "mis
-/// cursos"; superadmin/admin ven todos; padre ve los cursos de sus hijos
-/// (getCursos real scopea por rol) — mismo canónico para todos, sin
-/// replicar una pantalla "Familia · Cursos" aparte.
+/// Lista de cursos — BLUEPRINT.md FASE 3.4.1 / FASE 3.7.2. Docente y padre
+/// ven "mis cursos" (/cursos/mis-cursos, filtra por
+/// `participantes.usuarioId`); superadmin/admin ven todos los de la
+/// institución (/cursos) — mismo canónico para todos, sin replicar una
+/// pantalla "Familia · Cursos" aparte.
+/// BUG REAL corregido: cursoController.js real (getCursos) solo filtra por
+/// institucionId/estado/docenteId — NO scopea por participación del usuario
+/// pese a lo que decía este comentario antes. Un padre entrando a "Cursos"
+/// usando /cursos veía TODOS los cursos de la institución (con docente y
+/// participantes de cursos donde ni siquiera está inscrito), no solo los
+/// suyos. /cursos/mis-cursos sí filtra por `participantes.usuarioId` para
+/// cualquier rol (no es exclusivo de docente), así que padre debe usarlo igual.
 /// (⚠️) getCursos real no lee ningún parámetro de texto — solo filtra por
 /// estado/docenteId — así que la búsqueda es client-side sobre lo ya
 /// cargado, igual que en Usuarios/Docentes.
@@ -40,6 +49,13 @@ class _CursosScreenState extends ConsumerState<CursosScreen> {
   String _search = '';
 
   bool get _isDocente => ref.read(authControllerProvider).user?.rol == UserRole.docente;
+
+  // Docente y padre solo deben ver los cursos donde participan
+  // (/cursos/mis-cursos) — admin/superAdmin ven todos los de la institución.
+  bool get _scopeToMisCursos {
+    final rol = ref.read(authControllerProvider).user?.rol;
+    return rol == UserRole.docente || rol == UserRole.padreTutor;
+  }
 
   bool get _canManage {
     final rol = ref.read(authControllerProvider).user?.rol;
@@ -70,7 +86,7 @@ class _CursosScreenState extends ConsumerState<CursosScreen> {
     });
     try {
       final repo = ref.read(cursosRepositoryProvider);
-      final result = _isDocente
+      final result = _scopeToMisCursos
           ? await repo.fetchMisCursos(page: page, limit: _pageSize)
           : await repo.fetchCursos(page: page, limit: _pageSize);
       if (!mounted) return;
@@ -151,7 +167,7 @@ class _CursosScreenState extends ConsumerState<CursosScreen> {
           : null,
       body: Column(
         children: [
-          if (!_isDocente)
+          if (!_scopeToMisCursos)
             Padding(
               padding: const EdgeInsets.all(AppSpacing.md),
               child: TextField(
@@ -192,7 +208,9 @@ class _CursosScreenState extends ConsumerState<CursosScreen> {
         child: Text(
           _search.isNotEmpty
               ? 'No hay cursos que coincidan.'
-              : (_isDocente ? 'Todavía no tenés cursos. Creá el primero.' : 'No hay cursos registrados.'),
+              : (_isDocente
+                    ? 'Todavía no tenés cursos. Creá el primero.'
+                    : (_scopeToMisCursos ? 'Todavía no estás en ningún curso.' : 'No hay cursos registrados.')),
           style: TextStyle(color: AppColors.mutedText(context)),
         ),
       );
@@ -224,13 +242,12 @@ class _CursosScreenState extends ConsumerState<CursosScreen> {
             onTap: () => context.push('/cursos/${curso.id}'),
             child: Row(
               children: [
-                CircleAvatar(
+                CursoThumbnail(
+                  imageUrl: curso.imagenUrl,
                   radius: 24,
+                  icon: LucideIcons.bookOpen,
+                  iconColor: cursoColor ?? AppColors.accent,
                   backgroundColor: cursoColor?.withValues(alpha: 0.16) ?? AppColors.accentLight,
-                  backgroundImage: curso.imagenUrl != null ? NetworkImage(curso.imagenUrl!) : null,
-                  child: curso.imagenUrl == null
-                      ? Icon(LucideIcons.bookOpen, color: cursoColor ?? AppColors.accent)
-                      : null,
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(

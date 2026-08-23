@@ -7,7 +7,7 @@ class ShapeSpec {
   const ShapeSpec({
     required this.asset,
     required this.size,
-    this.folder = 'Shapes',
+    this.folder = 'circulos',
     this.top,
     this.bottom,
     this.left,
@@ -19,7 +19,8 @@ class ShapeSpec {
   /// Nombre de archivo dentro de `assets/img/<folder>/`.
   final String asset;
 
-  /// Subcarpeta bajo `assets/img/` (`Shapes` por defecto, o `circulos`).
+  /// Subcarpeta bajo `assets/img/` (`circulos` por defecto — `assets/img/Shapes/`
+  /// ya no existe en el repo, ver README).
   final String folder;
   final double size;
   final double? top;
@@ -53,10 +54,10 @@ class EdumonShapeBackdrop extends StatelessWidget {
   final List<ShapeSpec> shapes;
 
   static const _defaultShapes = [
-    ShapeSpec(asset: 'shape9.svg', size: 96, top: -18, left: -22),
-    ShapeSpec(asset: 'shape17.svg', size: 130, top: -8, right: -28),
-    ShapeSpec(asset: 'shape20.svg', size: 140, bottom: -28, left: -20),
-    ShapeSpec(asset: 'shape11.svg', size: 96, bottom: -16, right: -14),
+    ShapeSpec(asset: 'circulo9.svg', size: 96, top: -18, left: -22),
+    ShapeSpec(asset: 'circulo10.svg', size: 130, top: -8, right: -28),
+    ShapeSpec(asset: 'circulo11.svg', size: 140, bottom: -28, left: -20),
+    ShapeSpec(asset: 'circulo12.svg', size: 96, bottom: -16, right: -14),
   ];
 
   @override
