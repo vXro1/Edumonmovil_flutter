@@ -4,6 +4,41 @@ App educativa para instituciones, con roles de **superadministrador**, **adminis
 
 Migración/reimplementación en Flutter de la plataforma web EDUMON. La especificación técnica completa (pantalla por pantalla, endpoints, reglas de negocio) vive en [`docs/flutter-migration/BLUEPRINT.md`](docs/flutter-migration/BLUEPRINT.md) — este README cubre cómo correr, compilar y entender el sistema de diseño del proyecto.
 
+## Índice
+
+- [¿Qué es EDUMON?](#qué-es-edumon)
+- [Roles y funcionalidades](#roles-y-funcionalidades)
+- [Stack](#stack)
+- [Requisitos](#requisitos)
+- [Getting started](#getting-started)
+- [⚠️ Compilar en Windows dentro de una carpeta de OneDrive](#️-compilar-en-windows-dentro-de-una-carpeta-de-onedrive)
+- [Assets (SVG de marca) — ojo con las subcarpetas](#assets-svg-de-marca--ojo-con-las-subcarpetas)
+- [Ícono de la app](#ícono-de-la-app)
+- [Sistema de diseño](#sistema-de-diseño)
+- [Estructura](#estructura)
+- [Autenticación y roles](#autenticación-y-roles)
+- [Tests](#tests)
+- [Contribuir](#contribuir)
+
+## ¿Qué es EDUMON?
+
+EDUMON es un **LMS (Learning Management System) educativo multi-tenant**: conecta instituciones escolares completas (colegios como clientes independientes, cada uno con sus propios docentes, cursos y usuarios) alrededor del ciclo de vida de un curso — módulos, tareas ("retos"), entregas calificadas, foros y calendario.
+
+Esta app es la reimplementación nativa (Flutter/Android, con soporte Web) de la plataforma web original (React), consumiendo el mismo backend (`https://backend-edumon.onrender.com`). El detalle completo de la ingeniería inversa de la web original, decisiones de arquitectura y mapeo pantalla-por-pantalla está en [`docs/flutter-migration/BLUEPRINT.md`](docs/flutter-migration/BLUEPRINT.md).
+
+## Roles y funcionalidades
+
+| Rol | Qué hace |
+|---|---|
+| **Super administrador** | Da de alta instituciones (colegios) y su administrador inicial; gestión global de la plataforma. |
+| **Administrador** (institución) | Gestiona su colegio: registro de docentes (individual o CSV masivo), creación de cursos, usuarios, eventos institucionales. |
+| **Docente** | Estructura cursos en módulos, publica tareas/"retos" (con adjuntos, asignación total o parcial), califica entregas (1-5 estrellas + comentario), participa en foros por curso. |
+| **Padre/Tutor** | Consume el contenido del curso de su(s) hijo(s) y **entrega tareas en su nombre**; puede gestionar varios perfiles familiares (varios hijos) bajo una sola cuenta. |
+
+Existe un quinto rol, `estudiante`, contemplado en el modelo de permisos (`lib/core/security/role.dart`) pero sin flujo de login propio activo — hoy el estudiante es representado por su padre/tutor.
+
+Dominios funcionales (un folder por feature en `lib/features/`): autenticación, cursos, tareas, entregas, foros, calendario, eventos, notificaciones, buzón de contacto, perfiles familiares, usuarios, docentes, instituciones, perfil propio, dashboard.
+
 ## Stack
 
 - **Flutter** (Dart) — `sdk: ^3.12.2`, Material 3 fuertemente personalizado (no M3 "de fábrica").
@@ -11,6 +46,12 @@ Migración/reimplementación en Flutter de la plataforma web EDUMON. La especifi
 - **go_router** para navegación declarativa con guards de auth/rol.
 - **Dio** + `cookie_jar`/`dio_cookie_manager` — la sesión vive en cookies httpOnly (igual que la web), no en un JWT manejado a mano.
 - **flutter_svg** — íconos/formas de marca vienen como SVG de la galería (`assets/img/`), no como PNG/emoji.
+
+## Requisitos
+
+- Flutter SDK **3.44.x** (canal stable) / Dart **3.12.2** — verificar con `flutter --version`.
+- Un dispositivo/emulador Android, o Chrome para correr en Web (`flutter run -d chrome`).
+- Backend real en `https://backend-edumon.onrender.com` (no hay backend local en este repo; no se necesita levantar nada aparte de la app).
 
 ## Getting started
 
@@ -100,15 +141,46 @@ Infraestructura completa (`AppTheme.dark()`, detección automática + selector m
 
 ```
 lib/
-  core/            # theme, design_system, router, network, security, config
-  features/        # un folder por feature (data/domain/presentation), Riverpod + Clean Architecture liviana
+  core/
+    theme/          # tokens de color/tipografía, AppTheme claro/oscuro
+    design_system/  # EdumonButton, EdumonTextField, EdumonCard, decor/ (logo, shapes)
+    router/          # go_router (app_router.dart) + shell de navegación por rol
+    network/          # Dio, interceptor de auth, cookie jar, manejo de errores de red
+    security/          # UserRole (enum canónico de rol, mapeo API <-> app)
+    notifications/      # notificaciones in-app / push
+    config/               # configuración de la app
+    utils/                    # utilidades compartidas
+  features/          # un folder por feature (data/domain/presentation), Riverpod + Clean Architecture liviana
+    auth/ cursos/ tareas/ entregas/ foros/ calendario/ eventos/
+    notificaciones/ buzon/ perfiles/ usuarios/ docentes/ instituciones/
+    perfil/ dashboard/ home/
   main.dart / app.dart
-test/              # flutter test
+test/                # flutter test (login, wizard de primer ingreso, home web, widget test base)
 docs/flutter-migration/BLUEPRINT.md   # spec técnica completa pantalla por pantalla
 ```
 
-## Notas del flujo de autenticación
+Cada feature en `lib/features/<dominio>/` sigue el mismo patrón interno: `data/` (repositorios, servicios HTTP), `domain/` (modelos, casos de uso) y `presentation/` (pantallas, providers de Riverpod).
+
+## Autenticación y roles
 
 - Login por **teléfono + contraseña** (no hay registro público de usuarios — las cuentas las crea un admin/superadmin).
 - Primer ingreso pasa por un wizard (`first_login_wizard_screen.dart`) para elegir foto, confirmar datos y cambiar la contraseña temporal.
 - Sesión en cookies httpOnly; en la app nativa se persisten en disco (`path_provider` + `cookie_jar`). En Web no hay filesystem, así que se usa un `CookieJar` en memoria — pero ahí es casi vestigial: la cookie real la maneja el propio navegador vía `withCredentials` (ver `lib/core/network/api_client.dart`), independiente de ese CookieJar, así que la sesión sí sobrevive a un refresh de página en Web mientras la cookie del backend siga vigente.
+- El rol se resuelve a un único enum canónico (`UserRole` en `lib/core/security/role.dart`), con mapeo explícito y exhaustivo desde el string que devuelve el backend (sin heurísticas de substring) — cualquier valor de rol no reconocido lanza una excepción en vez de fallar en silencio, para detectar cambios de contrato con el backend temprano.
+
+## Tests
+
+```bash
+flutter test
+```
+
+Suite actual en `test/`: flujo de login, wizard de primer ingreso, home web y un widget test base. Al agregar una pantalla o flujo nuevo, sumar su test correspondiente en `test/` siguiendo el mismo patrón (nombre descriptivo del flujo, no del archivo fuente).
+
+## Contribuir
+
+1. Crear una rama a partir de `main` con nombre descriptivo (`feature/...`, `fix/...`).
+2. Antes de tocar una pantalla, revisar si el flujo ya está documentado en [`docs/flutter-migration/BLUEPRINT.md`](docs/flutter-migration/BLUEPRINT.md) — es la fuente de verdad de reglas de negocio y contratos de API.
+3. Usar los tokens de `lib/core/theme/` y los componentes de `lib/core/design_system/` en vez de colores/estilos hardcodeados por pantalla.
+4. Si se agrega una pantalla nueva, aplicar modo oscuro desde el principio (ver [Estado del modo oscuro](#estado-del-modo-oscuro)) y sumar su test en `test/`.
+5. Correr `flutter test` y `flutter analyze` antes de abrir el PR.
+6. Abrir el Pull Request contra `main` describiendo qué cambia y por qué (no solo el qué — el diff ya lo dice).
