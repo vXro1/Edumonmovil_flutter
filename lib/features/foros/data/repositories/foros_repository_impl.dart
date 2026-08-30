@@ -1,4 +1,5 @@
 import '../../domain/entities/foro.dart';
+import '../../domain/entities/foro_dashboard.dart';
 import '../../domain/repositories/foros_repository.dart';
 import '../datasources/foros_remote_datasource.dart';
 
@@ -20,9 +21,15 @@ class ForosRepositoryImpl implements ForosRepository {
   }
 
   @override
+  Future<ForoDashboard> fetchDashboard(String foroId) async {
+    final result = await _remote.fetchDashboard(foroId);
+    return result.toEntity();
+  }
+
+  @override
   Future<Foro> createForo({
     required String titulo,
-    String? descripcion,
+    required String descripcion,
     required String cursoId,
     bool publico = false,
     List<ArchivoUpload>? archivos,
@@ -34,6 +41,12 @@ class ForosRepositoryImpl implements ForosRepository {
       publico: publico,
       archivos: archivos,
     );
+    return result.toEntity();
+  }
+
+  @override
+  Future<Foro> updateForo({required String id, String? titulo, String? descripcion, bool? publico}) async {
+    final result = await _remote.updateForo(id: id, titulo: titulo, descripcion: descripcion, publico: publico);
     return result.toEntity();
   }
 

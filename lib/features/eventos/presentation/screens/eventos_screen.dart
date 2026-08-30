@@ -9,6 +9,7 @@ import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/security/role.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/theme/theme_extensions.dart';
 import '../../../auth/presentation/providers/auth_controller.dart';
 import '../../domain/entities/evento.dart';
 import '../providers/eventos_providers.dart';
@@ -76,6 +77,34 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo eliminar.')));
+    }
+  }
+
+  // cancelarEvento real: soft-cancel (estado:'cancelado'), distinto de
+  // deleteEvento (elimina el documento) — se ofrecen ambas acciones porque
+  // resuelven casos distintos: cancelar deja registro de que el evento
+  // existió pero no va a pasar; eliminar lo saca por completo.
+  Future<void> _cancelar(Evento evento) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Cancelar evento'),
+        content: Text('¿Cancelar "${evento.titulo}"? Queda marcado como cancelado, sin eliminarlo.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Volver')),
+          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Cancelar evento')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ref.read(eventosRepositoryProvider).cancelarEvento(evento.id);
+      _load();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo cancelar.')));
     }
   }
 
@@ -163,25 +192,59 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 2),
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: AppColors.accentLight,
-                          borderRadius: BorderRadius.circular(AppRadius.full),
-                        ),
-                        child: Text(
-                          evento.categoria.label,
-                          style: const TextStyle(color: AppColors.accentHover, fontSize: 10, fontWeight: FontWeight.w700),
-                        ),
+                      Wrap(
+                        spacing: 4,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                            decoration: BoxDecoration(
+                              color: AppColors.accentLight,
+                              borderRadius: BorderRadius.circular(AppRadius.full),
+                            ),
+                            child: Text(
+                              evento.categoria.label,
+                              style: const TextStyle(color: AppColors.accentHover, fontSize: 10, fontWeight: FontWeight.w700),
+                            ),
+                          ),
+                          if (evento.cancelado)
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                              decoration: BoxDecoration(
+                                color: AppColors.errorSurface(context.isDarkMode),
+                                borderRadius: BorderRadius.circular(AppRadius.full),
+                              ),
+                              child: const Text(
+                                'Cancelado',
+                                style: TextStyle(color: AppColors.error, fontSize: 10, fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
                 ),
                 if (canManage)
-                  IconButton(
-                    icon: const Icon(LucideIcons.trash2, size: 18, color: AppColors.error),
-                    tooltip: 'Eliminar evento',
-                    onPressed: () => _delete(evento),
+                  PopupMenuButton<_EventoAccion>(
+                    icon: Icon(LucideIcons.moreVertical, size: 18, color: AppColors.subtleText(context)),
+                    onSelected: (accion) {
+                      switch (accion) {
+                        case _EventoAccion.cancelar:
+                          _cancelar(evento);
+                        case _EventoAccion.eliminar:
+                          _delete(evento);
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      if (!evento.cancelado && !evento.finalizado)
+                        const PopupMenuItem(
+                          value: _EventoAccion.cancelar,
+                          child: Text('Cancelar evento'),
+                        ),
+                      const PopupMenuItem(
+                        value: _EventoAccion.eliminar,
+                        child: Text('Eliminar evento'),
+                      ),
+                    ],
                   ),
               ],
             ),
@@ -198,3 +261,5 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
     return '${fecha.day} ${meses[fecha.month - 1]} ${fecha.year}';
   }
 }
+
+enum _EventoAccion { cancelar, eliminar }

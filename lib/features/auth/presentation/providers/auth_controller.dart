@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/notifications/notification_permission_service.dart';
+import '../../domain/entities/perfil_activo.dart';
 import '../../domain/entities/user.dart';
 import 'auth_providers.dart';
 
@@ -15,12 +16,19 @@ class AuthState {
     this.user,
     this.errorMessage,
     this.primerInicioSesion = false,
+    this.perfilActivo,
   });
 
   final AuthStatus status;
   final User? user;
   final String? errorMessage;
   final bool primerInicioSesion;
+
+  /// Perfil familiar activo en esta sesión — ver PerfilActivo. Null hasta el
+  /// primer fetchProfile() (ej. justo después de login, que no lo trae en su
+  /// respuesta); en ese hueco se asume el titular, que es siempre el estado
+  /// inicial real de cualquier sesión nueva.
+  final PerfilActivo? perfilActivo;
 
   bool get isAuthenticated => status == AuthStatus.authenticated && user != null;
 
@@ -29,6 +37,7 @@ class AuthState {
     User? user,
     String? errorMessage,
     bool? primerInicioSesion,
+    PerfilActivo? perfilActivo,
     bool clearError = false,
   }) {
     return AuthState(
@@ -36,6 +45,7 @@ class AuthState {
       user: user ?? this.user,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       primerInicioSesion: primerInicioSesion ?? this.primerInicioSesion,
+      perfilActivo: perfilActivo ?? this.perfilActivo,
     );
   }
 }
@@ -65,7 +75,7 @@ class AuthController extends Notifier<AuthState> {
   // esto falla es porque de verdad no hay sesión válida (o nunca hubo login).
   Future<void> _restoreSession() async {
     try {
-      final user = await ref.read(authRepositoryProvider).fetchProfile();
+      final result = await ref.read(authRepositoryProvider).fetchProfile();
       // BUG CONFIRMADO: antes acá no se pasaba primerInicioSesion, así que
       // copyWith() caía siempre al default de AuthState (false) — un usuario
       // que cerraba la app a mitad del wizard de primer login (antes de
@@ -75,8 +85,9 @@ class AuthController extends Notifier<AuthState> {
       // real sí devuelve ese campo — ahora se usa.
       state = state.copyWith(
         status: AuthStatus.authenticated,
-        user: user,
-        primerInicioSesion: user.primerInicioSesion,
+        user: result.user,
+        primerInicioSesion: result.user.primerInicioSesion,
+        perfilActivo: result.perfilActivo,
       );
       // Fire-and-forget — no bloquea la restauración de sesión si el
       // permiso tarda o el usuario todavía no respondió el diálogo.
@@ -119,8 +130,8 @@ class AuthController extends Notifier<AuthState> {
   /// activo (perfilesSeleccionar) para reflejar lo que devuelva el backend.
   Future<void> refreshUser() async {
     try {
-      final user = await ref.read(authRepositoryProvider).fetchProfile();
-      state = state.copyWith(user: user);
+      final result = await ref.read(authRepositoryProvider).fetchProfile();
+      state = state.copyWith(user: result.user, perfilActivo: result.perfilActivo);
     } catch (_) {
       // Si falla, se mantiene el usuario que ya había en memoria.
     }
@@ -128,6 +139,13 @@ class AuthController extends Notifier<AuthState> {
 
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
+    state = const AuthState(status: AuthStatus.unauthenticated);
+  }
+
+  /// Cierra todas las sesiones/dispositivos (POST /auth/logout-all) — incluye
+  /// la actual, así que también termina en logout local.
+  Future<void> logoutAll() async {
+    await ref.read(authRepositoryProvider).logoutAll();
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
 

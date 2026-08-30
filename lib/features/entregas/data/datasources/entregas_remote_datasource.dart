@@ -121,4 +121,19 @@ class EntregasRemoteDataSource {
       throw AppException.fromDioException(e);
     }
   }
+
+  /// eliminarArchivoEntrega real (entregaRoutes.js: DELETE
+  /// /entregas/:id/archivos/:archivoId) — quita UN archivo de una entrega en
+  /// borrador sin borrar la entrega entera. [archivoId] es el `_id` del
+  /// subdocumento (Archivo.id ya resuelve a eso), no el publicId de
+  /// Cloudinary — a diferencia de `archivosAEliminar` en tareas.
+  Future<EntregaModel> eliminarArchivoEntrega({required String id, required String archivoId}) async {
+    try {
+      final response = await _dio.delete('/entregas/$id/archivos/$archivoId');
+      final data = response.data as Map<String, dynamic>;
+      return EntregaModel.fromJson(data['entrega'] as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw AppException.fromDioException(e);
+    }
+  }
 }

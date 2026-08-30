@@ -28,13 +28,13 @@ class EventosRepositoryImpl implements EventosRepository {
   @override
   Future<Evento> createEvento({
     required String titulo,
-    String? descripcion,
+    required String descripcion,
     required DateTime fechaInicio,
-    DateTime? fechaFin,
-    String? hora,
-    String? ubicacion,
+    required DateTime fechaFin,
+    required String hora,
+    required String ubicacion,
     required EventoCategoria categoria,
-    List<String> cursosIds = const [],
+    required List<String> cursosIds,
     ArchivoUpload? adjunto,
   }) async {
     final result = await _remote.createEvento(
@@ -81,4 +81,10 @@ class EventosRepositoryImpl implements EventosRepository {
 
   @override
   Future<void> deleteEvento(String id) => _remote.deleteEvento(id);
+
+  @override
+  Future<Evento> cancelarEvento(String id) async {
+    final result = await _remote.cancelarEvento(id);
+    return result.toEntity();
+  }
 }

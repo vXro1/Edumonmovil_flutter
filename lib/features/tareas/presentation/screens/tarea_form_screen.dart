@@ -115,10 +115,19 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
   }
 
   Future<void> _pickFechaEntrega() async {
+    // createTareaValidator real: fechaEntrega es obligatoria y debe ser
+    // futura (`new Date(value) < new Date()` rechaza con 400) — permitir
+    // elegir hasta un año atrás garantizaba ese 400 al crear.
+    // updateTareaValidator no tiene esa restricción, así que al editar se
+    // mantiene el rango amplio.
+    final primerDiaPermitido = _isEditing
+        ? DateTime.now().subtract(const Duration(days: 365))
+        : DateTime.now();
+    final inicial = _fechaEntrega ?? DateTime.now().add(const Duration(days: 7));
     final date = await showDatePicker(
       context: context,
-      initialDate: _fechaEntrega ?? DateTime.now().add(const Duration(days: 7)),
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      initialDate: inicial.isBefore(primerDiaPermitido) ? primerDiaPermitido : inicial,
+      firstDate: primerDiaPermitido,
       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
     );
     if (date == null || !mounted) return;
@@ -181,6 +190,13 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
     }
     if (_asignacionTipo == AsignacionTipo.seleccionados && _seleccionados.isEmpty) {
       EdumonDialog.show(context, message: 'Seleccioná al menos un participante.');
+      return;
+    }
+    // createTareaValidator real: fechaEntrega es obligatoria (`notEmpty()`)
+    // — sin este chequeo, crear un reto sin elegir fecha se mandaba con
+    // "fechaEntrega" ausente del FormData y el backend siempre respondía 400.
+    if (!_isEditing && _fechaEntrega == null) {
+      EdumonDialog.show(context, message: 'Seleccioná la fecha de entrega.');
       return;
     }
 

@@ -109,6 +109,18 @@ class CursosRemoteDataSource {
     }
   }
 
+  /// restaurarCurso real (cursoRoutes.js: PATCH /cursos/:id/restaurar): 400
+  /// si ya está activo; permiso de docente dueño, admin de la institución o
+  /// superadmin (más amplio que archivarCurso, que no deja archivar a un
+  /// admin de otra institución — acá si el curso es de la suya sí puede).
+  Future<void> restoreCurso(String id) async {
+    try {
+      await _dio.patch('/cursos/$id/restaurar');
+    } on DioException catch (e) {
+      throw AppException.fromDioException(e);
+    }
+  }
+
   Future<List<ParticipanteModel>> fetchParticipantes(String cursoId, {int limit = 100}) async {
     try {
       final response = await _dio.get('/cursos/$cursoId/participantes', queryParameters: {'limit': limit});

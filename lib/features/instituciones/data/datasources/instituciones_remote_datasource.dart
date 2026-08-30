@@ -77,4 +77,20 @@ class InstitucionesRemoteDataSource {
       throw AppException.fromDioException(e);
     }
   }
+
+  /// cambiarEstadoInstitucion real (institucionRoutes.js: PATCH
+  /// /instituciones/:id/estado). (⚠️) getInstituciones real solo lista
+  /// `activo:true` y no hay ningún endpoint para ver/filtrar inactivas — una
+  /// vez desactivada, esta llamada es la única forma de reactivarla (hay que
+  /// saber su id de antemano). No conectado a ningún botón de UI todavía.
+  Future<InstitucionModel> cambiarEstadoInstitucion({required String id, required bool activo}) async {
+    try {
+      final response = await _dio.patch('/instituciones/$id/estado', data: {'activo': activo});
+      final data = response.data;
+      final json = data is Map ? (data['institucion'] ?? data) as Map<String, dynamic> : <String, dynamic>{};
+      return InstitucionModel.fromJson(json);
+    } on DioException catch (e) {
+      throw AppException.fromDioException(e);
+    }
+  }
 }

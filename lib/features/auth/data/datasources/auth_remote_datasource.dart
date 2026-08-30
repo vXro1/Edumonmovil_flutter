@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/network_exceptions.dart';
+import '../models/perfil_activo_model.dart';
 import '../models/user_model.dart';
 
 class LoginResponse {
@@ -35,11 +36,22 @@ class AuthRemoteDataSource {
     }
   }
 
-  Future<UserModel> fetchProfile() async {
+  /// getProfile real devuelve `user` y, junto a él, `perfilActivo` — el
+  /// perfil familiar (titular o secundario) que está activo en esta sesión
+  /// (ver seleccionarPerfil en perfilFamiliarController.js). Antes acá se
+  /// descartaba `perfilActivo` por completo, así que no había forma de saber
+  /// qué perfil estaba seleccionado sin volver a listar /perfiles.
+  Future<({UserModel user, PerfilActivoModel? perfilActivo})> fetchProfile() async {
     try {
       final response = await _dio.get('/auth/profile');
       final data = response.data as Map<String, dynamic>;
-      return UserModel.fromJson(data['user'] as Map<String, dynamic>);
+      final perfilActivoRaw = data['perfilActivo'];
+      return (
+        user: UserModel.fromJson(data['user'] as Map<String, dynamic>),
+        perfilActivo: perfilActivoRaw is Map
+            ? PerfilActivoModel.fromJson(perfilActivoRaw as Map<String, dynamic>)
+            : null,
+      );
     } on DioException catch (e) {
       throw AppException.fromDioException(e);
     }
@@ -50,6 +62,17 @@ class AuthRemoteDataSource {
       await _dio.post('/auth/logout');
     } on DioException {
       // Best-effort — BLUEPRINT.md FASE 10.1 (logout es best-effort en el backend).
+    }
+  }
+
+  /// logoutAll real (authRoutes.js: POST /auth/logout-all) revoca TODOS los
+  /// refresh tokens del usuario (todas las sesiones/dispositivos), no solo
+  /// la actual, y limpia las cookies de esta sesión también.
+  Future<void> logoutAll() async {
+    try {
+      await _dio.post('/auth/logout-all');
+    } on DioException {
+      // Best-effort, mismo criterio que logout().
     }
   }
 

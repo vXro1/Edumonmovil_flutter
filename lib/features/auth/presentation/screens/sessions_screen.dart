@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/design_system/cards/edumon_card.dart';
+import '../../../../core/design_system/dialogs/edumon_dialog.dart';
 import '../../../../core/design_system/loading/loading_screen.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -74,10 +75,38 @@ class _SessionsScreenState extends ConsumerState<SessionsScreen> {
     }
   }
 
+  bool _loggingOutAll = false;
+
+  Future<void> _logoutAllSessions() async {
+    final confirmed = await EdumonDialog.confirm(
+      context,
+      title: 'Cerrar todas las sesiones',
+      message: 'Vas a cerrar tu sesión en todos los dispositivos, incluido este. Vas a tener que iniciar sesión de nuevo.',
+      confirmLabel: 'Cerrar todas',
+      destructive: true,
+    );
+    if (!confirmed || !mounted) return;
+    setState(() => _loggingOutAll = true);
+    await ref.read(authControllerProvider.notifier).logoutAll();
+    // El router redirige solo a /login apenas AuthState pasa a
+    // unauthenticated — no hace falta navegar acá.
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Actividad de la cuenta')),
+      appBar: AppBar(
+        title: const Text('Actividad de la cuenta'),
+        actions: [
+          IconButton(
+            icon: _loggingOutAll
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Icon(LucideIcons.logOut),
+            tooltip: 'Cerrar todas las sesiones',
+            onPressed: _loggingOutAll ? null : _logoutAllSessions,
+          ),
+        ],
+      ),
       body: _buildBody(),
     );
   }

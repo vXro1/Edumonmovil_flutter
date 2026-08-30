@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/network_exceptions.dart';
+import '../../domain/entities/notificacion.dart';
 import '../models/notificacion_model.dart';
 
 /// Data source remoto — BLUEPRINT.md FASE 10.8.
@@ -8,6 +9,25 @@ class NotificacionRemoteDataSource {
   const NotificacionRemoteDataSource(this._dio);
 
   final Dio _dio;
+
+  /// createNotificacion real (POST /notificaciones, admin/superadmin) —
+  /// (⚠️) no vimos notificacionValidator.js/Notificacion.js reales, los
+  /// nombres de campo se infieren del shape que ya devuelve getMisNotificaciones.
+  Future<void> createNotificacion({
+    required String usuarioId,
+    required String titulo,
+    required String mensaje,
+    NotificacionTipo tipo = NotificacionTipo.sistema,
+  }) async {
+    try {
+      await _dio.post(
+        '/notificaciones',
+        data: {'usuarioId': usuarioId, 'titulo': titulo, 'mensaje': mensaje, 'tipo': tipo.name},
+      );
+    } on DioException catch (e) {
+      throw AppException.fromDioException(e);
+    }
+  }
 
   Future<({List<NotificacionModel> items, bool hasMore})> fetchNotificaciones({
     required int page,
@@ -73,6 +93,20 @@ class NotificacionRemoteDataSource {
   Future<void> delete(String id) async {
     try {
       await _dio.delete('/notificaciones/$id');
+    } on DioException catch (e) {
+      throw AppException.fromDioException(e);
+    }
+  }
+
+  /// eliminarLeidasAntiguas real (DELETE /notificaciones/limpiar/antiguas)
+  /// — borra las notificaciones ya leídas con más de [dias] días. Devuelve
+  /// cuántas borró.
+  Future<int> deleteLeidasAntiguas({int dias = 30}) async {
+    try {
+      final response = await _dio.delete('/notificaciones/limpiar/antiguas', queryParameters: {'dias': dias});
+      final data = response.data;
+      final eliminadas = data is Map ? data['eliminadas'] : null;
+      return eliminadas is num ? eliminadas.toInt() : 0;
     } on DioException catch (e) {
       throw AppException.fromDioException(e);
     }

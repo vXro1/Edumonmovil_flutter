@@ -115,6 +115,24 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
     }
   }
 
+  // eliminarLeidasAntiguas real: borra las notificaciones YA LEÍDAS con más
+  // de 30 días — nunca toca las no leídas, sin importar su antigüedad.
+  Future<void> _limpiarAntiguas() async {
+    try {
+      final eliminadas = await ref.read(notificacionRepositoryProvider).deleteLeidasAntiguas();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(eliminadas > 0 ? 'Se eliminaron $eliminadas notificaciones antiguas.' : 'No había notificaciones antiguas para eliminar.')),
+      );
+      _loadPage(1);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo completar la acción.')));
+    }
+  }
+
   Future<void> _delete(Notificacion n) async {
     setState(() => _items.remove(n));
     try {
@@ -152,6 +170,13 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
         title: const Text('Notificaciones'),
         actions: [
           TextButton(onPressed: _markAllAsRead, child: const Text('Marcar todas')),
+          PopupMenuButton<VoidCallback>(
+            icon: const Icon(LucideIcons.moreVertical),
+            onSelected: (accion) => accion(),
+            itemBuilder: (context) => [
+              PopupMenuItem(value: _limpiarAntiguas, child: const Text('Limpiar leídas antiguas')),
+            ],
+          ),
         ],
       ),
       body: Column(

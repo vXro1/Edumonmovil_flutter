@@ -225,28 +225,48 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
   Widget build(BuildContext context) {
     final rol = ref.watch(authControllerProvider).user?.rol;
     final currentUserId = ref.watch(authControllerProvider).user?.id;
-    // Crear/cerrar/reabrir el foro: contenido pedagógico, solo Docente (y
-    // superAdmin) — Administrador solo visualiza.
-    final canManageForum = rol == UserRole.docente || rol == UserRole.superAdmin;
-    // Moderar mensajes ajenos (eliminarlos) sí sigue permitido para
-    // Administrador de la institución, igual que en el backend
-    // (foroController.eliminarMensaje) — es moderación, no gestión del foro.
-    final canModerateMessages = rol == UserRole.docente || rol == UserRole.administrador || rol == UserRole.superAdmin;
+    // Crear foro nuevo: contenido pedagógico, solo Docente (y superAdmin) —
+    // Administrador solo visualiza. No depende del foro que se esté viendo
+    // ahora — cualquier docente puede crear foros en cursos que enseña.
+    final canCreateForo = rol == UserRole.docente || rol == UserRole.superAdmin;
+    // Cerrar/reabrir ESTE foro puntual: cambiarEstadoForo real exige además
+    // ser el docente CREADOR de ese foro (no cualquier docente) — sin este
+    // chequeo, un docente que enseña el curso pero no creó este foro en
+    // particular (ej. lo creó un administrador en su curso) veía el botón y
+    // el backend le devolvía 403 al usarlo.
+    final canManageThisForo =
+        (rol == UserRole.docente && _foro?.docenteId == currentUserId) || rol == UserRole.superAdmin;
     final breakpoint = Breakpoint.of(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(_foro?.titulo ?? 'Foro'),
         actions: [
-          if (canManageForum && _foro != null)
+          // getDashboardForo real: accesible a cualquiera con acceso al
+          // foro, no solo a quien lo gestiona.
+          IconButton(
+            icon: const Icon(LucideIcons.barChart2),
+            tooltip: 'Ver estadísticas',
+            onPressed: () => context.push('/curso/${widget.cursoId}/foro/${widget.foroId}/dashboard'),
+          ),
+          if (canManageThisForo && _foro != null) ...[
+            IconButton(
+              icon: const Icon(LucideIcons.pencil),
+              tooltip: 'Editar foro',
+              onPressed: () async {
+                final saved = await showCreateForoSheet(context, ref, widget.cursoId, existing: _foro);
+                if (saved == true) _loadAll();
+              },
+            ),
             IconButton(
               icon: Icon(_foro!.cerrado ? LucideIcons.lockOpen : LucideIcons.lock),
               tooltip: _foro!.cerrado ? 'Reabrir foro' : 'Cerrar foro',
               onPressed: _toggleEstadoForo,
             ),
+          ],
         ],
       ),
-      drawer: breakpoint.isCompact ? Drawer(child: SafeArea(child: _sidebar(canManageForum))) : null,
+      drawer: breakpoint.isCompact ? Drawer(child: SafeArea(child: _sidebar(canCreateForo))) : null,
       body: _loading
           ? const LoadingScreenWidget()
           : _error != null
@@ -266,10 +286,10 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
               : Row(
                   children: [
                     if (!breakpoint.isCompact) ...[
-                      SizedBox(width: 240, child: _sidebar(canManageForum)),
+                      SizedBox(width: 240, child: _sidebar(canCreateForo)),
                       const VerticalDivider(width: 1),
                     ],
-                    Expanded(child: _centerColumn(canModerateMessages, currentUserId)),
+                    Expanded(child: _centerColumn(rol, currentUserId)),
                     if (breakpoint.isExpanded) ...[
                       const VerticalDivider(width: 1),
                       SizedBox(width: 240, child: _activityPanel()),
@@ -328,10 +348,10 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
     );
   }
 
-  Widget _centerColumn(bool canModerateMessages, String? currentUserId) {
+  Widget _centerColumn(UserRole? rol, String? currentUserId) {
     return Column(
       children: [
-        Expanded(child: _messagesList(canModerateMessages, currentUserId)),
+        Expanded(child: _messagesList(rol, currentUserId)),
         if (_foro?.cerrado == true)
           Container(
             width: double.infinity,
@@ -349,7 +369,7 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
     );
   }
 
-  Widget _messagesList(bool canModerateMessages, String? currentUserId) {
+  Widget _messagesList(UserRole? rol, String? currentUserId) {
     if (_mensajes.isEmpty) {
       return Center(
         child: Text('Todavía no hay mensajes. Sé el primero en escribir.', style: TextStyle(color: AppColors.mutedText(context))),
@@ -366,11 +386,11 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _mensajeCard(m, canModerateMessages, currentUserId),
+              _mensajeCard(m, rol, currentUserId),
               for (final r in replies)
                 Padding(
                   padding: const EdgeInsets.only(left: 28, top: 4),
-                  child: _mensajeCard(r, canModerateMessages, currentUserId),
+                  child: _mensajeCard(r, rol, currentUserId),
                 ),
               const SizedBox(height: AppSpacing.sm),
             ],
@@ -380,13 +400,27 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
     );
   }
 
-  Widget _mensajeCard(MensajeForo m, bool canModerateMessages, String? currentUserId) {
+  Widget _mensajeCard(MensajeForo m, UserRole? rol, String? currentUserId) {
     final isOwn = currentUserId != null && currentUserId == m.autorId;
+    // eliminarMensaje real: administrador modera cualquier mensaje de su
+    // institución; docente SOLO puede moderar mensajes de padres (nunca de
+    // otros docentes ni administradores) — antes cualquier docente veía el
+    // botón de eliminar en TODOS los mensajes, incluidos los de un
+    // administrador en el mismo foro, y el backend le devolvía 403 al usarlo.
+    final puedeModerar =
+        rol == UserRole.administrador || rol == UserRole.superAdmin || (rol == UserRole.docente && m.autor?.rol == UserRole.padreTutor);
+    // crearMensaje real: (1) solo se puede responder a un mensaje RAÍZ, nunca
+    // a otra respuesta ("Solo puedes responder directamente al foro"); (2) un
+    // padre solo puede responder a mensajes de docente/administrador, nunca a
+    // los de otro padre. Antes "Responder" aparecía siempre que el foro
+    // estuviera abierto, sin ninguna de las dos restricciones.
+    final autorEsStaff = m.autor?.rol == UserRole.docente || m.autor?.rol == UserRole.administrador || m.autor?.rol == UserRole.superAdmin;
+    final puedeResponder = m.respuestaA == null && (rol != UserRole.padreTutor || autorEsStaff);
     return _MensajeCard(
       mensaje: m,
-      canDelete: isOwn || canModerateMessages,
+      canDelete: isOwn || puedeModerar,
       canEdit: isOwn,
-      canReply: _foro?.cerrado != true,
+      canReply: _foro?.cerrado != true && puedeResponder,
       onLike: () => _toggleLike(m),
       onDelete: () => _deleteMensaje(m),
       onReply: () => setState(() => _replyingTo = m),

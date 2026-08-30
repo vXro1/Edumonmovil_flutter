@@ -114,10 +114,17 @@ class _EventoFormScreenState extends ConsumerState<EventoFormScreen> {
 
   Future<void> _pickFecha({required bool esInicio}) async {
     final inicial = (esInicio ? _fechaInicio : _fechaFin) ?? _fechaInicio ?? DateTime.now();
+    // Evento.js real: fechaInicio debe ser futura AL CREAR (custom validator
+    // en createEventoValidator) — permitir elegir hasta un año atrás siempre
+    // garantizaba un 400 al guardar. updateEventoValidator no tiene esa
+    // restricción, así que al editar se mantiene el rango amplio.
+    final primerDiaPermitido = esInicio && !_isEditing
+        ? DateTime.now()
+        : DateTime.now().subtract(const Duration(days: 365));
     final fecha = await showDatePicker(
       context: context,
-      initialDate: inicial,
-      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+      initialDate: inicial.isBefore(primerDiaPermitido) ? primerDiaPermitido : inicial,
+      firstDate: primerDiaPermitido,
       lastDate: DateTime.now().add(const Duration(days: 365 * 2)),
     );
     if (fecha == null || !mounted) return;
@@ -140,18 +147,30 @@ class _EventoFormScreenState extends ConsumerState<EventoFormScreen> {
     setState(() => _adjuntoNuevo = file);
   }
 
+  // eventoValidator.js real: descripcion (mín. 10), ubicacion (mín. 3),
+  // fechaFin y cursosIds (array no vacío) son obligatorios — antes se
+  // mandaban vacíos/nulos sin avisar al usuario y el backend siempre
+  // rechazaba con 400.
   Future<void> _submit() async {
     final titulo = _tituloController.text.trim();
+    final descripcion = _descripcionController.text.trim();
+    final ubicacion = _ubicacionController.text.trim();
     final errors = <String, String>{};
     if (titulo.isEmpty) errors['titulo'] = 'Ingresá un título.';
+    if (descripcion.length < 10) errors['descripcion'] = 'La descripción debe tener al menos 10 caracteres.';
+    if (ubicacion.length < 3) errors['ubicacion'] = 'La ubicación debe tener al menos 3 caracteres.';
     if (_fechaInicio == null) errors['fechaInicio'] = 'Seleccioná la fecha de inicio.';
+    if (_fechaFin == null) {
+      errors['fechaFin'] = 'Seleccioná la fecha de fin.';
+    } else if (_fechaInicio != null && !_fechaFin!.isAfter(_fechaInicio!)) {
+      errors['fechaFin'] = 'Debe ser posterior a la fecha de inicio.';
+    }
+    if (_cursosSeleccionados.isEmpty) errors['cursos'] = 'Seleccioná al menos un curso.';
 
     setState(() => _fieldErrors = errors);
     if (errors.isNotEmpty) return;
 
-    final hora = _fechaInicio != null
-        ? '${_fechaInicio!.hour.toString().padLeft(2, '0')}:${_fechaInicio!.minute.toString().padLeft(2, '0')}'
-        : null;
+    final hora = '${_fechaInicio!.hour.toString().padLeft(2, '0')}:${_fechaInicio!.minute.toString().padLeft(2, '0')}';
 
     setState(() => _saving = true);
     try {
@@ -164,11 +183,11 @@ class _EventoFormScreenState extends ConsumerState<EventoFormScreen> {
         await repo.updateEvento(
           id: widget.eventoId!,
           titulo: titulo,
-          descripcion: _descripcionController.text.trim(),
+          descripcion: descripcion,
           fechaInicio: _fechaInicio,
           fechaFin: _fechaFin,
           hora: hora,
-          ubicacion: _ubicacionController.text.trim(),
+          ubicacion: ubicacion,
           categoria: _categoria,
           cursosIds: _cursosSeleccionados.toList(),
           adjunto: adjunto,
@@ -176,11 +195,11 @@ class _EventoFormScreenState extends ConsumerState<EventoFormScreen> {
       } else {
         await repo.createEvento(
           titulo: titulo,
-          descripcion: _descripcionController.text.trim(),
+          descripcion: descripcion,
           fechaInicio: _fechaInicio!,
-          fechaFin: _fechaFin,
+          fechaFin: _fechaFin!,
           hora: hora,
-          ubicacion: _ubicacionController.text.trim(),
+          ubicacion: ubicacion,
           categoria: _categoria,
           cursosIds: _cursosSeleccionados.toList(),
           adjunto: adjunto,
@@ -216,8 +235,18 @@ class _EventoFormScreenState extends ConsumerState<EventoFormScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   EdumonTextField(controller: _tituloController, label: 'Título', errorText: _fieldErrors['titulo']),
-                  EdumonTextField(controller: _descripcionController, label: 'Descripción (opcional)', maxLines: 4, minLines: 3),
-                  EdumonTextField(controller: _ubicacionController, label: 'Ubicación (opcional)'),
+                  EdumonTextField(
+                    controller: _descripcionController,
+                    label: 'Descripción',
+                    maxLines: 4,
+                    minLines: 3,
+                    errorText: _fieldErrors['descripcion'],
+                  ),
+                  EdumonTextField(
+                    controller: _ubicacionController,
+                    label: 'Ubicación',
+                    errorText: _fieldErrors['ubicacion'],
+                  ),
                   const SizedBox(height: AppSpacing.sm),
                   Row(
                     children: [
@@ -232,8 +261,9 @@ class _EventoFormScreenState extends ConsumerState<EventoFormScreen> {
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
                         child: _DateField(
-                          label: 'Fecha fin (opcional)',
+                          label: 'Fecha fin',
                           value: _formatFecha(_fechaFin),
+                          error: _fieldErrors['fechaFin'],
                           onTap: () => _pickFecha(esInicio: false),
                         ),
                       ),
@@ -272,6 +302,11 @@ class _EventoFormScreenState extends ConsumerState<EventoFormScreen> {
                   ),
                   const SizedBox(height: AppSpacing.md),
                   const Text('Cursos asociados', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
+                  if (_fieldErrors['cursos'] != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(_fieldErrors['cursos']!, style: const TextStyle(color: AppColors.error, fontSize: 12)),
+                    ),
                   const SizedBox(height: 6),
                   if (_loadingCursos)
                     const LinearProgressIndicator()

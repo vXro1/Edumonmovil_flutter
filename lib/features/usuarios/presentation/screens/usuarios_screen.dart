@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/design_system/avatars/edumon_avatar.dart';
+import '../../../../core/design_system/buttons/edumon_button.dart';
 import '../../../../core/design_system/cards/edumon_card.dart';
+import '../../../../core/design_system/inputs/edumon_text_field.dart';
 import '../../../../core/design_system/loading/loading_screen.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/security/role.dart';
@@ -13,6 +15,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../auth/domain/entities/user.dart';
 import '../../../auth/presentation/providers/auth_controller.dart';
+import '../../../notificaciones/presentation/providers/notificacion_providers.dart';
 import '../providers/usuarios_providers.dart';
 
 const _pageSize = 15;
@@ -123,6 +126,72 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo completar la acción.')));
+    }
+  }
+
+  // createNotificacion real (POST /notificaciones, admin/superadmin) — envía
+  // una notificación puntual a un usuario, distinta de las que genera el
+  // sistema automáticamente (nueva tarea, calificación, etc.).
+  Future<void> _notificar(User user) async {
+    final tituloController = TextEditingController();
+    final mensajeController = TextEditingController();
+    String? error;
+    bool sending = false;
+
+    final sent = await showDialog<bool>(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('Notificar a ${user.nombreCompleto}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (error != null) ...[
+                  Text(error!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+                EdumonTextField(controller: tituloController, label: 'Título'),
+                EdumonTextField(controller: mensajeController, label: 'Mensaje', maxLines: 4, minLines: 3),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancelar')),
+            EdumonButton(
+              label: 'Enviar',
+              loading: sending,
+              onPressed: sending
+                  ? null
+                  : () async {
+                      final titulo = tituloController.text.trim();
+                      final mensaje = mensajeController.text.trim();
+                      if (titulo.isEmpty || mensaje.isEmpty) {
+                        setDialogState(() => error = 'Completá título y mensaje.');
+                        return;
+                      }
+                      setDialogState(() => sending = true);
+                      try {
+                        await ref
+                            .read(notificacionRepositoryProvider)
+                            .createNotificacion(usuarioId: user.id, titulo: titulo, mensaje: mensaje);
+                        if (context.mounted) Navigator.of(context).pop(true);
+                      } catch (e) {
+                        setDialogState(() {
+                          sending = false;
+                          error = e is AppException ? e.message : 'No se pudo enviar la notificación.';
+                        });
+                      }
+                    },
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (sent == true && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Notificación enviada.')));
     }
   }
 
@@ -315,6 +384,12 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
                     ),
                   ),
                 ),
+                if (user.id != currentUserId)
+                  IconButton(
+                    tooltip: 'Enviar notificación',
+                    icon: const Icon(LucideIcons.bell),
+                    onPressed: () => _notificar(user),
+                  ),
                 // Botón real de suspender/activar — 48x48 mínimo, separado e
                 // independiente del área de "ver/editar" de arriba.
                 IconButton(

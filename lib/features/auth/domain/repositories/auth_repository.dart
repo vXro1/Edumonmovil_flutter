@@ -1,3 +1,4 @@
+import '../entities/perfil_activo.dart';
 import '../entities/user.dart';
 
 class LoginResult {
@@ -14,9 +15,16 @@ enum RecoveryMethod { correo, telefono }
 abstract class AuthRepository {
   Future<LoginResult> login({required String telefono, required String contrasena});
 
-  Future<User> fetchProfile();
+  /// getProfile real trae junto al user el [PerfilActivo] de la sesión — ver
+  /// PerfilActivo para por qué es la única fuente de verdad confiable de
+  /// "qué perfil familiar está seleccionado ahora mismo".
+  Future<({User user, PerfilActivo? perfilActivo})> fetchProfile();
 
   Future<void> logout();
+
+  /// POST /auth/logout-all real: cierra todas las sesiones/dispositivos del
+  /// usuario, no solo la actual.
+  Future<void> logoutAll();
 
   /// [contact] es el correo o el teléfono, según [method].
   Future<void> requestPasswordRecovery({required RecoveryMethod method, required String contact});

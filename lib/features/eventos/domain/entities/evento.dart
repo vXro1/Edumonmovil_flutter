@@ -1,24 +1,20 @@
 import '../../../../shared/models/archivo.dart';
 
-/// BLUEPRINT.md FASE 9.10: escuela_padres|tarea|institucional, con variantes
-/// de institucional (reunion/actividad/otro) que EventosPage expone aparte.
+/// Evento.js real: enum estricto de solo 3 valores — `reunion`/`actividad`/
+/// `otro` NO existen en el backend (BUG CONFIRMADO: el dropdown los ofrecía
+/// igual, así que elegirlos siempre devolvía 400 "La categoría debe ser:
+/// escuela_padres, tarea o institucional").
 enum EventoCategoria {
   escuelaPadres,
-  institucional,
-  reunion,
-  actividad,
-  otro;
+  tarea,
+  institucional;
 
   static EventoCategoria fromApiString(String? raw) {
     switch (raw?.trim().toLowerCase()) {
       case 'escuela_padres':
         return EventoCategoria.escuelaPadres;
-      case 'reunion':
-        return EventoCategoria.reunion;
-      case 'actividad':
-        return EventoCategoria.actividad;
-      case 'otro':
-        return EventoCategoria.otro;
+      case 'tarea':
+        return EventoCategoria.tarea;
       case 'institucional':
         return EventoCategoria.institucional;
       default:
@@ -28,23 +24,18 @@ enum EventoCategoria {
 
   String get apiValue => switch (this) {
     EventoCategoria.escuelaPadres => 'escuela_padres',
+    EventoCategoria.tarea => 'tarea',
     EventoCategoria.institucional => 'institucional',
-    EventoCategoria.reunion => 'reunion',
-    EventoCategoria.actividad => 'actividad',
-    EventoCategoria.otro => 'otro',
   };
 
   String get label => switch (this) {
     EventoCategoria.escuelaPadres => 'Escuela de padres',
+    EventoCategoria.tarea => 'Tarea',
     EventoCategoria.institucional => 'Institucional',
-    EventoCategoria.reunion => 'Reunión',
-    EventoCategoria.actividad => 'Actividad',
-    EventoCategoria.otro => 'Otro',
   };
 }
 
-/// Entidad de dominio — BLUEPRINT.md FASE 9.10.
-/// (⚠️) No vimos eventoController.js real — shapes inferidos del blueprint.
+/// Entidad de dominio — verificada contra eventoController.js/Evento.js reales.
 class Evento {
   const Evento({
     required this.id,
@@ -57,6 +48,7 @@ class Evento {
     this.categoria = EventoCategoria.institucional,
     this.cursosIds = const [],
     this.adjunto,
+    this.estado = 'programado',
   });
 
   final String id;
@@ -69,4 +61,13 @@ class Evento {
   final EventoCategoria categoria;
   final List<String> cursosIds;
   final Archivo? adjunto;
+
+  /// Evento.js real: enum ["programado", "en_curso", "finalizado",
+  /// "cancelado"] — el pre('save') lo recalcula por fecha en cada save(),
+  /// salvo "cancelado" (cancelarEvento usa findByIdAndUpdate a propósito
+  /// para no pisarlo).
+  final String estado;
+
+  bool get cancelado => estado == 'cancelado';
+  bool get finalizado => estado == 'finalizado';
 }

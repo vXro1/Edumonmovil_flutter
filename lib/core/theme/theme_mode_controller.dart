@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../features/auth/presentation/providers/auth_providers.dart';
 
 const _prefsKey = 'edumon_theme_mode';
 
@@ -25,6 +29,15 @@ class ThemeModeController extends Notifier<ThemeMode> {
     state = mode;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefsKey, mode.name);
+
+    // updateModoOscuro real solo modela un booleano — "Sistema" no tiene
+    // equivalente, así que no se sincroniza ese caso. Fire-and-forget: la
+    // preferencia local (arriba) ya es la fuente de verdad de esta app; esto
+    // solo mantiene el valor en BD al día para cuando el backend lo exponga
+    // de vuelta en algún endpoint de perfil.
+    if (mode != ThemeMode.system) {
+      unawaited(ref.read(profileRepositoryProvider).updateModoOscuro(mode == ThemeMode.dark));
+    }
   }
 }
 

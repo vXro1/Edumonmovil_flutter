@@ -13,6 +13,8 @@ import '../../../../core/design_system/loading/loading_screen.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../usuarios/domain/entities/padre_info.dart';
+import '../../../usuarios/presentation/providers/usuarios_providers.dart';
 import '../../domain/entities/participante.dart';
 import '../providers/cursos_providers.dart';
 
@@ -147,6 +149,48 @@ class _ParticipantesTabState extends ConsumerState<ParticipantesTab> {
     );
 
     if (saved == true) _load();
+  }
+
+  // getPadreInfo real: solo acepta usuarios con rol 'padre' (400 en
+  // cualquier otro caso) — acá ya se filtra a esos participantes antes de
+  // ofrecer la acción.
+  Future<void> _verInfoPadre(Participante participante) async {
+    PadreInfo? info;
+    String? error;
+    try {
+      info = await ref.read(usuariosRepositoryProvider).fetchPadreInfo(participante.user.id);
+    } catch (e) {
+      error = e is AppException ? e.message : 'No se pudo cargar la información.';
+    }
+    if (!mounted) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(participante.user.nombreCompleto),
+        content: error != null
+            ? Text(error, style: const TextStyle(color: AppColors.error))
+            : SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _InfoRow(icon: LucideIcons.idCard, label: 'Cédula', value: info!.cedula),
+                    if (info.correo != null) _InfoRow(icon: LucideIcons.mail, label: 'Correo', value: info.correo!),
+                    if (info.telefono != null) _InfoRow(icon: LucideIcons.phone, label: 'Teléfono', value: info.telefono!),
+                    _InfoRow(
+                      icon: LucideIcons.clock,
+                      label: 'Último acceso',
+                      value: info.ultimoAcceso != null
+                          ? '${info.ultimoAcceso!.day}/${info.ultimoAcceso!.month}/${info.ultimoAcceso!.year}'
+                          : 'Sin registro',
+                    ),
+                  ],
+                ),
+              ),
+        actions: [TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cerrar'))],
+      ),
+    );
   }
 
   Future<void> _remove(Participante participante) async {
@@ -299,6 +343,7 @@ class _ParticipantesTabState extends ConsumerState<ParticipantesTab> {
           final participante = _items[index];
           final esDocente = participante.etiqueta == 'docente';
           return EdumonCard(
+            onTap: esDocente ? null : () => _verInfoPadre(participante),
             child: Row(
               children: [
                 EdumonAvatar(
@@ -333,6 +378,37 @@ class _ParticipantesTabState extends ConsumerState<ParticipantesTab> {
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+class _InfoRow extends StatelessWidget {
+  const _InfoRow({required this.icon, required this.label, required this.value});
+
+  final IconData icon;
+  final String label;
+  final String value;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: AppColors.subtleText(context)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: TextStyle(color: AppColors.mutedText(context), fontSize: 11)),
+                Text(value, style: const TextStyle(fontSize: 14)),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }

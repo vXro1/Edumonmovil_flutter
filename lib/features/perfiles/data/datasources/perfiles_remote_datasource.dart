@@ -3,20 +3,26 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../models/perfil_model.dart';
 
-/// Data source remoto — BLUEPRINT.md FASE 10.8.
-/// (⚠️) No vimos perfilFamiliarController.js real — shapes inferidos del
-/// blueprint.
+/// Data source remoto — verificado contra perfilFamiliarController.js real.
 class PerfilesRemoteDataSource {
   const PerfilesRemoteDataSource(this._dio);
 
   final Dio _dio;
 
-  Future<List<PerfilModel>> fetchPerfiles() async {
+  /// getMisPerfiles real: `{titular: {_id, nombre, avatarUrl, esTitular:true},
+  /// perfiles: [...]}` — dos objetos separados, no un único array. Antes acá
+  /// se leía solo `perfiles` y `titular` se perdía por completo, así que la
+  /// cuenta principal nunca aparecía en el selector de perfiles.
+  Future<({PerfilModel titular, List<PerfilModel> secundarios})> fetchPerfiles() async {
     try {
       final response = await _dio.get('/perfiles');
-      final data = response.data;
-      final rawList = data is List ? data : (data is Map ? (data['perfiles'] ?? data['data']) as List? : null);
-      return (rawList ?? const []).map((e) => PerfilModel.fromJson(e as Map<String, dynamic>)).toList();
+      final data = response.data as Map<String, dynamic>;
+      final titularJson = data['titular'] as Map<String, dynamic>;
+      final rawList = data['perfiles'] as List?;
+      return (
+        titular: PerfilModel.fromJson(titularJson, esTitularFallback: true),
+        secundarios: (rawList ?? const []).map((e) => PerfilModel.fromJson(e as Map<String, dynamic>)).toList(),
+      );
     } on DioException catch (e) {
       throw AppException.fromDioException(e);
     }
@@ -66,9 +72,14 @@ class PerfilesRemoteDataSource {
     }
   }
 
-  Future<void> updateFcmToken(String fcmToken) async {
+  /// guardarFCMTokenPerfil real guarda el token FCM POR PERFIL (cada
+  /// PerfilFamiliar tiene su propio fcmToken) — sin [perfilId] el backend lo
+  /// asigna siempre al titular, sin importar qué perfil esté activo en este
+  /// dispositivo. `null`/omitido selecciona explícitamente al titular (mismo
+  /// sentinel que usa seleccionarPerfil).
+  Future<void> updateFcmToken(String fcmToken, {String? perfilId}) async {
     try {
-      await _dio.post('/perfiles/fcm-token', data: {'fcmToken': fcmToken});
+      await _dio.post('/perfiles/fcm-token', data: {'fcmToken': fcmToken, 'perfilId': ?perfilId});
     } on DioException catch (e) {
       throw AppException.fromDioException(e);
     }

@@ -11,6 +11,26 @@ class ProfileRemoteDataSource {
 
   final Dio _dio;
 
+  /// updateModoOscuro real (userRoutes.js: PATCH /users/me/modo-oscuro) —
+  /// persiste la preferencia en BD. Best-effort a propósito (mismo criterio
+  /// que logout()): ThemeModeController ya aplicó el cambio local antes de
+  /// llamar acá, así que un fallo de red no debe revertir el tema ni
+  /// mostrarle un error al usuario por una sincronización de fondo.
+  ///
+  /// (⚠️) Nota: ningún endpoint de perfil (`/auth/profile`,
+  /// `/users/me/profile`) devuelve `modoOscuro` de vuelta hoy más que como
+  /// eco de esta misma respuesta, así que esto sincroniza hacia el backend
+  /// pero todavía no hay forma de restaurarlo al reabrir la app en otro
+  /// dispositivo — eso requeriría decidir qué gana (local vs. remoto) si
+  /// difieren, y "Sistema" no tiene equivalente en el booleano del backend.
+  Future<void> updateModoOscuro(bool modoOscuro) async {
+    try {
+      await _dio.patch('/users/me/modo-oscuro', data: {'modoOscuro': modoOscuro});
+    } on DioException {
+      // Best-effort.
+    }
+  }
+
   Future<List<String>> fetchDefaultAvatars() async {
     try {
       final response = await _dio.get('/users/fotos-predeterminadas');

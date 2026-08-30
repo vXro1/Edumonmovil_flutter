@@ -5,6 +5,7 @@ import 'package:network_image_mock/network_image_mock.dart';
 
 import 'package:edumon_movil/core/design_system/avatars/edumon_avatar.dart';
 import 'package:edumon_movil/core/security/role.dart';
+import 'package:edumon_movil/features/auth/domain/entities/perfil_activo.dart';
 import 'package:edumon_movil/features/auth/domain/entities/user.dart';
 import 'package:edumon_movil/features/auth/domain/repositories/auth_repository.dart';
 import 'package:edumon_movil/features/auth/domain/repositories/profile_repository.dart';
@@ -31,10 +32,13 @@ class _FakeAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<User> fetchProfile() async => _user;
+  Future<({User user, PerfilActivo? perfilActivo})> fetchProfile() async => (user: _user, perfilActivo: null);
 
   @override
   Future<void> logout() async {}
+
+  @override
+  Future<void> logoutAll() async {}
 
   @override
   Future<void> requestPasswordRecovery({required RecoveryMethod method, required String contact}) async {}
@@ -76,6 +80,9 @@ class _FakeProfileRepository implements ProfileRepository {
   Future<SessionsInfo> fetchSessionsInfo({required int page, required int limit}) async {
     return const SessionsInfo(isAdminView: false);
   }
+
+  @override
+  Future<void> updateModoOscuro(bool modoOscuro) async => calls.add('updateModoOscuro');
 }
 
 void main() {

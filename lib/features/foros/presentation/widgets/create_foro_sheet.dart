@@ -8,19 +8,24 @@ import '../../../../core/design_system/dialogs/edumon_dialog.dart';
 import '../../../../core/design_system/inputs/edumon_text_field.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../domain/entities/foro.dart';
 import '../../domain/repositories/foros_repository.dart';
 import '../providers/foros_providers.dart';
 
 const _maxArchivos = 5;
 
-/// Bottom sheet "Nuevo foro" — BLUEPRINT.md FASE 3.4.8 / 3.8.3 (también se
-/// crea desde el sidebar del ForumScreen canónico). Devuelve true si se creó.
-/// Permite adjuntar hasta 5 archivos (imagen/video/PDF), igual que el
-/// compositor de mensajes de foro — el backend ya acepta `archivos` en
-/// POST /foros vía multipart/form-data (foroController.crearForo).
-Future<bool?> showCreateForoSheet(BuildContext context, WidgetRef ref, String cursoId) {
-  final tituloController = TextEditingController();
-  final descripcionController = TextEditingController();
+/// Bottom sheet "Nuevo foro" / "Editar foro" — BLUEPRINT.md FASE 3.4.8 /
+/// 3.8.3 (también se crea desde el sidebar del ForumScreen canónico).
+/// Devuelve true si se creó/guardó. Permite adjuntar hasta 5 archivos
+/// (imagen/video/PDF) al CREAR, igual que el compositor de mensajes de foro
+/// — el backend ya acepta `archivos` en POST /foros vía multipart/form-data
+/// (foroController.crearForo). actualizarForo real NO soporta reemplazar
+/// archivos ni el estado (eso va por toggleEstadoForo aparte), así que en
+/// modo edición solo se editan título/descripción/público.
+Future<bool?> showCreateForoSheet(BuildContext context, WidgetRef ref, String cursoId, {Foro? existing}) {
+  final isEditing = existing != null;
+  final tituloController = TextEditingController(text: existing?.titulo);
+  final descripcionController = TextEditingController(text: existing?.descripcion);
   String? tituloError, descripcionError;
   final archivosNuevos = <PlatformFile>[];
   bool saving = false;
@@ -41,7 +46,7 @@ Future<bool?> showCreateForoSheet(BuildContext context, WidgetRef ref, String cu
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text('Nuevo foro', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+              Text(isEditing ? 'Editar foro' : 'Nuevo foro', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
               const SizedBox(height: AppSpacing.md),
               EdumonTextField(controller: tituloController, label: 'Título', errorText: tituloError),
               EdumonTextField(
@@ -52,41 +57,43 @@ Future<bool?> showCreateForoSheet(BuildContext context, WidgetRef ref, String cu
                 errorText: descripcionError,
               ),
               const SizedBox(height: AppSpacing.sm),
-              if (archivosNuevos.isNotEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-                  child: Wrap(
-                    spacing: 4,
-                    runSpacing: 4,
-                    children: archivosNuevos
-                        .map(
-                          (f) => Chip(
-                            label: Text(f.name, style: const TextStyle(fontSize: 11), overflow: TextOverflow.ellipsis),
-                            onDeleted: () => setSheetState(() => archivosNuevos.remove(f)),
-                          ),
-                        )
-                        .toList(),
+              if (!isEditing) ...[
+                if (archivosNuevos.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                    child: Wrap(
+                      spacing: 4,
+                      runSpacing: 4,
+                      children: archivosNuevos
+                          .map(
+                            (f) => Chip(
+                              label: Text(f.name, style: const TextStyle(fontSize: 11), overflow: TextOverflow.ellipsis),
+                              onDeleted: () => setSheetState(() => archivosNuevos.remove(f)),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ),
+                OutlinedButton.icon(
+                  onPressed: archivosNuevos.length >= _maxArchivos
+                      ? null
+                      : () async {
+                          final result = await FilePicker.pickFiles(allowMultiple: true, withData: true);
+                          if (result == null) return;
+                          setSheetState(() {
+                            final espacio = _maxArchivos - archivosNuevos.length;
+                            archivosNuevos.addAll(result.files.where((f) => f.bytes != null).take(espacio < 0 ? 0 : espacio));
+                          });
+                        },
+                  icon: const Icon(LucideIcons.paperclip, size: 16),
+                  label: Text(
+                    archivosNuevos.length >= _maxArchivos ? 'Máximo $_maxArchivos archivos' : 'Adjuntar archivo',
                   ),
                 ),
-              OutlinedButton.icon(
-                onPressed: archivosNuevos.length >= _maxArchivos
-                    ? null
-                    : () async {
-                        final result = await FilePicker.pickFiles(allowMultiple: true, withData: true);
-                        if (result == null) return;
-                        setSheetState(() {
-                          final espacio = _maxArchivos - archivosNuevos.length;
-                          archivosNuevos.addAll(result.files.where((f) => f.bytes != null).take(espacio < 0 ? 0 : espacio));
-                        });
-                      },
-                icon: const Icon(LucideIcons.paperclip, size: 16),
-                label: Text(
-                  archivosNuevos.length >= _maxArchivos ? 'Máximo $_maxArchivos archivos' : 'Adjuntar archivo',
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.sm),
+              ],
               EdumonButton(
-                label: 'Crear foro',
+                label: isEditing ? 'Guardar cambios' : 'Crear foro',
                 fullWidth: true,
                 loading: saving,
                 onPressed: saving
@@ -105,22 +112,27 @@ Future<bool?> showCreateForoSheet(BuildContext context, WidgetRef ref, String cu
                         if (tituloError != null || descripcionError != null) return;
                         setSheetState(() => saving = true);
                         try {
-                          final archivos = archivosNuevos
-                              .map((f) => ArchivoUpload(bytes: f.bytes!, filename: f.name))
-                              .toList();
-                          await ref.read(forosRepositoryProvider).createForo(
-                                titulo: titulo,
-                                descripcion: descripcion,
-                                cursoId: cursoId,
-                                archivos: archivos.isEmpty ? null : archivos,
-                              );
+                          final repo = ref.read(forosRepositoryProvider);
+                          if (isEditing) {
+                            await repo.updateForo(id: existing.id, titulo: titulo, descripcion: descripcion);
+                          } else {
+                            final archivos = archivosNuevos
+                                .map((f) => ArchivoUpload(bytes: f.bytes!, filename: f.name))
+                                .toList();
+                            await repo.createForo(
+                              titulo: titulo,
+                              descripcion: descripcion,
+                              cursoId: cursoId,
+                              archivos: archivos.isEmpty ? null : archivos,
+                            );
+                          }
                           if (context.mounted) Navigator.of(context).pop(true);
                         } catch (e) {
                           setSheetState(() => saving = false);
                           if (context.mounted) {
                             EdumonDialog.show(
                               context,
-                              message: e is AppException ? e.message : 'No se pudo crear el foro.',
+                              message: e is AppException ? e.message : 'No se pudo guardar el foro.',
                             );
                           }
                         }

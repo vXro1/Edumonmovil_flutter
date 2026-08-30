@@ -14,6 +14,7 @@ class EventoModel {
     this.categoria = EventoCategoria.institucional,
     this.cursosIds = const [],
     this.adjunto,
+    this.estado = 'programado',
   });
 
   final String id;
@@ -26,6 +27,7 @@ class EventoModel {
   final EventoCategoria categoria;
   final List<String> cursosIds;
   final Archivo? adjunto;
+  final String estado;
 
   factory EventoModel.fromJson(Map<String, dynamic> json) {
     final cursosRaw = json['cursosIds'] as List?;
@@ -46,6 +48,7 @@ class EventoModel {
       categoria: EventoCategoria.fromApiString(json['categoria']?.toString()),
       cursosIds: cursosIds,
       adjunto: adjuntoRaw is Map ? Archivo.fromJson(adjuntoRaw as Map<String, dynamic>) : null,
+      estado: json['estado']?.toString() ?? 'programado',
     );
   }
 
@@ -60,5 +63,6 @@ class EventoModel {
     categoria: categoria,
     cursosIds: cursosIds,
     adjunto: adjunto,
+    estado: estado,
   );
 }

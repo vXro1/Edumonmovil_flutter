@@ -63,4 +63,10 @@ class EntregasRepositoryImpl implements EntregasRepository {
 
   @override
   Future<void> deleteEntrega(String id) => _remote.deleteEntrega(id);
+
+  @override
+  Future<Entrega> eliminarArchivoEntrega({required String id, required String archivoId}) async {
+    final result = await _remote.eliminarArchivoEntrega(id: id, archivoId: archivoId);
+    return result.toEntity();
+  }
 }

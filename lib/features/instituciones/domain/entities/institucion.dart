@@ -28,6 +28,7 @@ class Institucion {
     this.telefono,
     this.correo,
     this.admin,
+    this.activo = true,
   });
 
   final String id;
@@ -40,4 +41,12 @@ class Institucion {
   final String? telefono;
   final String? correo;
   final InstitucionAdmin? admin;
+
+  // Institucion.js real: soft-delete flag. OJO: getInstituciones real solo
+  // lista `activo:true` — una vez desactivada, una institución deja de
+  // aparecer en ese listado sin que el backend exponga ningún endpoint para
+  // ver/filtrar las inactivas. Por eso cambiarEstadoInstitucion no está
+  // conectado a ningún botón de UI todavía (ver auditoría de API): activarla
+  // de vuelta requeriría acceso directo a la base de datos.
+  final bool activo;
 }

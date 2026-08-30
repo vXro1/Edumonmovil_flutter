@@ -13,10 +13,15 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/entrega.dart';
 import '../providers/entregas_providers.dart';
 
-Color _estadoColor(BuildContext context, String estado) {
-  switch (estado) {
-    case 'calificada':
-      return AppColors.success;
+// BUG CONFIRMADO: entregaValidator.js real solo permite estado
+// ["borrador", "enviada", "tarde"] — 'calificada' NUNCA es un valor real de
+// `estado` (la calificación es un objeto aparte, `calificacion`, que puede
+// convivir con estado 'enviada' o 'tarde'). El branch 'calificada' de acá
+// era código muerto: una entrega calificada seguía mostrando el badge
+// "enviada"/"tarde" en vez de destacarse como calificada.
+Color _estadoColor(BuildContext context, Entrega entrega) {
+  if (entrega.calificacion != null) return AppColors.success;
+  switch (entrega.estado) {
     case 'enviada':
       return AppColors.accent;
     case 'tarde':
@@ -25,6 +30,8 @@ Color _estadoColor(BuildContext context, String estado) {
       return AppColors.mutedText(context);
   }
 }
+
+String _estadoLabel(Entrega entrega) => entrega.calificacion != null ? 'calificada' : entrega.estado;
 
 /// Entregas de un reto (vista docente) — BLUEPRINT.md FASE 3.4.5.
 class EntregasListScreen extends ConsumerStatefulWidget {
@@ -223,12 +230,12 @@ class _EntregasListScreenState extends ConsumerState<EntregasListScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: _estadoColor(context, entrega.estado).withValues(alpha: 0.12),
+                                      color: _estadoColor(context, entrega).withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(AppRadius.full),
                                     ),
                                     child: Text(
-                                      entrega.estado,
-                                      style: TextStyle(color: _estadoColor(context, entrega.estado), fontSize: 10, fontWeight: FontWeight.w700),
+                                      _estadoLabel(entrega),
+                                      style: TextStyle(color: _estadoColor(context, entrega), fontSize: 10, fontWeight: FontWeight.w700),
                                     ),
                                   ),
                                 ],

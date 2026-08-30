@@ -1,3 +1,4 @@
+import '../../domain/entities/perfil_activo.dart';
 import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
@@ -21,13 +22,16 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<User> fetchProfile() async {
-    final model = await _remote.fetchProfile();
-    return model.toEntity();
+  Future<({User user, PerfilActivo? perfilActivo})> fetchProfile() async {
+    final result = await _remote.fetchProfile();
+    return (user: result.user.toEntity(), perfilActivo: result.perfilActivo?.toEntity());
   }
 
   @override
   Future<void> logout() => _remote.logout();
+
+  @override
+  Future<void> logoutAll() => _remote.logoutAll();
 
   @override
   Future<void> requestPasswordRecovery({required RecoveryMethod method, required String contact}) {

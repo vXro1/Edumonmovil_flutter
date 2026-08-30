@@ -35,6 +35,7 @@ class InstitucionModel {
     this.telefono,
     this.correo,
     this.admin,
+    this.activo = true,
   });
 
   final String id;
@@ -45,6 +46,7 @@ class InstitucionModel {
   final String? telefono;
   final String? correo;
   final InstitucionAdminModel? admin;
+  final bool activo;
 
   /// institucionController.js real: adminId siempre viene populado
   /// (.populate('adminId', 'nombre apellido correo')) como objeto o null,
@@ -60,6 +62,7 @@ class InstitucionModel {
       telefono: json['telefono']?.toString(),
       correo: json['correo']?.toString(),
       admin: adminRaw is Map ? InstitucionAdminModel.fromJson(adminRaw as Map<String, dynamic>) : null,
+      activo: json['activo'] != false,
     );
   }
 
@@ -72,5 +75,6 @@ class InstitucionModel {
     telefono: telefono,
     correo: correo,
     admin: admin?.toEntity(),
+    activo: activo,
   );
 }

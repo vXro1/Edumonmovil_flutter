@@ -135,9 +135,12 @@ class TareasRemoteDataSource {
     }
   }
 
+  // BUG REAL corregido: tareaRoutes.js real expone PATCH /tareas/:id/close
+  // (en inglés) — con "/cerrar" esto daba 404 siempre, así que cerrar un
+  // reto nunca funcionó.
   Future<void> cerrarTarea(String id) async {
     try {
-      await _dio.patch('/tareas/$id/cerrar');
+      await _dio.patch('/tareas/$id/close');
     } on DioException catch (e) {
       throw AppException.fromDioException(e);
     }

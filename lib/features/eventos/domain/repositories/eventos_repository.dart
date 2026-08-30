@@ -18,15 +18,17 @@ abstract class EventosRepository {
 
   Future<Evento> fetchEventoById(String id);
 
+  /// createEventoValidator real: descripcion, fechaFin, hora y ubicacion son
+  /// obligatorios; cursosIds debe ser un array no vacío.
   Future<Evento> createEvento({
     required String titulo,
-    String? descripcion,
+    required String descripcion,
     required DateTime fechaInicio,
-    DateTime? fechaFin,
-    String? hora,
-    String? ubicacion,
+    required DateTime fechaFin,
+    required String hora,
+    required String ubicacion,
     required EventoCategoria categoria,
-    List<String> cursosIds = const [],
+    required List<String> cursosIds,
     ArchivoUpload? adjunto,
   });
 
@@ -43,5 +45,10 @@ abstract class EventosRepository {
     ArchivoUpload? adjunto,
   });
 
+  /// DELETE real: elimina el evento (a diferencia de [cancelarEvento], que
+  /// solo lo marca como cancelado).
   Future<void> deleteEvento(String id);
+
+  /// PATCH /eventos/:id/cancelar real: soft-cancel, no elimina el evento.
+  Future<Evento> cancelarEvento(String id);
 }

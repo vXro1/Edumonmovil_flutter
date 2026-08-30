@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/network_exceptions.dart';
 import '../../domain/repositories/foros_repository.dart';
+import '../models/foro_dashboard_model.dart';
 import '../models/foro_model.dart';
 
 /// Data source remoto — BLUEPRINT.md FASE 10.6.
@@ -23,6 +24,18 @@ class ForosRemoteDataSource {
     }
   }
 
+  /// getDashboardForo real (GET /foros/:id/dashboard) — accesible a
+  /// cualquier usuario con acceso al foro (foro.tieneAcceso), no solo
+  /// docente/administrador.
+  Future<ForoDashboardModel> fetchDashboard(String foroId) async {
+    try {
+      final response = await _dio.get('/foros/$foroId/dashboard');
+      return ForoDashboardModel.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw AppException.fromDioException(e);
+    }
+  }
+
   Future<ForoModel> fetchForoById(String id) async {
     try {
       final response = await _dio.get('/foros/$id');
@@ -34,9 +47,12 @@ class ForosRemoteDataSource {
     }
   }
 
+  // crearForoValidator real: descripcion es obligatoria (10-2000 caracteres),
+  // no opcional — create_foro_sheet.dart ya la validaba así en la UI, esto
+  // solo alinea la firma para que no quede como opcional "por las dudas".
   Future<ForoModel> createForo({
     required String titulo,
-    String? descripcion,
+    required String descripcion,
     required String cursoId,
     bool publico = false,
     List<ArchivoUpload>? archivos,
@@ -44,7 +60,7 @@ class ForosRemoteDataSource {
     try {
       final formData = FormData.fromMap({
         'titulo': titulo,
-        if (descripcion != null && descripcion.isNotEmpty) 'descripcion': descripcion,
+        'descripcion': descripcion,
         'cursoId': cursoId,
         'publico': publico.toString(),
         if (archivos != null)
@@ -59,9 +75,29 @@ class ForosRemoteDataSource {
     }
   }
 
+  /// actualizarForo real (PUT /foros/:id) — solo título/descripción/público;
+  /// el estado (abrir/cerrar) tiene su propio endpoint (toggleEstadoForo) y
+  /// no soporta reemplazar archivos adjuntos.
+  Future<ForoModel> updateForo({required String id, String? titulo, String? descripcion, bool? publico}) async {
+    try {
+      final response = await _dio.put(
+        '/foros/$id',
+        data: {'titulo': ?titulo, 'descripcion': ?descripcion, 'publico': ?publico},
+      );
+      final data = response.data;
+      final json = data is Map ? (data['foro'] ?? data) as Map<String, dynamic> : <String, dynamic>{};
+      return ForoModel.fromJson(json);
+    } on DioException catch (e) {
+      throw AppException.fromDioException(e);
+    }
+  }
+
+  // BUG REAL corregido: Foro.js real solo acepta estado "abierto"/"cerrado"
+  // — "activo" no existe en el enum, así que reabrir un foro (cerrado→false)
+  // siempre devolvía 400 "Estado inválido".
   Future<void> toggleEstadoForo({required String id, required bool cerrado}) async {
     try {
-      await _dio.patch('/foros/$id/estado', data: {'estado': cerrado ? 'cerrado' : 'activo'});
+      await _dio.patch('/foros/$id/estado', data: {'estado': cerrado ? 'cerrado' : 'abierto'});
     } on DioException catch (e) {
       throw AppException.fromDioException(e);
     }

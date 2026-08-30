@@ -56,7 +56,12 @@ class Entrega {
   final String padreId;
   final EntregaPadre? padre;
   final String? textoRespuesta;
-  final String estado; // borrador|enviada|tarde|calificada
+  // entregaValidator.js real: solo borrador|enviada|tarde — "calificada" NO
+  // es un valor de estado (era un bug de este comentario, propagado a un
+  // branch muerto en entregas_list_screen.dart ya corregido). Calificar es
+  // ortogonal al estado: [calificacion] puede o no estar presente sobre
+  // 'enviada'/'tarde'.
+  final String estado;
   final List<Archivo> archivos;
   final DateTime? fechaEnvio;
   final Calificacion? calificacion;

@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import '../entities/foro.dart';
+import '../entities/foro_dashboard.dart';
 
 class ArchivoUpload {
   const ArchivoUpload({required this.bytes, required this.filename});
@@ -17,13 +18,22 @@ abstract class ForosRepository {
 
   Future<Foro> fetchForoById(String id);
 
+  /// GET /foros/:id/dashboard real — analíticas del foro (mensajes
+  /// recientes, participantes activos, estadísticas, actividad 7 días).
+  Future<ForoDashboard> fetchDashboard(String foroId);
+
+  /// crearForoValidator real: descripcion es obligatoria (10-2000 caracteres).
   Future<Foro> createForo({
     required String titulo,
-    String? descripcion,
+    required String descripcion,
     required String cursoId,
     bool publico = false,
     List<ArchivoUpload>? archivos,
   });
+
+  /// actualizarForo real: solo título/descripción/público — no soporta
+  /// reemplazar archivos, y el estado (abrir/cerrar) va por su propia acción.
+  Future<Foro> updateForo({required String id, String? titulo, String? descripcion, bool? publico});
 
   Future<void> toggleEstadoForo({required String id, required bool cerrado});
 

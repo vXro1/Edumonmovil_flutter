@@ -38,4 +38,8 @@ abstract class EntregasRepository {
   Future<void> calificarEntrega({required String id, required int valoracion, String? comentario});
 
   Future<void> deleteEntrega(String id);
+
+  /// DELETE /entregas/:id/archivos/:archivoId real: quita un solo adjunto de
+  /// una entrega en borrador (sin borrar la entrega completa).
+  Future<Entrega> eliminarArchivoEntrega({required String id, required String archivoId});
 }

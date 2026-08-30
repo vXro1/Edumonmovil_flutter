@@ -15,17 +15,16 @@ class ForoAutor {
   String get nombreCompleto => '$nombre ${apellido ?? ''}'.trim();
 }
 
-/// Entidad de dominio — BLUEPRINT.md FASE 9.8.
-/// (⚠️) No vimos foroController.js real — shapes inferidos del blueprint.
+/// Entidad de dominio — verificada contra foroController.js/Foro.js reales.
 class Foro {
   const Foro({
     required this.id,
     required this.titulo,
     this.descripcion,
     this.categoria,
-    this.estado = 'activo',
+    this.estado = 'abierto',
     required this.cursoId,
-    this.creadorId,
+    this.docenteId,
     this.totalMensajes = 0,
     this.publico = false,
     this.fijado = false,
@@ -35,9 +34,17 @@ class Foro {
   final String titulo;
   final String? descripcion;
   final String? categoria;
-  final String estado; // activo|cerrado
+
+  // Foro.js real: enum ["abierto", "cerrado"], default "abierto" — NO
+  // "activo" (BUG REAL corregido: con 'activo' como default/valor esperado,
+  // reabrir un foro cerrado enviaba `estado:'activo'` al backend, que lo
+  // rechazaba siempre con 400 "Estado inválido" — ver toggleEstadoForo).
+  final String estado;
   final String cursoId;
-  final String? creadorId;
+
+  // Foro.js real: el creador se llama `docenteId` (no "creadorId" — ese
+  // nombre no existe en el schema; con él, este campo daba siempre null).
+  final String? docenteId;
   final int totalMensajes;
   final bool publico;
   final bool fijado;

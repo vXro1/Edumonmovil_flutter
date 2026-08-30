@@ -2,12 +2,8 @@ enum CalendarioEntryTipo { tarea, evento }
 
 /// Entrada unificada del calendario — combina Tareas (fechaEntrega) y
 /// Eventos (fechaInicio) en un solo modelo para pintar el grid mensual.
-///
-/// (⚠️) El blueprint documenta `/calendario/:cursoId` como endpoint pero no
-/// da el shape de su respuesta (no aparece ninguna entidad "Calendario" en
-/// FASE 9) — en vez de adivinar un contrato sin ninguna pista, el calendario
-/// se arma en cliente combinando TareasRepository.fetchTareas +
-/// EventosRepository.fetchEventos, que sí están verificados/implementados.
+/// Poblada desde los endpoints reales de calendarioController.js (ver
+/// CalendarioRemoteDataSource) — verificados contra el controller real.
 class CalendarioEntry {
   const CalendarioEntry({
     required this.id,

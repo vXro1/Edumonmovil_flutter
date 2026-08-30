@@ -72,6 +72,9 @@ abstract class CursosRepository {
   /// DELETE /cursos/:id real: archiva (soft-delete), no elimina.
   Future<void> archiveCurso(String id);
 
+  /// PATCH /cursos/:id/restaurar real: revierte el archivado.
+  Future<void> restoreCurso(String id);
+
   Future<List<Participante>> fetchParticipantes(String cursoId, {int limit});
 
   Future<void> addParticipante({

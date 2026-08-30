@@ -50,4 +50,9 @@ abstract class ProfileRepository {
   Future<void> changePassword({required String contrasenaActual, required String contrasenaNueva});
 
   Future<SessionsInfo> fetchSessionsInfo({required int page, required int limit});
+
+  /// PATCH /users/me/modo-oscuro real — sincroniza la preferencia de tema al
+  /// backend (best-effort, no lanza si falla). "Sistema" no tiene equivalente
+  /// booleano, así que solo se llama para Claro/Oscuro explícitos.
+  Future<void> updateModoOscuro(bool modoOscuro);
 }

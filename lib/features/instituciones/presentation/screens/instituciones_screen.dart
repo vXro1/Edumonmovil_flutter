@@ -4,9 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/design_system/cards/edumon_card.dart';
+import '../../../../core/design_system/dialogs/edumon_dialog.dart';
 import '../../../../core/design_system/loading/loading_screen.dart';
+import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../domain/entities/institucion.dart';
 import '../providers/instituciones_providers.dart';
 
 /// Instituciones (superadmin) — BLUEPRINT.md FASE 3.3.1.
@@ -31,6 +34,35 @@ class _InstitucionesScreenState extends ConsumerState<InstitucionesScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  // cambiarEstadoInstitucion real: getInstituciones solo lista activo:true
+  // y no existe ningún endpoint para ver/filtrar instituciones inactivas —
+  // desactivar una acá la deja invisible e inalcanzable desde la app (no hay
+  // forma de revertirlo sin acceso directo a la base de datos). El diálogo
+  // lo advierte explícitamente antes de confirmar.
+  Future<void> _desactivar(Institucion institucion) async {
+    final confirmed = await EdumonDialog.confirm(
+      context,
+      title: 'Desactivar institución',
+      message:
+          '¿Desactivar "${institucion.nombre}"? Dejará de aparecer en este listado y hoy no hay forma de '
+          'reactivarla desde la app — solo con acceso directo a la base de datos. Esta acción es prácticamente '
+          'irreversible desde acá.',
+      confirmLabel: 'Desactivar de todos modos',
+      destructive: true,
+    );
+    if (!confirmed || !mounted) return;
+
+    try {
+      await ref.read(institucionesRepositoryProvider).cambiarEstadoInstitucion(id: institucion.id, activo: false);
+      ref.invalidate(institucionesListProvider);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo desactivar la institución.')));
+    }
   }
 
   @override
@@ -116,6 +148,11 @@ class _InstitucionesScreenState extends ConsumerState<InstitucionesScreen> {
                                     ),
                                 ],
                               ),
+                            ),
+                            IconButton(
+                              icon: Icon(LucideIcons.powerOff, size: 18, color: AppColors.subtleText(context)),
+                              tooltip: 'Desactivar institución',
+                              onPressed: () => _desactivar(institucion),
                             ),
                             Icon(LucideIcons.chevronRight, color: AppColors.subtleText(context), size: 18),
                           ],

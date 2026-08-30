@@ -33,17 +33,16 @@ class ForoAutorModel {
   ForoAutor toEntity() => ForoAutor(id: id, nombre: nombre, apellido: apellido, rol: rol, avatarUrl: avatarUrl);
 }
 
-/// DTO — BLUEPRINT.md FASE 9.8, (⚠️) shape inferido del blueprint, no vimos
-/// foroController.js real.
+/// DTO — verificado contra foroController.js/Foro.js reales.
 class ForoModel {
   const ForoModel({
     required this.id,
     required this.titulo,
     this.descripcion,
     this.categoria,
-    this.estado = 'activo',
+    this.estado = 'abierto',
     required this.cursoId,
-    this.creadorId,
+    this.docenteId,
     this.totalMensajes = 0,
     this.publico = false,
     this.fijado = false,
@@ -55,7 +54,7 @@ class ForoModel {
   final String? categoria;
   final String estado;
   final String cursoId;
-  final String? creadorId;
+  final String? docenteId;
   final int totalMensajes;
   final bool publico;
   final bool fijado;
@@ -64,17 +63,18 @@ class ForoModel {
     final cursoRaw = json['cursoId'];
     final cursoId = cursoRaw is Map ? (cursoRaw['id'] ?? cursoRaw['_id']).toString() : (cursoRaw ?? '').toString();
 
-    final creadorRaw = json['creadorId'];
-    final creadorId = creadorRaw is Map ? (creadorRaw['id'] ?? creadorRaw['_id'])?.toString() : creadorRaw?.toString();
+    // Foro.js real: el creador es "docenteId", no "creadorId".
+    final docenteRaw = json['docenteId'];
+    final docenteId = docenteRaw is Map ? (docenteRaw['id'] ?? docenteRaw['_id'])?.toString() : docenteRaw?.toString();
 
     return ForoModel(
       id: (json['id'] ?? json['_id']).toString(),
       titulo: json['titulo']?.toString() ?? '',
       descripcion: json['descripcion']?.toString(),
       categoria: json['categoria']?.toString(),
-      estado: json['estado']?.toString() ?? 'activo',
+      estado: json['estado']?.toString() ?? 'abierto',
       cursoId: cursoId,
-      creadorId: creadorId,
+      docenteId: docenteId,
       totalMensajes: json['totalMensajes'] is num
           ? (json['totalMensajes'] as num).toInt()
           : (json['totalMensajes'] == null ? 0 : int.tryParse(json['totalMensajes'].toString()) ?? 0),
@@ -90,7 +90,7 @@ class ForoModel {
     categoria: categoria,
     estado: estado,
     cursoId: cursoId,
-    creadorId: creadorId,
+    docenteId: docenteId,
     totalMensajes: totalMensajes,
     publico: publico,
     fijado: fijado,

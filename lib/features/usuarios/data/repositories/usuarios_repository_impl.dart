@@ -1,5 +1,6 @@
 import '../../../../core/security/role.dart';
 import '../../../auth/domain/entities/user.dart';
+import '../../domain/entities/padre_info.dart';
 import '../../domain/repositories/usuarios_repository.dart';
 import '../datasources/usuarios_remote_datasource.dart';
 
@@ -69,4 +70,10 @@ class UsuariosRepositoryImpl implements UsuariosRepository {
 
   @override
   Future<void> activarUsuario(String id) => _remote.activarUsuario(id);
+
+  @override
+  Future<PadreInfo> fetchPadreInfo(String padreId) async {
+    final result = await _remote.fetchPadreInfo(padreId);
+    return result.toEntity();
+  }
 }

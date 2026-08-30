@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:edumon_movil/core/security/role.dart';
+import 'package:edumon_movil/features/auth/domain/entities/perfil_activo.dart';
 import 'package:edumon_movil/features/auth/domain/entities/user.dart';
 import 'package:edumon_movil/features/auth/domain/repositories/auth_repository.dart';
 import 'package:edumon_movil/features/auth/presentation/providers/auth_providers.dart';
@@ -31,10 +32,13 @@ class _FakeAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<User> fetchProfile() async => _user;
+  Future<({User user, PerfilActivo? perfilActivo})> fetchProfile() async => (user: _user, perfilActivo: null);
 
   @override
   Future<void> logout() async => loggedIn = false;
+
+  @override
+  Future<void> logoutAll() async => loggedIn = false;
 
   @override
   Future<void> requestPasswordRecovery({required RecoveryMethod method, required String contact}) async {}

@@ -34,9 +34,8 @@ class DocentesRemoteDataSource {
     }
   }
 
-  /// preregistrarDocentesCSV real: multer .single(...) — el nombre exacto
-  /// del campo no está confirmado (no vimos institucionRoutes.js), se usa
-  /// "archivoCSV" siguiendo el nombre documentado en el blueprint.
+  /// preregistrarDocentesCSV real: institucionRoutes.js confirma
+  /// `uploadCSVCloudinary.single('archivoCSV')`.
   Future<CsvImportResult> importCsv({required Uint8List bytes, required String filename}) async {
     try {
       final formData = FormData.fromMap({

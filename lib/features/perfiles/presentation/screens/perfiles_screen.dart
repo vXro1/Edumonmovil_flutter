@@ -46,7 +46,8 @@ class _PerfilesScreenState extends ConsumerState<PerfilesScreen> {
       _error = null;
     });
     try {
-      final items = await ref.read(perfilesRepositoryProvider).fetchPerfiles();
+      final activePerfilId = ref.read(authControllerProvider).perfilActivo?.id;
+      final items = await ref.read(perfilesRepositoryProvider).fetchPerfiles(activePerfilId: activePerfilId);
       if (!mounted) return;
       setState(() {
         _items = items;

@@ -108,6 +108,31 @@ class _CursosScreenState extends ConsumerState<CursosScreen> {
     }
   }
 
+  Future<void> _restore(Curso curso) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Restaurar curso'),
+        content: Text('¿Restaurar "${curso.nombre}"? Vuelve a estar activo para sus participantes.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Restaurar')),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+
+    try {
+      await ref.read(cursosRepositoryProvider).restoreCurso(curso.id);
+      _loadPage(1);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo restaurar el curso.')));
+    }
+  }
+
   Future<void> _archive(Curso curso) async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -261,7 +286,7 @@ class _CursosScreenState extends ConsumerState<CursosScreen> {
                     ],
                   ),
                 ),
-                if (curso.archivado)
+                if (curso.archivado) ...[
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                     decoration: BoxDecoration(
@@ -276,8 +301,14 @@ class _CursosScreenState extends ConsumerState<CursosScreen> {
                         color: isDark ? AppColors.textMutedDark : AppColors.textMuted,
                       ),
                     ),
-                  )
-                else if (_canManage)
+                  ),
+                  if (_canManage)
+                    IconButton(
+                      icon: Icon(LucideIcons.archiveRestore, size: 18, color: AppColors.subtleText(context)),
+                      tooltip: 'Restaurar curso',
+                      onPressed: () => _restore(curso),
+                    ),
+                ] else if (_canManage)
                   IconButton(
                     icon: Icon(LucideIcons.archive, size: 18, color: AppColors.subtleText(context)),
                     tooltip: 'Archivar curso',

@@ -1,5 +1,6 @@
 import '../../../../core/security/role.dart';
 import '../../../auth/domain/entities/user.dart';
+import '../entities/padre_info.dart';
 
 class UsuariosPage {
   const UsuariosPage({required this.items, required this.hasMore});
@@ -45,7 +46,12 @@ abstract class UsuariosRepository {
   /// DELETE /users/:id real: soft-delete a estado 'suspendido'.
   Future<void> suspenderUsuario(String id);
 
-  /// No hay endpoint dedicado de reactivación — se hace vía PUT /users/:id
-  /// {estado: 'activo'} (mismo mecanismo genérico que updateUsuario).
+  /// PATCH /users/:id/reactivar real — endpoint dedicado (updateUser real
+  /// borra "estado" del body, así que no se puede reactivar vía PUT genérico).
   Future<void> activarUsuario(String id);
+
+  /// GET /users/padre/:padreId/info real — info detallada de un padre/
+  /// acudiente (usado desde participantes_tab.dart para ver sus datos de
+  /// contacto sin salir del curso).
+  Future<PadreInfo> fetchPadreInfo(String padreId);
 }

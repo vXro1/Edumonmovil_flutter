@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/security/role.dart';
 import '../../../auth/data/models/user_model.dart';
+import '../models/padre_info_model.dart';
 
 /// Data source remoto — shapes verificados contra userController.js real:
 /// getUsers → {users:[...], pagination}; getUserById → doc crudo;
@@ -114,9 +115,24 @@ class UsuariosRemoteDataSource {
     }
   }
 
+  // userController.js real (updateUser) borra "estado" de updateData antes
+  // de guardar — PUT /users/:id nunca reactiva a nadie. reactivateUser vive
+  // en su propia ruta dedicada.
   Future<void> activarUsuario(String id) async {
     try {
-      await _dio.put('/users/$id', data: {'estado': 'activo'});
+      await _dio.patch('/users/$id/reactivar');
+    } on DioException catch (e) {
+      throw AppException.fromDioException(e);
+    }
+  }
+
+  /// getPadreInfo real (GET /users/padre/:padreId/info) — 400 si el usuario
+  /// consultado no tiene rol 'padre'.
+  Future<PadreInfoModel> fetchPadreInfo(String padreId) async {
+    try {
+      final response = await _dio.get('/users/padre/$padreId/info');
+      final data = response.data as Map<String, dynamic>;
+      return PadreInfoModel.fromJson(data['padre'] as Map<String, dynamic>);
     } on DioException catch (e) {
       throw AppException.fromDioException(e);
     }

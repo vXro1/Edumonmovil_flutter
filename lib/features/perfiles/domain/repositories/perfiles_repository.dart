@@ -1,11 +1,14 @@
 import '../entities/perfil.dart';
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 3.7.1 / FASE 10.8.
-/// (⚠️) No vimos perfilFamiliarController.js real — shapes inferidos del
-/// blueprint. Máx 5 perfiles secundarios + titular (regla validada también
-/// en cliente antes de llamar a createPerfil).
+/// Interfaz de dominio — BLUEPRINT.md FASE 3.7.1, verificado contra
+/// perfilFamiliarController.js real. Máx 5 perfiles secundarios + titular
+/// (regla validada también en cliente antes de llamar a createPerfil).
 abstract class PerfilesRepository {
-  Future<List<Perfil>> fetchPerfiles();
+  /// [activePerfilId] es el id del perfil activo en la sesión actual (ver
+  /// PerfilActivo, de GET /auth/profile) — se usa para marcar `esActivo` en
+  /// el resultado, porque el propio GET /perfiles no trae ese dato (su
+  /// `activo` es un flag de soft-delete, no de selección).
+  Future<List<Perfil>> fetchPerfiles({String? activePerfilId});
 
   Future<Perfil> createPerfil({required String nombre, String? avatarUrl});
 
@@ -13,12 +16,11 @@ abstract class PerfilesRepository {
 
   Future<void> deletePerfil(String id);
 
-  /// perfilesSeleccionar real (⚠️) — la web documentaba que devuelve un JWT
-  /// nuevo en el body, pero el backend ya migró login/refresh a cookies
-  /// httpOnly (ver RefreshInterceptor); se asume que este endpoint sigue el
-  /// mismo patrón y set-cookea el access_token nuevo solo, sin nada que leer
-  /// del body — por eso no se parsea ningún token acá.
+  /// seleccionarPerfil real reemplaza la cookie access_token con una que
+  /// incluye el nuevo perfilId — no hay token que leer del body. El caller
+  /// debe refrescar el estado de sesión después (ver AuthController.refreshUser)
+  /// para que PerfilActivo refleje el cambio.
   Future<void> seleccionarPerfil(String perfilId);
 
-  Future<void> updateFcmToken(String fcmToken);
+  Future<void> updateFcmToken(String fcmToken, {String? perfilId});
 }

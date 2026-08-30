@@ -11,6 +11,7 @@ import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/models/archivo.dart';
 import '../../../auth/presentation/providers/auth_controller.dart';
 import '../../domain/entities/entrega.dart';
 import '../../domain/repositories/entregas_repository.dart';
@@ -76,6 +77,30 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
     final result = await FilePicker.pickFiles(allowMultiple: true, withData: true);
     if (result == null) return;
     setState(() => _archivosNuevos.addAll(result.files.where((f) => f.bytes != null)));
+  }
+
+  // eliminarArchivoEntrega real: quita un solo adjunto ya subido sin borrar
+  // toda la entrega. Antes no había forma de sacar un archivo ya enviado —
+  // la única opción era borrar el borrador entero y volver a escribir todo.
+  Future<void> _eliminarArchivoExistente(Archivo archivo) async {
+    if (_entrega == null) return;
+    setState(() => _saving = true);
+    try {
+      final entrega = await ref
+          .read(entregasRepositoryProvider)
+          .eliminarArchivoEntrega(id: _entrega!.id, archivoId: archivo.id);
+      if (!mounted) return;
+      setState(() {
+        _entrega = entrega;
+        _saving = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _saving = false;
+        _error = e is AppException ? e.message : 'No se pudo quitar el archivo.';
+      });
+    }
   }
 
   Future<void> _guardarBorrador({bool enviar = false}) async {
@@ -215,7 +240,11 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
               runSpacing: 8,
               children: [
                 for (final a in _entrega?.archivos ?? const [])
-                  Chip(avatar: const Icon(LucideIcons.file, size: 14), label: Text(a.nombre, overflow: TextOverflow.ellipsis)),
+                  Chip(
+                    avatar: const Icon(LucideIcons.file, size: 14),
+                    label: Text(a.nombre, overflow: TextOverflow.ellipsis),
+                    onDeleted: _saving ? null : () => _eliminarArchivoExistente(a),
+                  ),
                 for (final f in _archivosNuevos)
                   Chip(
                     label: Text(f.name, overflow: TextOverflow.ellipsis),

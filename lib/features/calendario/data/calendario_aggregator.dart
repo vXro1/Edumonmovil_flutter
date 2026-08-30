@@ -1,42 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../eventos/presentation/providers/eventos_providers.dart';
-import '../../tareas/presentation/providers/tareas_providers.dart';
+import '../../auth/presentation/providers/auth_providers.dart';
 import '../domain/entities/calendario_entry.dart';
+import 'datasources/calendario_remote_datasource.dart';
 
-/// Combina Tareas + Eventos en un único listado de entradas de calendario —
-/// ver comentario en calendario_entry.dart sobre por qué no se llama a
-/// /calendario/:cursoId directamente.
+final calendarioRemoteDataSourceProvider = Provider<CalendarioRemoteDataSource>((ref) {
+  return CalendarioRemoteDataSource(ref.watch(apiClientProvider).dio);
+});
+
+/// Carga el calendario desde los endpoints reales de calendarioController.js
+/// — [cursoId] null trae el agregado de todos los cursos del usuario
+/// (GET /calendario/calendario); con [cursoId] trae solo ese curso
+/// (GET /calendario/:cursoId). Reemplaza la agregación anterior que combinaba
+/// TareasRepository.fetchTareas + EventosRepository.fetchEventos a mano en
+/// el cliente (ver historial: se hacía así porque no se conocía el shape
+/// real de este endpoint).
 Future<List<CalendarioEntry>> loadCalendarioEntries(WidgetRef ref, {String? cursoId}) async {
-  final tareasRepo = ref.read(tareasRepositoryProvider);
-  final eventosRepo = ref.read(eventosRepositoryProvider);
-
-  final tareasPage = await tareasRepo.fetchTareas(cursoId: cursoId, page: 1, limit: 200);
-  final eventos = await eventosRepo.fetchEventos(cursoId: cursoId);
-
-  final entries = <CalendarioEntry>[
-    for (final t in tareasPage.items)
-      if (t.fechaEntrega != null)
-        CalendarioEntry(
-          id: t.id,
-          titulo: t.titulo,
-          fecha: t.fechaEntrega!,
-          tipo: CalendarioEntryTipo.tarea,
-          cursoId: t.cursoId,
-          cursoNombre: t.cursoNombre,
-          vencida: t.vencida,
-        ),
-    for (final e in eventos)
-      CalendarioEntry(
-        id: e.id,
-        titulo: e.titulo,
-        fecha: e.fechaInicio,
-        tipo: CalendarioEntryTipo.evento,
-        categoria: e.categoria.label,
-        cursoId: e.cursosIds.isNotEmpty ? e.cursosIds.first : null,
-        vencida: false,
-      ),
-  ];
-  entries.sort((a, b) => a.fecha.compareTo(b.fecha));
-  return entries;
+  final datasource = ref.read(calendarioRemoteDataSourceProvider);
+  final entries = cursoId != null
+      ? await datasource.fetchCalendarioCurso(cursoId)
+      : await datasource.fetchCalendarioUsuario();
+  return entries..sort((a, b) => a.fecha.compareTo(b.fecha));
 }

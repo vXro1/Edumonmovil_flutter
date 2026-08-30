@@ -25,4 +25,8 @@ abstract class InstitucionesRepository {
     required String telefono,
     required String correo,
   });
+
+  /// PATCH /instituciones/:id/estado real — ver nota en el datasource sobre
+  /// por qué esto no está conectado a ningún botón de UI todavía.
+  Future<Institucion> cambiarEstadoInstitucion({required String id, required bool activo});
 }

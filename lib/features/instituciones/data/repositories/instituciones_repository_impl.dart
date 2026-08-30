@@ -58,4 +58,10 @@ class InstitucionesRepositoryImpl implements InstitucionesRepository {
     );
     return result.toEntity();
   }
+
+  @override
+  Future<Institucion> cambiarEstadoInstitucion({required String id, required bool activo}) async {
+    final result = await _remote.cambiarEstadoInstitucion(id: id, activo: activo);
+    return result.toEntity();
+  }
 }

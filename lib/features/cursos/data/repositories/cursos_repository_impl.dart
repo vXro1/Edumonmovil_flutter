@@ -72,6 +72,9 @@ class CursosRepositoryImpl implements CursosRepository {
   Future<void> archiveCurso(String id) => _remote.archiveCurso(id);
 
   @override
+  Future<void> restoreCurso(String id) => _remote.restoreCurso(id);
+
+  @override
   Future<List<Participante>> fetchParticipantes(String cursoId, {int limit = 100}) async {
     final result = await _remote.fetchParticipantes(cursoId, limit: limit);
     return result.map((e) => e.toEntity()).toList();

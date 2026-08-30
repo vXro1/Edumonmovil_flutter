@@ -38,4 +38,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
       isAdminView: result.isAdminView,
     );
   }
+
+  @override
+  Future<void> updateModoOscuro(bool modoOscuro) => _remote.updateModoOscuro(modoOscuro);
 }

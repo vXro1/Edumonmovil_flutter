@@ -8,21 +8,25 @@ class PerfilesRepositoryImpl implements PerfilesRepository {
   final PerfilesRemoteDataSource _remote;
 
   @override
-  Future<List<Perfil>> fetchPerfiles() async {
+  Future<List<Perfil>> fetchPerfiles({String? activePerfilId}) async {
     final result = await _remote.fetchPerfiles();
-    return result.map((e) => e.toEntity()).toList();
+    bool esActivo(String id) => activePerfilId != null && activePerfilId == id;
+    return [
+      result.titular.toEntity(esActivo: esActivo(result.titular.id)),
+      for (final p in result.secundarios) p.toEntity(esActivo: esActivo(p.id)),
+    ];
   }
 
   @override
   Future<Perfil> createPerfil({required String nombre, String? avatarUrl}) async {
     final result = await _remote.createPerfil(nombre: nombre, avatarUrl: avatarUrl);
-    return result.toEntity();
+    return result.toEntity(esActivo: false);
   }
 
   @override
   Future<Perfil> updatePerfil({required String id, String? nombre, String? avatarUrl}) async {
     final result = await _remote.updatePerfil(id: id, nombre: nombre, avatarUrl: avatarUrl);
-    return result.toEntity();
+    return result.toEntity(esActivo: false);
   }
 
   @override
@@ -32,5 +36,6 @@ class PerfilesRepositoryImpl implements PerfilesRepository {
   Future<void> seleccionarPerfil(String perfilId) => _remote.seleccionarPerfil(perfilId);
 
   @override
-  Future<void> updateFcmToken(String fcmToken) => _remote.updateFcmToken(fcmToken);
+  Future<void> updateFcmToken(String fcmToken, {String? perfilId}) =>
+      _remote.updateFcmToken(fcmToken, perfilId: perfilId);
 }

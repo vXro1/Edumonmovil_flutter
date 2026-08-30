@@ -26,6 +26,7 @@ import '../../features/entregas/presentation/screens/mis_entregas_screen.dart';
 import '../../features/entregas/presentation/screens/realizar_entrega_screen.dart';
 import '../../features/eventos/presentation/screens/evento_form_screen.dart';
 import '../../features/eventos/presentation/screens/eventos_screen.dart';
+import '../../features/foros/presentation/screens/foro_dashboard_screen.dart';
 import '../../features/foros/presentation/screens/forum_screen.dart';
 import '../../features/instituciones/presentation/screens/institucion_detail_screen.dart';
 import '../../features/instituciones/presentation/screens/institucion_form_screen.dart';
@@ -179,6 +180,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           cursoId: state.pathParameters['cursoId']!,
           foroId: state.pathParameters['foroId']!,
         ),
+      ),
+      GoRoute(
+        path: '/curso/:cursoId/foro/:foroId/dashboard',
+        builder: (context, state) => ForoDashboardScreen(foroId: state.pathParameters['foroId']!),
       ),
 
       // Calendario/Eventos (Sprint 6).
