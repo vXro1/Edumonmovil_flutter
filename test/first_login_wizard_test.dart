@@ -83,6 +83,9 @@ class _FakeProfileRepository implements ProfileRepository {
 
   @override
   Future<void> updateModoOscuro(bool modoOscuro) async => calls.add('updateModoOscuro');
+
+  @override
+  Future<void> updateFcmToken(String fcmToken) async => calls.add('updateFcmToken');
 }
 
 void main() {

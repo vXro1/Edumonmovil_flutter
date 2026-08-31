@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/network_exceptions.dart';
+import '../../../../core/notifications/fcm_service.dart';
 import '../../../../core/notifications/notification_permission_service.dart';
 import '../../domain/entities/perfil_activo.dart';
 import '../../domain/entities/user.dart';
@@ -92,6 +93,7 @@ class AuthController extends Notifier<AuthState> {
       // Fire-and-forget — no bloquea la restauración de sesión si el
       // permiso tarda o el usuario todavía no respondió el diálogo.
       unawaited(requestNotificationPermissionOnce());
+      unawaited(_registerFcm());
     } catch (_) {
       // Chequeo silencioso al abrir la app — si nunca hubo sesión (instalación
       // nueva, sin cookies), el 401 de /auth/profile dispara el intento de
@@ -114,9 +116,19 @@ class AuthController extends Notifier<AuthState> {
         clearError: true,
       );
       unawaited(requestNotificationPermissionOnce());
+      unawaited(_registerFcm());
     } catch (e) {
       state = state.copyWith(status: AuthStatus.unauthenticated, errorMessage: _messageFor(e));
     }
+  }
+
+  /// Deja lista la recepción de push (canal de Android + listener de
+  /// foreground) y registra el token de este dispositivo en el backend —
+  /// ver FcmService para el porqué de que todo esto sea best-effort.
+  Future<void> _registerFcm() async {
+    final fcm = ref.read(fcmServiceProvider);
+    await fcm.init();
+    await fcm.registerForCurrentUser();
   }
 
   /// Llamado por el Wizard de primer login al terminar el paso 3 — el
@@ -139,6 +151,9 @@ class AuthController extends Notifier<AuthState> {
 
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
+    // Sin esto, el token de este dispositivo seguía "escuchando" al
+    // refresh de tokens del usuario anterior tras cerrar sesión.
+    await ref.read(fcmServiceProvider).unregister();
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
 
@@ -146,6 +161,7 @@ class AuthController extends Notifier<AuthState> {
   /// la actual, así que también termina en logout local.
   Future<void> logoutAll() async {
     await ref.read(authRepositoryProvider).logoutAll();
+    await ref.read(fcmServiceProvider).unregister();
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
 

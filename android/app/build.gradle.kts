@@ -4,6 +4,13 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Notificaciones push (FCM) — PENDIENTE (ver settings.gradle.kts): una vez
+// declarado el plugin ahí arriba y con google-services.json real presente,
+// descomentar esto para que se aplique:
+// if (file("google-services.json").exists()) {
+//     apply(plugin = "com.google.gms.google-services")
+// }
+
 android {
     namespace = "com.example.edumon_movil"
     compileSdk = flutter.compileSdkVersion

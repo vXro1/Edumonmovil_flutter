@@ -31,6 +31,22 @@ class ProfileRemoteDataSource {
     }
   }
 
+  /// updateFcmToken real (userRoutes.js: PUT /users/me/fcm-token) — registra
+  /// el token del dispositivo para que notificacionService.js pueda mandar
+  /// push reales vía FCMStrategy (admin.messaging().send) además de por
+  /// WebSocket. Best-effort: si falla (sin red, Firebase no configurado
+  /// todavía en este dispositivo) no debe interrumpir el login/arranque de
+  /// la app por un canal de notificación que es best-effort en el backend
+  /// también (ver notificacionService.js: enviarFCM nunca revienta el resto
+  /// de canales si falla).
+  Future<void> updateFcmToken(String fcmToken) async {
+    try {
+      await _dio.put('/users/me/fcm-token', data: {'fcmToken': fcmToken});
+    } on DioException {
+      // Best-effort.
+    }
+  }
+
   Future<List<String>> fetchDefaultAvatars() async {
     try {
       final response = await _dio.get('/users/fotos-predeterminadas');

@@ -41,4 +41,7 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<void> updateModoOscuro(bool modoOscuro) => _remote.updateModoOscuro(modoOscuro);
+
+  @override
+  Future<void> updateFcmToken(String fcmToken) => _remote.updateFcmToken(fcmToken);
 }

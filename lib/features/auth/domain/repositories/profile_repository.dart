@@ -55,4 +55,8 @@ abstract class ProfileRepository {
   /// backend (best-effort, no lanza si falla). "Sistema" no tiene equivalente
   /// booleano, así que solo se llama para Claro/Oscuro explícitos.
   Future<void> updateModoOscuro(bool modoOscuro);
+
+  /// PUT /users/me/fcm-token real — registra el token FCM de este
+  /// dispositivo para recibir notificaciones push reales (ver FcmService).
+  Future<void> updateFcmToken(String fcmToken);
 }

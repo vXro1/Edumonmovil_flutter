@@ -33,6 +33,20 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+        <!-- Notificaciones push (FCM) — icono/color/canal por defecto que usa
+             Android cuando el mensaje llega con la app en background o
+             cerrada (ahí no corre nada de Dart, así que no hay forma de
+             elegirlos en runtime). "notificaciones_generales" debe coincidir
+             con el channel id creado en fcm_service.dart. -->
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@mipmap/ic_launcher" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/notification_color" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="notificaciones_generales" />
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data

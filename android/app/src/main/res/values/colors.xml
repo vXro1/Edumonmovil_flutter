@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- Azul primario de la marca (AppColors.primary en app_colors.dart) —
+         tinte de las notificaciones push cuando llegan con la app cerrada. -->
+    <color name="notification_color">#0DC5E2</color>
 </resources>
