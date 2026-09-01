@@ -1,4 +1,4 @@
-package com.example.edumon_movil
+package com.edumon.movil
 
 import io.flutter.embedding.android.FlutterActivity
 
