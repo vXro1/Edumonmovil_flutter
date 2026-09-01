@@ -58,14 +58,11 @@ List<_NavItem> _navItemsFor(UserRole rol) {
       const _NavItem(icon: LucideIcons.partyPopper, label: 'Eventos', route: '/eventos'),
     if (rol == UserRole.padreTutor)
       const _NavItem(icon: LucideIcons.users, label: 'Perfiles', route: '/familia/perfiles'),
-    // BUG REAL corregido: buzonRoutes.js real restringe GET /buzon y
-    // PATCH /:id/leido a requireRole(['superadmin']) — un administrador
-    // veía este ítem, entraba y el backend le devolvía 403 "No tienes
-    // permiso" al intentar cargar los mensajes. Es el buzón de contacto de
-    // TODA la plataforma (la landing pública), no de una institución
-    // puntual, por eso es exclusivo de superadmin.
-    if (rol == UserRole.superAdmin)
-      const _NavItem(icon: LucideIcons.inbox, label: 'Buzón', route: '/buzon'),
+    // "Buzón" se sacó del navbar por decisión de producto — quedaba
+    // redundante con Notificaciones (ya accesible para todos los roles,
+    // incluido superadmin, desde la campana del AppBar). La pantalla/ruta
+    // /buzon y el endpoint real (superadmin-only, ver buzonRoutes.js) siguen
+    // intactos por si se decide reincorporarlo más adelante.
     // Configuración (Mi perfil) — antes solo accesible desde el menú del
     // avatar en el AppBar, ahora también como ítem propio del navbar para
     // los 4 roles (BLUEPRINT.md FASE 3.11 / tabla 4.2: universal).
