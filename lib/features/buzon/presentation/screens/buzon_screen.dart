@@ -12,9 +12,12 @@ import '../providers/buzon_providers.dart';
 
 enum _Filtro { todos, sinLeer, leidos }
 
-/// Buzón (mensajería pública) — BLUEPRINT.md FASE 3.9. Ruta /buzon
-/// (superadmin/admin). El formulario público de contacto es de la landing
-/// web, no de esta app — acá solo se leen y marcan como leídos.
+/// Buzón (mensajería pública) — BLUEPRINT.md FASE 3.9. Ruta /buzon,
+/// exclusiva de superadmin (buzonRoutes.js real: GET / y PATCH /:id/leido
+/// exigen requireRole(['superadmin']) — un administrador de institución no
+/// tiene acceso, esto es el buzón de contacto de toda la plataforma, no de
+/// una institución puntual). El formulario público de contacto es de la
+/// landing web, no de esta app — acá solo se leen y marcan como leídos.
 class BuzonScreen extends ConsumerStatefulWidget {
   const BuzonScreen({super.key});
 

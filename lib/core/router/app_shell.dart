@@ -58,7 +58,13 @@ List<_NavItem> _navItemsFor(UserRole rol) {
       const _NavItem(icon: LucideIcons.partyPopper, label: 'Eventos', route: '/eventos'),
     if (rol == UserRole.padreTutor)
       const _NavItem(icon: LucideIcons.users, label: 'Perfiles', route: '/familia/perfiles'),
-    if (rol == UserRole.superAdmin || rol == UserRole.administrador)
+    // BUG REAL corregido: buzonRoutes.js real restringe GET /buzon y
+    // PATCH /:id/leido a requireRole(['superadmin']) — un administrador
+    // veía este ítem, entraba y el backend le devolvía 403 "No tienes
+    // permiso" al intentar cargar los mensajes. Es el buzón de contacto de
+    // TODA la plataforma (la landing pública), no de una institución
+    // puntual, por eso es exclusivo de superadmin.
+    if (rol == UserRole.superAdmin)
       const _NavItem(icon: LucideIcons.inbox, label: 'Buzón', route: '/buzon'),
     // Configuración (Mi perfil) — antes solo accesible desde el menú del
     // avatar en el AppBar, ahora también como ítem propio del navbar para
