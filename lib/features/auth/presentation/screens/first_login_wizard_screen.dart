@@ -360,7 +360,7 @@ class _FirstLoginWizardScreenState extends ConsumerState<FirstLoginWizardScreen>
       key: const ValueKey('photo'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        const Center(child: EdumonLogoMark(iconSize: 56, showWordmark: false)),
+        const Center(child: EdumonLogoMark(width: 140)),
         const SizedBox(height: AppSpacing.sm),
         Text('¡Bienvenido a EDUMON!', textAlign: TextAlign.center, style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: AppSpacing.xs),

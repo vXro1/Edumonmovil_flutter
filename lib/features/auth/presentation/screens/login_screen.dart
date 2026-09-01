@@ -200,7 +200,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   children: [
                     const SizedBox(height: AppSpacing.md),
                     const Center(
-                      child: EdumonLogoMark(iconSize: 92, wordmarkWidth: 180),
+                      child: EdumonLogoMark(width: 220),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(

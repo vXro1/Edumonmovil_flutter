@@ -90,7 +90,7 @@ class LandingFooter extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: AppSpacing.xl),
-              const EdumonLogoMark(iconSize: 44, wordmarkWidth: 120),
+              const EdumonLogoMark(width: 130),
               const SizedBox(height: AppSpacing.sm),
               const Text(
                 'Aprender a criar, un reto a la vez.',

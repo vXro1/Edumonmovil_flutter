@@ -100,7 +100,7 @@ class AppShell extends ConsumerWidget {
               children: [
                 const Padding(
                   padding: EdgeInsets.symmetric(vertical: AppSpacing.md),
-                  child: Center(child: EdumonLogoMark(iconSize: 48, wordmarkWidth: 110)),
+                  child: Center(child: EdumonLogoMark(width: 130)),
                 ),
                 for (var i = 0; i < navItems.length; i++)
                   Padding(
