@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../domain/entities/perfil_activo.dart';
 
 /// DTO — sub-objeto `perfilActivo` de GET /auth/profile (authController.js
@@ -14,7 +15,7 @@ class PerfilActivoModel {
     return PerfilActivoModel(
       id: (json['id'] ?? json['_id']).toString(),
       nombre: json['nombre']?.toString() ?? '',
-      avatarUrl: json['avatarUrl']?.toString(),
+      avatarUrl: Env.resolveUrl(json['avatarUrl']?.toString()),
       esTitular: json['esTitular'] == true,
     );
   }

@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../domain/entities/foro_dashboard.dart';
 import 'foro_model.dart';
 
@@ -36,7 +37,7 @@ class ForoDashboardModel {
           id: (map['id'] ?? map['_id']).toString(),
           nombre: map['nombre']?.toString() ?? '',
           apellido: map['apellido']?.toString(),
-          avatarUrl: map['fotoPerfilUrl']?.toString(),
+          avatarUrl: Env.resolveUrl(map['fotoPerfilUrl']?.toString()),
           totalMensajes: asInt(map['totalMensajes']),
           ultimaActividad: DateTime.tryParse((map['ultimaActividad'] ?? '').toString()) ?? DateTime.now(),
         );

@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../domain/entities/perfil.dart';
 
 /// DTO — verificado contra perfilFamiliarController.js real.
@@ -19,7 +20,7 @@ class PerfilModel {
     return PerfilModel(
       id: (json['id'] ?? json['_id']).toString(),
       nombre: json['nombre']?.toString() ?? '',
-      avatarUrl: (json['avatarUrl'] ?? json['fotoPerfilUrl'])?.toString(),
+      avatarUrl: Env.resolveUrl((json['avatarUrl'] ?? json['fotoPerfilUrl'])?.toString()),
       esTitular: json['esTitular'] == true || esTitularFallback,
     );
   }

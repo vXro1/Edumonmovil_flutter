@@ -13,10 +13,12 @@ import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
 
 /// Recuperar contraseña — BLUEPRINT.md FASE 3.1.3.
+/// authRoutes.js real: forgot-password-phone/reset-password-phone (WhatsApp
+/// vía Twilio) se eliminaron del backend junto con Twilio — recuperación de
+/// contraseña quedó solo por correo, ya no hay elección de método.
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -25,33 +27,22 @@ class ForgotPasswordScreen extends ConsumerStatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
-  final _contactController = TextEditingController();
+  final _correoController = TextEditingController();
 
-  RecoveryMethod _method = RecoveryMethod.correo;
   String? _error;
   bool _loading = false;
   bool _sent = false;
 
   @override
   void dispose() {
-    _contactController.dispose();
+    _correoController.dispose();
     super.dispose();
   }
 
-  bool _isValid(String contact) {
-    return _method == RecoveryMethod.correo
-        ? AppConstants.emailRegex.hasMatch(contact)
-        : AppConstants.recoveryPhoneRegex.hasMatch(contact);
-  }
-
   Future<void> _submit() async {
-    final contact = _contactController.text.trim();
-    if (!_isValid(contact)) {
-      setState(() {
-        _error = _method == RecoveryMethod.correo
-            ? 'Ingresa un correo válido.'
-            : 'Ingresa un teléfono válido (7 a 15 dígitos).';
-      });
+    final correo = _correoController.text.trim();
+    if (!AppConstants.emailRegex.hasMatch(correo)) {
+      setState(() => _error = 'Ingresa un correo válido.');
       return;
     }
 
@@ -61,7 +52,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     });
 
     try {
-      await ref.read(authRepositoryProvider).requestPasswordRecovery(method: _method, contact: contact);
+      await ref.read(authRepositoryProvider).requestPasswordRecovery(correo: correo);
       if (!mounted) return;
       setState(() => _sent = true);
     } catch (e) {
@@ -107,9 +98,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                       ),
                       child: AnimatedSwitcher(
                         duration: const Duration(milliseconds: 200),
-                        child: _sent
-                            ? _SentState(contact: _contactController.text.trim(), method: _method)
-                            : _form(isDark),
+                        child: _sent ? _SentState(correo: _correoController.text.trim()) : _form(isDark),
                       ),
                     ),
                   ],
@@ -130,35 +119,16 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
         Text('Recuperar contraseña', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'Elegí cómo querés recibir el código de recuperación.',
+          'Ingresá tu correo y te mandamos un código de recuperación.',
           style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMuted),
         ),
         const SizedBox(height: AppSpacing.lg),
-        SegmentedButton<RecoveryMethod>(
-          segments: const [
-            ButtonSegment(value: RecoveryMethod.correo, label: Text('Correo'), icon: Icon(LucideIcons.mail)),
-            ButtonSegment(
-              value: RecoveryMethod.telefono,
-              label: Text('WhatsApp'),
-              icon: Icon(LucideIcons.messageCircle),
-            ),
-          ],
-          selected: {_method},
-          onSelectionChanged: (selection) => setState(() {
-            _method = selection.first;
-            _error = null;
-          }),
-        ),
-        const SizedBox(height: AppSpacing.md),
         EdumonTextField(
-          controller: _contactController,
-          label: _method == RecoveryMethod.correo ? 'Correo' : 'Teléfono',
-          // Antes: '+573001234567' — inconsistente con login(), donde el
-          // usuario NO tipea el +57 (se le antepone en el datasource). Ahora
-          // el hint refleja el mismo formato: solo el número local.
-          hint: _method == RecoveryMethod.correo ? 'tu@correo.com' : '3001234567',
-          leftIcon: _method == RecoveryMethod.correo ? LucideIcons.mail : LucideIcons.phone,
-          keyboardType: _method == RecoveryMethod.correo ? TextInputType.emailAddress : TextInputType.phone,
+          controller: _correoController,
+          label: 'Correo',
+          hint: 'tu@correo.com',
+          leftIcon: LucideIcons.mail,
+          keyboardType: TextInputType.emailAddress,
           errorText: _error,
           textInputAction: TextInputAction.done,
           onSubmitted: (_) => _submit(),
@@ -178,10 +148,9 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 }
 
 class _SentState extends StatelessWidget {
-  const _SentState({required this.contact, required this.method});
+  const _SentState({required this.correo});
 
-  final String contact;
-  final RecoveryMethod method;
+  final String correo;
 
   @override
   Widget build(BuildContext context) {
@@ -200,9 +169,7 @@ class _SentState extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          method == RecoveryMethod.correo
-              ? 'Revisá tu correo ($contact) y buscá el código de recuperación.'
-              : 'Revisá los mensajes de $contact y buscá el código de recuperación.',
+          'Revisá tu correo ($correo) y buscá el código de recuperación.',
           textAlign: TextAlign.center,
           style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMuted),
         ),
@@ -212,7 +179,7 @@ class _SentState extends StatelessWidget {
           fullWidth: true,
           size: EdumonButtonSize.lg,
           variant: EdumonButtonVariant.accent,
-          onPressed: () => context.push('/reset-password', extra: {'contact': contact, 'method': method}),
+          onPressed: () => context.push('/reset-password', extra: {'correo': correo}),
         ),
       ],
     );

@@ -8,9 +8,6 @@ class AppConstants {
   static const Duration jwtExpiryGrace = Duration(seconds: 30);
 
   static final RegExp phoneRegex = RegExp(r'^\d{10}$');
-  // FASE 3.1.3: la recuperación acepta un formato más laxo (con + opcional,
-  // 7-15 dígitos) que el login (10 dígitos fijos sin +57 visible).
-  static final RegExp recoveryPhoneRegex = RegExp(r'^\+?\d{7,15}$');
   static final RegExp cedulaRegex = RegExp(r'^\d{6,10}$');
   static final RegExp emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
   // Igual que nombre/apellido en userValidator.js real (createUserValidator).

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/auth/domain/repositories/auth_repository.dart';
 import '../../features/auth/presentation/providers/auth_controller.dart';
 import '../../features/home/presentation/screens/web_home_screen.dart';
 import '../../features/auth/presentation/screens/first_login_wizard_screen.dart';
@@ -104,13 +103,10 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         path: '/reset-password',
         builder: (context, state) {
           final extra = state.extra;
-          if (extra is Map && extra['contact'] is String && extra['method'] is RecoveryMethod) {
-            return ResetPasswordScreen(
-              contact: extra['contact'] as String,
-              method: extra['method'] as RecoveryMethod,
-            );
+          if (extra is Map && extra['correo'] is String) {
+            return ResetPasswordScreen(correo: extra['correo'] as String);
           }
-          // Deep-link directo sin pasar por Forgot Password: no hay contacto al que resetear.
+          // Deep-link directo sin pasar por Forgot Password: no hay correo al que resetear.
           return const ForgotPasswordScreen();
         },
       ),

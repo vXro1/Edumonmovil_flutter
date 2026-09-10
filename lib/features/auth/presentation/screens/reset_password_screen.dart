@@ -14,15 +14,15 @@ import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
-import '../../domain/repositories/auth_repository.dart';
 import '../providers/auth_providers.dart';
 
 /// Introducir código + nueva contraseña — BLUEPRINT.md FASE 3.1.4.
+/// authRoutes.js real: la recuperación de contraseña quedó solo por correo
+/// (WhatsApp/Twilio se eliminó del backend).
 class ResetPasswordScreen extends ConsumerStatefulWidget {
-  const ResetPasswordScreen({super.key, required this.contact, required this.method});
+  const ResetPasswordScreen({super.key, required this.correo});
 
-  final String contact;
-  final RecoveryMethod method;
+  final String correo;
 
   @override
   ConsumerState<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -64,7 +64,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
     try {
       await ref
           .read(authRepositoryProvider)
-          .resetPassword(method: widget.method, contact: widget.contact, codigo: code, nuevaContrasena: password);
+          .resetPassword(correo: widget.correo, codigo: code, nuevaContrasena: password);
       if (!mounted) return;
       setState(() => _success = true);
     } catch (e) {
@@ -131,7 +131,7 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
         Text('Nueva contraseña', style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'Ingresá el código que enviamos a ${widget.contact}.',
+          'Ingresá el código que enviamos a ${widget.correo}.',
           style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMuted),
         ),
         const SizedBox(height: AppSpacing.lg),

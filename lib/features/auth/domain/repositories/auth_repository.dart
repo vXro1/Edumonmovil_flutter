@@ -8,9 +8,6 @@ class LoginResult {
   final bool primerInicioSesion;
 }
 
-/// Método de contacto para recuperación de contraseña — BLUEPRINT.md FASE 3.1.3.
-enum RecoveryMethod { correo, telefono }
-
 /// Interfaz de dominio — BLUEPRINT.md FASE 5.5 / FASE 10.1.
 abstract class AuthRepository {
   Future<LoginResult> login({required String telefono, required String contrasena});
@@ -26,14 +23,11 @@ abstract class AuthRepository {
   /// usuario, no solo la actual.
   Future<void> logoutAll();
 
-  /// [contact] es el correo o el teléfono, según [method].
-  Future<void> requestPasswordRecovery({required RecoveryMethod method, required String contact});
+  // authRoutes.js real: forgot-password-phone/reset-password-phone (WhatsApp
+  // vía Twilio) se eliminaron del backend — recuperación de contraseña
+  // quedó solo por correo. Antes esto tenía un [RecoveryMethod] con la
+  // opción "telefono", que ya pegaba contra rutas inexistentes (404).
+  Future<void> requestPasswordRecovery({required String correo});
 
-  /// [contact] es el correo o el teléfono, según [method].
-  Future<void> resetPassword({
-    required RecoveryMethod method,
-    required String contact,
-    required String codigo,
-    required String nuevaContrasena,
-  });
+  Future<void> resetPassword({required String correo, required String codigo, required String nuevaContrasena});
 }

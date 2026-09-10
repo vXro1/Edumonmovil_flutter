@@ -78,14 +78,10 @@ class AuthRemoteDataSource {
 
   Future<void> forgotPasswordByEmail(String correo) => _post('/auth/forgot-password', {'correo': correo});
 
-  // Antes: mandaba `telefono` tal cual lo tipeaba el usuario, sin `+57`.
-  // normalizarTelefono() del backend espera/produce el formato con
-  // prefijo (igual que en login/register), así que sin el `+57` no
-  // encontraba al usuario en la BD — el endpoint respondía 200 genérico
-  // igual (anti-enumeración) pero nunca mandaba el WhatsApp de verdad.
-  Future<void> forgotPasswordByPhone(String telefono) =>
-      _post('/auth/forgot-password-phone', {'telefono': '+57$telefono'});
-
+  // authRoutes.js real: forgot-password-phone/reset-password-phone (WhatsApp
+  // vía Twilio) se eliminaron del backend junto con Twilio — recuperación
+  // de contraseña quedó solo por correo (ver .env.example: SMTP en vez de
+  // Twilio/Brevo). Los métodos que pegaban a esas rutas se sacaron de acá.
   Future<void> resetPasswordByEmail({
     required String correo,
     required String codigo,
@@ -95,18 +91,6 @@ class AuthRemoteDataSource {
     'codigo': codigo,
     // authController.js resetPassword real: destructura "contraseñaNueva" (con ñ),
     // igual que el de teléfono — el blueprint lo documentó sin ñ para este, era incorrecto.
-    'contraseñaNueva': contrasenaNueva,
-  });
-
-  // Mismo fix que forgotPasswordByPhone: sin el +57 el backend no
-  // encuentra al usuario con resetPasswordToken y falla en silencio.
-  Future<void> resetPasswordByPhone({
-    required String telefono,
-    required String codigo,
-    required String contrasenaNueva,
-  }) => _post('/auth/reset-password-phone', {
-    'telefono': '+57$telefono',
-    'codigo': codigo,
     'contraseñaNueva': contrasenaNueva,
   });
 

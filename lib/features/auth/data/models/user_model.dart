@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../../../core/security/role.dart';
 import '../../domain/entities/user.dart';
 
@@ -49,7 +50,10 @@ class UserModel {
       cedula: json['cedula']?.toString() ?? '',
       telefono: json['telefono']?.toString() ?? '',
       // El backend real (login/getProfile) manda "fotoPerfilUrl", no "avatarUrl".
-      avatarUrl: json['fotoPerfilUrl']?.toString(),
+      // cloudinaryUpload.js real migró a almacenamiento local: esta URL llega
+      // como ruta relativa ("/uploads/..." o "/static/avatares/...") — hay
+      // que resolverla contra el origen del backend, no queda usable tal cual.
+      avatarUrl: Env.resolveUrl(json['fotoPerfilUrl']?.toString()),
       correo: json['correo']?.toString(),
       institucionId: json['institucionId']?.toString(),
       permisos: (json['permisos'] as List?)?.map((e) => e.toString()).toList() ?? const [],

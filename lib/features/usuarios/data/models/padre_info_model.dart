@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../domain/entities/padre_info.dart';
 
 /// DTO — getPadreInfo real (userController.js), respuesta anidada bajo `padre`.
@@ -36,7 +37,7 @@ class PadreInfoModel {
       cedula: json['cedula']?.toString() ?? '',
       correo: json['correo']?.toString(),
       telefono: json['telefono']?.toString(),
-      avatarUrl: json['fotoPerfilUrl']?.toString(),
+      avatarUrl: Env.resolveUrl(json['fotoPerfilUrl']?.toString()),
       estado: json['estado']?.toString() ?? 'activo',
       esTitular: json['esTitular'] == true,
       ultimoAcceso: json['ultimoAcceso'] != null ? DateTime.tryParse(json['ultimoAcceso'].toString()) : null,

@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../domain/entities/curso.dart';
 
 class CursoDocenteModel {
@@ -68,7 +69,8 @@ class CursoModel {
       nombre: json['nombre']?.toString() ?? '',
       descripcion: json['descripcion']?.toString(),
       estado: json['estado']?.toString() ?? 'activo',
-      imagenUrl: json['fotoPortadaUrl']?.toString(),
+      // cloudinaryUpload.js real ahora es almacenamiento local: ruta relativa.
+      imagenUrl: Env.resolveUrl(json['fotoPortadaUrl']?.toString()),
       docente: docente,
       docenteId: docenteId,
       totalParticipantes: totalParticipantes,

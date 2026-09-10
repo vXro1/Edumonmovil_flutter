@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 
+import '../../../../core/config/env.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../models/user_activity_model.dart';
 
@@ -52,11 +53,13 @@ class ProfileRemoteDataSource {
       final response = await _dio.get('/users/fotos-predeterminadas');
       final data = response.data;
       // getFotosPredeterminadas real devuelve {fotos: [{url, publicId, nombre}, ...]}
-      // — objetos, no strings sueltos.
+      // — objetos, no strings sueltos. Y desde la migración a almacenamiento
+      // local, "url" es una ruta relativa ("/static/avatares/...") que hay
+      // que resolver contra el origen del backend.
       final rawList = data is Map ? data['fotos'] as List? : null;
       return (rawList ?? const [])
           .whereType<Map>()
-          .map((e) => e['url']?.toString())
+          .map((e) => Env.resolveUrl(e['url']?.toString()))
           .whereType<String>()
           .toList();
     } on DioException catch (e) {

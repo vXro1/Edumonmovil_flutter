@@ -1,3 +1,5 @@
+import '../../core/config/env.dart';
+
 /// Adjunto compartido tarea/entrega/foro/evento — BLUEPRINT.md FASE 9.7.
 /// Verificado contra tareaController.js/entregaController.js reales: cada
 /// dominio guarda el array bajo la clave "archivosAdjuntos" (no "archivos"),
@@ -33,7 +35,7 @@ class Archivo {
     final tamanoRaw = json['tamanoBytes'] ?? json['tamano'];
     return Archivo(
       id: (json['id'] ?? json['_id'] ?? json['publicId'] ?? json['public_id'] ?? json['url']).toString(),
-      url: (json['url'] ?? json['secure_url'])?.toString() ?? '',
+      url: Env.resolveUrl((json['url'] ?? json['secure_url'])?.toString()) ?? '',
       nombre: (json['nombre'] ?? json['nombreOriginal'] ?? json['original_filename'])?.toString() ?? 'Archivo',
       publicId: (json['publicId'] ?? json['public_id'])?.toString(),
       tipo: (json['tipo'] ?? json['tipoArchivo'] ?? json['mimetype'])?.toString(),

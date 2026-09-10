@@ -34,21 +34,10 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logoutAll() => _remote.logoutAll();
 
   @override
-  Future<void> requestPasswordRecovery({required RecoveryMethod method, required String contact}) {
-    return method == RecoveryMethod.correo
-        ? _remote.forgotPasswordByEmail(contact)
-        : _remote.forgotPasswordByPhone(contact);
-  }
+  Future<void> requestPasswordRecovery({required String correo}) => _remote.forgotPasswordByEmail(correo);
 
   @override
-  Future<void> resetPassword({
-    required RecoveryMethod method,
-    required String contact,
-    required String codigo,
-    required String nuevaContrasena,
-  }) {
-    return method == RecoveryMethod.correo
-        ? _remote.resetPasswordByEmail(correo: contact, codigo: codigo, contrasenaNueva: nuevaContrasena)
-        : _remote.resetPasswordByPhone(telefono: contact, codigo: codigo, contrasenaNueva: nuevaContrasena);
+  Future<void> resetPassword({required String correo, required String codigo, required String nuevaContrasena}) {
+    return _remote.resetPasswordByEmail(correo: correo, codigo: codigo, contrasenaNueva: nuevaContrasena);
   }
 }

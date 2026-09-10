@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../domain/entities/curso_resumen.dart';
 
 /// DTO — (⚠️) shape de /cursos/mis-cursos no verificado contra el backend
@@ -38,7 +39,9 @@ class CursoResumenModel {
       id: (json['id'] ?? json['_id']).toString(),
       nombre: json['nombre']?.toString() ?? '',
       docenteNombre: docenteNombre?.isEmpty == true ? null : docenteNombre,
-      imagenUrl: (json['imagenUrl'] ?? json['imagen'] ?? json['fotoPortada'] ?? json['fotoPortadaUrl'])?.toString(),
+      imagenUrl: Env.resolveUrl(
+        (json['imagenUrl'] ?? json['imagen'] ?? json['fotoPortada'] ?? json['fotoPortadaUrl'])?.toString(),
+      ),
       totalParticipantes: totalParticipantes,
     );
   }

@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../../../core/security/role.dart';
 import '../../../../shared/models/archivo.dart';
 import '../../domain/entities/foro.dart';
@@ -26,7 +27,7 @@ class ForoAutorModel {
       nombre: json['nombre']?.toString() ?? '',
       apellido: json['apellido']?.toString(),
       rol: rol,
-      avatarUrl: json['fotoPerfilUrl']?.toString(),
+      avatarUrl: Env.resolveUrl(json['fotoPerfilUrl']?.toString()),
     );
   }
 

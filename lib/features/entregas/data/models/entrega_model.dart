@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../../../shared/models/archivo.dart';
 import '../../domain/entities/entrega.dart';
 
@@ -15,7 +16,7 @@ class EntregaPadreModel {
       nombre: json['nombre']?.toString() ?? '',
       apellido: json['apellido']?.toString(),
       // Mismo campo que en todo el resto del backend real (User.fotoPerfilUrl).
-      avatarUrl: json['fotoPerfilUrl']?.toString(),
+      avatarUrl: Env.resolveUrl(json['fotoPerfilUrl']?.toString()),
     );
   }
 

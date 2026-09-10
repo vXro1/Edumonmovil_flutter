@@ -1,3 +1,4 @@
+import '../../../../core/config/env.dart';
 import '../../domain/entities/institucion.dart';
 
 class InstitucionAdminModel {
@@ -17,7 +18,7 @@ class InstitucionAdminModel {
       correo: json['correo']?.toString(),
       // Ver comentario en institucion.dart: el .populate() real hoy no trae
       // este campo — queda listo para cuando el backend lo agregue.
-      avatarUrl: json['fotoPerfilUrl']?.toString(),
+      avatarUrl: Env.resolveUrl(json['fotoPerfilUrl']?.toString()),
     );
   }
 
