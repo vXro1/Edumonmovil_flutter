@@ -20,12 +20,12 @@ if (tieneFirmaReal) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-// Notificaciones push (FCM) — PENDIENTE (ver settings.gradle.kts): una vez
-// declarado el plugin ahí arriba y con google-services.json real presente,
-// descomentar esto para que se aplique:
-// if (file("google-services.json").exists()) {
-//     apply(plugin = "com.google.gms.google-services")
-// }
+// Notificaciones push (FCM): el plugin de Google Services solo se aplica si
+// existe google-services.json (ya real, del proyecto edumon-ae180) — así el
+// proyecto sigue compilando en una máquina/clon sin ese archivo.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
 
 android {
     // "com.example.*" era el paquete genérico que deja Flutter por defecto
