@@ -143,14 +143,16 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
     }
   }
 
-  ({IconData icon, Color color}) _visualsFor(NotificacionTipo tipo) {
+  // Tonos 700 en claro / 300 en oscuro: los colores de marca "puros"
+  // (amarillo, verde) no alcanzaban contraste 3:1 sobre fondo blanco.
+  ({IconData icon, Color color}) _visualsFor(NotificacionTipo tipo, bool isDark) {
     return switch (tipo) {
-      NotificacionTipo.tarea => (icon: LucideIcons.target, color: AppColors.accent),
-      NotificacionTipo.entrega => (icon: LucideIcons.fileCheck, color: AppColors.success),
-      NotificacionTipo.calificacion => (icon: LucideIcons.star, color: AppColors.warning),
-      NotificacionTipo.foro => (icon: LucideIcons.messageSquare, color: AppColors.secondary),
-      NotificacionTipo.evento => (icon: LucideIcons.partyPopper, color: AppColors.secondary),
-      NotificacionTipo.sistema => (icon: LucideIcons.info, color: AppColors.primary),
+      NotificacionTipo.tarea => (icon: LucideIcons.target, color: isDark ? AppColors.purple300 : AppColors.purple700),
+      NotificacionTipo.entrega => (icon: LucideIcons.fileCheck, color: isDark ? AppColors.green300 : AppColors.green700),
+      NotificacionTipo.calificacion => (icon: LucideIcons.star, color: isDark ? AppColors.yellow300 : AppColors.yellow700),
+      NotificacionTipo.foro => (icon: LucideIcons.messageSquare, color: isDark ? AppColors.pink300 : AppColors.pink700),
+      NotificacionTipo.evento => (icon: LucideIcons.calendar, color: isDark ? AppColors.blue300 : AppColors.blue700),
+      NotificacionTipo.sistema => (icon: LucideIcons.info, color: isDark ? AppColors.neutral300 : AppColors.neutral600),
     };
   }
 
@@ -169,9 +171,14 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
       appBar: AppBar(
         title: const Text('Notificaciones'),
         actions: [
-          TextButton(onPressed: _markAllAsRead, child: const Text('Marcar todas')),
+          IconButton(
+            icon: const Icon(LucideIcons.checkCheck),
+            tooltip: 'Marcar todas como leídas',
+            onPressed: _items.any((n) => !n.leida) ? _markAllAsRead : null,
+          ),
           PopupMenuButton<VoidCallback>(
-            icon: const Icon(LucideIcons.moreVertical),
+            icon: const Icon(LucideIcons.ellipsisVertical),
+            tooltip: 'Más opciones',
             onSelected: (accion) => accion(),
             itemBuilder: (context) => [
               PopupMenuItem(value: _limpiarAntiguas, child: const Text('Limpiar leídas antiguas')),
@@ -201,8 +208,8 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                'Puedes borrar las notificaciones leídas de hace más de 30 días con "Limpiar leídas antiguas".',
-                style: TextStyle(color: AppColors.subtleText(context), fontSize: 11),
+                'Toca una notificación para marcarla como leída. Desliza a la izquierda o usa la papelera para eliminarla.',
+                style: TextStyle(color: AppColors.mutedText(context), fontSize: 12),
               ),
             ),
           ),
@@ -235,8 +242,21 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
     }
 
     if (_items.isEmpty) {
-      return Center(
-        child: Text('No tenés notificaciones.', style: TextStyle(color: AppColors.mutedText(context))),
+      final texto = switch (_filter) {
+        _Filter.todas => 'No tienes notificaciones.',
+        _Filter.noLeidas => 'Estás al día: no tienes notificaciones sin leer.',
+        _Filter.leidas => 'No tienes notificaciones leídas.',
+      };
+      return RefreshIndicator(
+        onRefresh: () => _loadPage(1),
+        child: ListView(
+          children: [
+            const SizedBox(height: 96),
+            Icon(LucideIcons.bellOff, size: 48, color: AppColors.mutedText(context)),
+            const SizedBox(height: AppSpacing.sm),
+            Text(texto, textAlign: TextAlign.center, style: TextStyle(color: AppColors.mutedText(context), fontSize: 15)),
+          ],
+        ),
       );
     }
 
@@ -260,16 +280,26 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
           }
 
           final n = _items[index];
-          final visuals = _visualsFor(n.tipo);
+          final visuals = _visualsFor(n.tipo, context.isDarkMode);
 
           return Dismissible(
             key: ValueKey(n.id),
             direction: DismissDirection.endToStart,
             background: Container(
-              color: AppColors.errorSurface(context.isDarkMode),
+              decoration: BoxDecoration(
+                color: AppColors.errorSurface(context.isDarkMode),
+                borderRadius: BorderRadius.circular(AppRadius.md),
+              ),
               alignment: Alignment.centerRight,
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-              child: const Icon(LucideIcons.trash2, color: AppColors.error),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(LucideIcons.trash2, color: AppColors.errorHover),
+                  SizedBox(width: 6),
+                  Text('Eliminar', style: TextStyle(color: AppColors.errorHover, fontWeight: FontWeight.w700)),
+                ],
+              ),
             ),
             onDismissed: (_) => _delete(n),
             child: _NotificacionTile(
@@ -278,6 +308,7 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
               icon: visuals.icon,
               relativeTime: _relativeTime(n.createdAt),
               onTap: () => _markAsRead(n),
+              onDelete: () => _delete(n),
             ),
           );
         },
@@ -286,8 +317,10 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
   }
 }
 
-/// Fila de notificación con franja lateral de color por tipo — BLUEPRINT.md
-/// "cada notificación debe tener un color lateral según su tipo".
+/// Fila de notificación — franja lateral e ícono con el color del tipo.
+/// Contraste AA en claro y oscuro: fondo de tarjeta distinto del fondo de la
+/// pantalla + borde visible; las no leídas se distinguen por fondo tintado,
+/// punto indicador y texto en negrita (no solo por color/opacidad).
 class _NotificacionTile extends StatelessWidget {
   const _NotificacionTile({
     required this.notificacion,
@@ -295,6 +328,7 @@ class _NotificacionTile extends StatelessWidget {
     required this.icon,
     required this.relativeTime,
     required this.onTap,
+    required this.onDelete,
   });
 
   final Notificacion notificacion;
@@ -302,62 +336,108 @@ class _NotificacionTile extends StatelessWidget {
   final IconData icon;
   final String relativeTime;
   final VoidCallback onTap;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
     final isDark = context.isDarkMode;
     final leida = notificacion.leida;
+    final textPrimary = isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final textMuted = isDark ? AppColors.textMutedDark : AppColors.textMuted;
+    final baseSurface = isDark ? AppColors.surface2Dark : AppColors.surface;
+    final fondo = leida ? baseSurface : Color.alphaBlend(color.withValues(alpha: isDark ? 0.14 : 0.07), baseSurface);
+    final borde = leida
+        ? (isDark ? AppColors.borderNormalDark : AppColors.borderNormal)
+        : color.withValues(alpha: isDark ? 0.55 : 0.35);
 
-    return Opacity(
-      opacity: leida ? 0.6 : 1,
+    return Semantics(
+      container: true,
+      button: !leida,
+      label: '${leida ? '' : 'No leída. '}${notificacion.tipo.etiqueta}. ${notificacion.titulo}. '
+          '${notificacion.mensaje}. $relativeTime',
+      hint: leida ? null : 'Toca dos veces para marcar como leída',
+      excludeSemantics: false,
       child: Material(
-        color: isDark ? AppColors.surfaceDark : AppColors.surface,
-        borderRadius: BorderRadius.circular(AppRadius.md),
+        color: fondo,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.md),
+          side: BorderSide(color: borde),
+        ),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(AppRadius.md),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(AppRadius.md),
-              border: Border(left: BorderSide(color: color, width: 4)),
-              boxShadow: isDark
-                  ? null
-                  : [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 3,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-            ),
+          child: IntrinsicHeight(
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(icon, color: color, size: 20),
-                const SizedBox(width: AppSpacing.sm),
+                Container(width: 4, color: color),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        notificacion.titulo,
-                        style: TextStyle(fontWeight: leida ? FontWeight.w500 : FontWeight.w700),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        notificacion.mensaje,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMuted, fontSize: 13),
-                      ),
-                    ],
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.sm, AppSpacing.sm, 0, AppSpacing.sm),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ExcludeSemantics(
+                          child: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(color: color.withValues(alpha: isDark ? 0.2 : 0.12), shape: BoxShape.circle),
+                            child: Icon(icon, color: color, size: 20),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Expanded(
+                          child: ExcludeSemantics(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(
+                                      notificacion.tipo.etiqueta.toUpperCase(),
+                                      style: TextStyle(color: color, fontSize: 11, fontWeight: FontWeight.w800, letterSpacing: 0.4),
+                                    ),
+                                    Text(' · $relativeTime', style: TextStyle(color: textMuted, fontSize: 12)),
+                                    const Spacer(),
+                                    if (!leida)
+                                      Container(
+                                        width: 10,
+                                        height: 10,
+                                        decoration: BoxDecoration(
+                                          color: isDark ? AppColors.blue300 : AppColors.primary,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  notificacion.titulo,
+                                  style: TextStyle(
+                                    color: textPrimary,
+                                    fontSize: 15,
+                                    fontWeight: leida ? FontWeight.w600 : FontWeight.w800,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  notificacion.mensaje,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: leida ? textMuted : textPrimary, fontSize: 14, height: 1.3),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(LucideIcons.trash2, size: 18, color: textMuted),
+                          tooltip: 'Eliminar notificación',
+                          onPressed: onDelete,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: AppSpacing.sm),
-                Text(
-                  relativeTime,
-                  style: TextStyle(color: isDark ? AppColors.textSubtleDark : AppColors.textSubtle, fontSize: 11),
                 ),
               ],
             ),

@@ -33,12 +33,14 @@ class EntregasRepositoryImpl implements EntregasRepository {
     required String padreId,
     String? textoRespuesta,
     List<ArchivoUpload>? archivos,
+    List<EnlaceEntrega>? enlaces,
   }) async {
     final result = await _remote.crearBorrador(
       tareaId: tareaId,
       padreId: padreId,
       textoRespuesta: textoRespuesta,
       archivos: archivos,
+      enlaces: enlaces,
     );
     return result.toEntity();
   }
@@ -48,8 +50,14 @@ class EntregasRepositoryImpl implements EntregasRepository {
     required String id,
     String? textoRespuesta,
     List<ArchivoUpload>? archivosNuevos,
+    List<EnlaceEntrega>? enlaces,
   }) async {
-    final result = await _remote.actualizarBorrador(id: id, textoRespuesta: textoRespuesta, archivosNuevos: archivosNuevos);
+    final result = await _remote.actualizarBorrador(
+      id: id,
+      textoRespuesta: textoRespuesta,
+      archivosNuevos: archivosNuevos,
+      enlaces: enlaces,
+    );
     return result.toEntity();
   }
 

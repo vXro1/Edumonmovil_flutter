@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../theme/app_colors.dart';
@@ -70,6 +71,14 @@ class _EdumonAvatarState extends State<EdumonAvatar> {
     AppColors.eduCyan,
   ];
 
+  // Los avatares predeterminados del backend (/static/avatares/*.svg) son
+  // SVG — NetworkImage no los decodifica y siempre caía al fallback.
+  bool get _isSvgUrl {
+    final url = widget.imageUrl;
+    if (widget.imageProvider != null || url == null || url.isEmpty) return false;
+    return (Uri.tryParse(url)?.path ?? url).toLowerCase().endsWith('.svg');
+  }
+
   ImageProvider? get _provider {
     if (widget.imageProvider != null) return widget.imageProvider;
     if (widget.imageUrl != null && widget.imageUrl!.isNotEmpty) return NetworkImage(widget.imageUrl!);
@@ -80,7 +89,14 @@ class _EdumonAvatarState extends State<EdumonAvatar> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final size = widget.radius * 2;
-    final provider = _provider;
+    final provider = _isSvgUrl ? null : _provider;
+    Widget fallback() => _Fallback(
+      key: const ValueKey('fallback'),
+      text: widget.fallbackText,
+      icon: widget.fallbackIcon,
+      color: widget.fallbackColor,
+      radius: widget.radius,
+    );
 
     Widget circle = Container(
       width: size,
@@ -96,7 +112,17 @@ class _EdumonAvatarState extends State<EdumonAvatar> {
           opacity: animation,
           child: ScaleTransition(scale: Tween(begin: 0.85, end: 1.0).animate(animation), child: child),
         ),
-        child: provider != null
+        child: _isSvgUrl
+            ? SvgPicture.network(
+                widget.imageUrl!,
+                key: ValueKey(widget.imageUrl),
+                width: size,
+                height: size,
+                fit: BoxFit.contain,
+                placeholderBuilder: (context) => fallback(),
+                errorBuilder: (context, error, stackTrace) => fallback(),
+              )
+            : provider != null
             ? Image(
                 key: ValueKey(widget.imageUrl ?? provider.hashCode),
                 image: provider,
@@ -146,11 +172,7 @@ class _EdumonAvatarState extends State<EdumonAvatar> {
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
       onTap: widget.onTap,
-      child: AnimatedScale(
-        duration: const Duration(milliseconds: 150),
-        scale: _pressed ? 0.92 : 1.0,
-        child: circle,
-      ),
+      child: AnimatedScale(duration: const Duration(milliseconds: 150), scale: _pressed ? 0.92 : 1.0, child: circle),
     );
   }
 }
@@ -173,6 +195,8 @@ class _Fallback extends StatelessWidget {
         ),
       );
     }
-    return Center(child: Icon(icon ?? LucideIcons.user, color: resolvedColor, size: radius));
+    return Center(
+      child: Icon(icon ?? LucideIcons.user, color: resolvedColor, size: radius),
+    );
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../../../core/design_system/avatars/edumon_avatar.dart';
 import '../../../../core/design_system/cards/edumon_card.dart';
 import '../../../../core/design_system/loading/loading_screen.dart';
 import '../../../../core/network/network_exceptions.dart';
@@ -146,10 +147,31 @@ class _ForosTabState extends ConsumerState<ForosTab> {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(color: AppColors.mutedText(context), fontSize: 12),
                         ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '${foro.totalMensajes} mensaje${foro.totalMensajes == 1 ? '' : 's'}',
-                        style: TextStyle(color: AppColors.subtleText(context), fontSize: 11),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          if (foro.docente != null) ...[
+                            EdumonAvatar(
+                              radius: 9,
+                              imageUrl: foro.docente!.avatarUrl,
+                              fallbackText: foro.docente!.nombre.isNotEmpty ? foro.docente!.nombre[0].toUpperCase() : '?',
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                foro.docente!.nombreCompleto,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(color: AppColors.mutedText(context), fontSize: 11),
+                              ),
+                            ),
+                            Text(' · ', style: TextStyle(color: AppColors.subtleText(context), fontSize: 11)),
+                          ],
+                          Text(
+                            '${foro.totalMensajes} mensaje${foro.totalMensajes == 1 ? '' : 's'}',
+                            style: TextStyle(color: AppColors.subtleText(context), fontSize: 11),
+                          ),
+                        ],
                       ),
                     ],
                   ),

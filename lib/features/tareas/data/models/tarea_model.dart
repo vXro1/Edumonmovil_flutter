@@ -21,6 +21,9 @@ class TareaModel {
     this.totalEntregas = 0,
     this.totalPendientes = 0,
     this.totalCalificadas = 0,
+    this.docenteNombre,
+    this.moduloTitulo,
+    this.fechaCreacion,
   });
 
   final String id;
@@ -41,6 +44,12 @@ class TareaModel {
   final int totalPendientes;
   final int totalCalificadas;
 
+  /// tareaController.js real popula docenteId (nombre apellido) y
+  /// moduloId (titulo) — antes se descartaban.
+  final String? docenteNombre;
+  final String? moduloTitulo;
+  final DateTime? fechaCreacion;
+
   factory TareaModel.fromJson(Map<String, dynamic> json) {
     final cursoRaw = json['cursoId'];
     String cursoId;
@@ -55,6 +64,14 @@ class TareaModel {
 
     final moduloRaw = json['moduloId'];
     final moduloId = moduloRaw is Map ? (moduloRaw['id'] ?? moduloRaw['_id'])?.toString() : moduloRaw?.toString();
+    final moduloTitulo = moduloRaw is Map ? moduloRaw['titulo']?.toString() : null;
+
+    final docenteRaw = json['docenteId'];
+    String? docenteNombre;
+    if (docenteRaw is Map) {
+      docenteNombre = '${docenteRaw['nombre'] ?? ''} ${docenteRaw['apellido'] ?? ''}'.trim();
+      if (docenteNombre.isEmpty) docenteNombre = null;
+    }
 
     final participantesRaw = json['participantesSeleccionados'] as List?;
     final participantes = (participantesRaw ?? const [])
@@ -74,7 +91,10 @@ class TareaModel {
       titulo: json['titulo']?.toString() ?? '',
       descripcion: json['descripcion']?.toString(),
       estado: json['estado']?.toString() ?? 'publicada',
-      fechaEntrega: json['fechaEntrega'] != null ? DateTime.tryParse(json['fechaEntrega'].toString()) : null,
+      fechaEntrega: json['fechaEntrega'] != null ? DateTime.tryParse(json['fechaEntrega'].toString())?.toLocal() : null,
+      fechaCreacion: DateTime.tryParse((json['fechaCreacion'] ?? json['createdAt'] ?? '').toString())?.toLocal(),
+      docenteNombre: docenteNombre,
+      moduloTitulo: moduloTitulo,
       cursoId: cursoId,
       cursoNombre: cursoNombre,
       moduloId: moduloId,
@@ -108,5 +128,8 @@ class TareaModel {
     totalEntregas: totalEntregas,
     totalPendientes: totalPendientes,
     totalCalificadas: totalCalificadas,
+    docenteNombre: docenteNombre,
+    moduloTitulo: moduloTitulo,
+    fechaCreacion: fechaCreacion,
   );
 }

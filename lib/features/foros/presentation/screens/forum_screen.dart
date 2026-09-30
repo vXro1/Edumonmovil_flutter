@@ -14,6 +14,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/utils/responsive.dart';
 import '../../../auth/presentation/providers/auth_controller.dart';
+import '../../../cursos/presentation/providers/cursos_providers.dart';
 import '../../domain/entities/foro.dart';
 import '../../domain/repositories/foros_repository.dart';
 import '../providers/foros_providers.dart';
@@ -23,8 +24,7 @@ import '../widgets/create_foro_sheet.dart';
 /// esta misma página. Layout 3 columnas (Discord-like): sidebar (foros del
 /// curso), centro (mensajes+compositor), panel de actividad — colapsa en
 /// móvil/tablet según Breakpoint. Polling cada 60s.
-/// (⚠️) No vimos foroController.js/mensajeForoController.js reales — shapes
-/// inferidos del blueprint.
+/// Permisos por mensaje verificados contra mensajeForoController.js real.
 class ForumScreen extends ConsumerStatefulWidget {
   const ForumScreen({super.key, required this.cursoId, required this.foroId});
 
@@ -134,7 +134,14 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
   }
 
   Future<void> _pickArchivos() async {
-    final result = await FilePicker.pickFiles(allowMultiple: true, withData: true);
+    // mensajeForoRoutes.js real: solo imágenes, videos y PDF — el resto lo
+    // rechaza multer o se descarta en silencio.
+    final result = await FilePicker.pickFiles(
+      allowMultiple: true,
+      withData: true,
+      type: FileType.custom,
+      allowedExtensions: const ['jpg', 'jpeg', 'png', 'gif', 'webp', 'mp4', 'mov', 'mpeg', 'pdf'],
+    );
     if (result == null) return;
     setState(() {
       final espacio = 5 - _archivosNuevos.length;
@@ -189,10 +196,18 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Eliminar mensaje'),
-        content: const Text('¿Eliminar este mensaje? Esta acción no se puede deshacer.'),
+        // eliminarMensaje real borra también todas las respuestas del mensaje.
+        content: Text(
+          m.respuestas.isNotEmpty
+              ? '¿Eliminar este mensaje y sus ${m.respuestas.length} respuesta(s)? Esta acción no se puede deshacer.'
+              : '¿Eliminar este mensaje? Esta acción no se puede deshacer.',
+        ),
         actions: [
           TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancelar')),
-          TextButton(onPressed: () => Navigator.of(context).pop(true), child: const Text('Eliminar')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Eliminar', style: TextStyle(color: AppColors.error)),
+          ),
         ],
       ),
     );
@@ -236,6 +251,9 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
     // el backend le devolvía 403 al usarlo.
     final canManageThisForo =
         (rol == UserRole.docente && _foro?.docenteId == currentUserId) || rol == UserRole.superAdmin;
+    // Docente titular del curso: eliminarMensaje real solo deja moderar a un
+    // docente en cursos donde él es curso.docenteId.
+    final cursoDocenteId = ref.watch(cursoDetailProvider(widget.cursoId)).value?.docenteId ?? _foro?.docenteId;
     final breakpoint = Breakpoint.of(context);
 
     return Scaffold(
@@ -289,7 +307,7 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
                       SizedBox(width: 240, child: _sidebar(canCreateForo)),
                       const VerticalDivider(width: 1),
                     ],
-                    Expanded(child: _centerColumn(rol, currentUserId)),
+                    Expanded(child: _centerColumn(rol, currentUserId, cursoDocenteId)),
                     if (breakpoint.isExpanded) ...[
                       const VerticalDivider(width: 1),
                       SizedBox(width: 240, child: _activityPanel()),
@@ -348,10 +366,10 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
     );
   }
 
-  Widget _centerColumn(UserRole? rol, String? currentUserId) {
+  Widget _centerColumn(UserRole? rol, String? currentUserId, String? cursoDocenteId) {
     return Column(
       children: [
-        Expanded(child: _messagesList(rol, currentUserId)),
+        Expanded(child: _messagesList(rol, currentUserId, cursoDocenteId)),
         if (_foro?.cerrado == true)
           Container(
             width: double.infinity,
@@ -369,28 +387,111 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
     );
   }
 
-  Widget _messagesList(UserRole? rol, String? currentUserId) {
-    if (_mensajes.isEmpty) {
-      return Center(
-        child: Text('Todavía no hay mensajes. Sé el primero en escribir.', style: TextStyle(color: AppColors.mutedText(context))),
-      );
-    }
+  /// Encabezado del foro: docente creador, fecha, descripción y adjuntos.
+  Widget _foroHeader() {
+    final foro = _foro;
+    if (foro == null) return const SizedBox.shrink();
+    final docente = foro.docente;
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: _isDark ? AppColors.surface2Dark : AppColors.primaryLight,
+        borderRadius: BorderRadius.circular(AppRadius.md),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              EdumonAvatar(
+                radius: 18,
+                imageUrl: docente?.avatarUrl,
+                fallbackText: _iniciales(docente),
+                semanticLabel: docente?.nombreCompleto,
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            docente?.nombreCompleto.isNotEmpty == true ? docente!.nombreCompleto : 'Docente',
+                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        const _RoleBadge(rol: UserRole.docente, label: 'Creador del foro'),
+                      ],
+                    ),
+                    Text(
+                      [
+                        if (foro.fechaCreacion != null) 'Publicado ${_relativeTime(foro.fechaCreacion!)}',
+                        '${foro.totalMensajes} mensaje${foro.totalMensajes == 1 ? '' : 's'}',
+                        if (foro.cerrado) 'Cerrado',
+                      ].join(' · '),
+                      style: TextStyle(color: AppColors.subtleText(context), fontSize: 11),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          if (foro.descripcion != null && foro.descripcion!.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(foro.descripcion!, style: const TextStyle(fontSize: 14)),
+          ],
+          if (foro.archivos.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: 6,
+              runSpacing: 4,
+              children: [for (final a in foro.archivos) _ArchivoChip(nombre: a.nombre, tipo: a.tipo)],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _messagesList(UserRole? rol, String? currentUserId, String? cursoDocenteId) {
     return RefreshIndicator(
       onRefresh: () => _loadMensajes(),
       child: ListView.builder(
         padding: const EdgeInsets.all(AppSpacing.md),
-        itemCount: _mensajes.length,
-        itemBuilder: (context, i) {
-          final m = _mensajes[i];
+        itemCount: _mensajes.length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _foroHeader(),
+                if (_mensajes.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                    child: Text(
+                      'Todavía no hay mensajes. Sé el primero en escribir.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: AppColors.mutedText(context)),
+                    ),
+                  ),
+              ],
+            );
+          }
+          final m = _mensajes[index - 1];
           final replies = _allReplies(m);
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _mensajeCard(m, rol, currentUserId),
+              _mensajeCard(m, rol, currentUserId, cursoDocenteId),
               for (final r in replies)
                 Padding(
                   padding: const EdgeInsets.only(left: 28, top: 4),
-                  child: _mensajeCard(r, rol, currentUserId),
+                  child: _mensajeCard(r, rol, currentUserId, cursoDocenteId),
                 ),
               const SizedBox(height: AppSpacing.sm),
             ],
@@ -400,27 +501,29 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
     );
   }
 
-  Widget _mensajeCard(MensajeForo m, UserRole? rol, String? currentUserId) {
+  Widget _mensajeCard(MensajeForo m, UserRole? rol, String? currentUserId, String? cursoDocenteId) {
     final isOwn = currentUserId != null && currentUserId == m.autorId;
-    // eliminarMensaje real: administrador modera cualquier mensaje de su
-    // institución; docente SOLO puede moderar mensajes de padres (nunca de
-    // otros docentes ni administradores) — antes cualquier docente veía el
-    // botón de eliminar en TODOS los mensajes, incluidos los de un
-    // administrador en el mismo foro, y el backend le devolvía 403 al usarlo.
-    final puedeModerar =
-        rol == UserRole.administrador || rol == UserRole.superAdmin || (rol == UserRole.docente && m.autor?.rol == UserRole.padreTutor);
-    // crearMensaje real: (1) solo se puede responder a un mensaje RAÍZ, nunca
-    // a otra respuesta ("Solo puedes responder directamente al foro"); (2) un
-    // padre solo puede responder a mensajes de docente/administrador, nunca a
-    // los de otro padre. Antes "Responder" aparecía siempre que el foro
-    // estuviera abierto, sin ninguna de las dos restricciones.
-    final autorEsStaff = m.autor?.rol == UserRole.docente || m.autor?.rol == UserRole.administrador || m.autor?.rol == UserRole.superAdmin;
+    final foroAbierto = _foro?.cerrado != true;
+    // eliminarMensaje real: el autor siempre; el administrador modera los
+    // mensajes de su institución; el docente SOLO mensajes de padres y solo
+    // en cursos donde él es el docente titular. superadmin no tiene bypass
+    // en ese endpoint (le devolvería 403), así que no se le muestra.
+    final puedeModerar = rol == UserRole.administrador ||
+        (rol == UserRole.docente && m.autor?.rol == UserRole.padreTutor && cursoDocenteId == currentUserId);
+    // crearMensaje real: (1) solo se puede responder a un mensaje RAÍZ; (2)
+    // un padre solo puede responder a mensajes de docente/administrador.
+    final autorEsStaff = m.autor?.rol == UserRole.docente || m.autor?.rol == UserRole.administrador;
     final puedeResponder = m.respuestaA == null && (rol != UserRole.padreTutor || autorEsStaff);
     return _MensajeCard(
+      key: ValueKey(m.id),
       mensaje: m,
+      liked: m.likedByUser(currentUserId),
+      isOwn: isOwn,
+      esDocenteDelCurso: m.autorId != null && m.autorId == cursoDocenteId,
       canDelete: isOwn || puedeModerar,
-      canEdit: isOwn,
-      canReply: _foro?.cerrado != true && puedeResponder,
+      // actualizarMensaje real: solo el autor, y nunca en un foro cerrado.
+      canEdit: isOwn && foroAbierto,
+      canReply: foroAbierto && puedeResponder,
       onLike: () => _toggleLike(m),
       onDelete: () => _deleteMensaje(m),
       onReply: () => setState(() => _replyingTo = m),
@@ -536,7 +639,8 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
                       (m) => EdumonAvatar(
                         radius: 14,
                         imageUrl: m.autor?.avatarUrl,
-                        fallbackText: (m.autor?.nombre.isNotEmpty == true ? m.autor!.nombre[0] : '?').toUpperCase(),
+                        fallbackText: _iniciales(m.autor),
+                        semanticLabel: m.autor?.nombreCompleto,
                       ),
                     ),
                 if (participantes.length > 8)
@@ -586,19 +690,29 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
   }
 }
 
+String _iniciales(ForoAutor? autor) {
+  if (autor == null) return '?';
+  final n = autor.nombre.trim();
+  final a = (autor.apellido ?? '').trim();
+  final ini = '${n.isNotEmpty ? n[0] : ''}${a.isNotEmpty ? a[0] : ''}';
+  return ini.isEmpty ? '?' : ini.toUpperCase();
+}
+
 String _relativeTime(DateTime fecha) {
   final now = DateTime.now();
   final sameDay = now.year == fecha.year && now.month == fecha.month && now.day == fecha.day;
   if (sameDay) {
     return '${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}';
   }
-  return '${fecha.day.toString().padLeft(2, '0')}/${fecha.month.toString().padLeft(2, '0')}';
+  final hora = '${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}';
+  return '${fecha.day.toString().padLeft(2, '0')}/${fecha.month.toString().padLeft(2, '0')} $hora';
 }
 
 class _RoleBadge extends StatelessWidget {
-  const _RoleBadge({required this.rol});
+  const _RoleBadge({required this.rol, this.label});
 
   final UserRole? rol;
+  final String? label;
 
   Color _colorFor(UserRole rol) => switch (rol) {
     UserRole.docente => AppColors.primary,
@@ -616,7 +730,46 @@ class _RoleBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
       decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(AppRadius.full)),
-      child: Text(r.label, style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w700)),
+      child: Text(
+        label ?? (r == UserRole.padreTutor ? 'Padre de familia' : r.label),
+        style: TextStyle(color: color, fontSize: 9, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+class _ArchivoChip extends StatelessWidget {
+  const _ArchivoChip({required this.nombre, this.tipo});
+
+  final String nombre;
+  final String? tipo;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    // MensajeForo.js/Foro.js reales: tipo ∈ imagen | video | pdf.
+    final icon = switch (tipo) {
+      'imagen' => LucideIcons.image,
+      'video' => LucideIcons.video,
+      'pdf' => LucideIcons.fileText,
+      _ => LucideIcons.paperclip,
+    };
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.surface2Dark : AppColors.surface2,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 12, color: AppColors.mutedText(context)),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(nombre, style: const TextStyle(fontSize: 11), maxLines: 1, overflow: TextOverflow.ellipsis),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -624,7 +777,11 @@ class _RoleBadge extends StatelessWidget {
 /// Tarjeta de mensaje con edición inline propia — BLUEPRINT.md FASE 3.8.3.
 class _MensajeCard extends StatefulWidget {
   const _MensajeCard({
+    super.key,
     required this.mensaje,
+    required this.liked,
+    required this.isOwn,
+    required this.esDocenteDelCurso,
     required this.canDelete,
     required this.canEdit,
     required this.canReply,
@@ -635,6 +792,9 @@ class _MensajeCard extends StatefulWidget {
   });
 
   final MensajeForo mensaje;
+  final bool liked;
+  final bool isOwn;
+  final bool esDocenteDelCurso;
   final bool canDelete;
   final bool canEdit;
   final bool canReply;
@@ -650,6 +810,11 @@ class _MensajeCard extends StatefulWidget {
 class _MensajeCardState extends State<_MensajeCard> {
   bool _editing = false;
   late final TextEditingController _editController = TextEditingController(text: widget.mensaje.contenido);
+
+  void _startEditing() {
+    _editController.text = widget.mensaje.contenido;
+    setState(() => _editing = true);
+  }
 
   @override
   void dispose() {
@@ -681,22 +846,69 @@ class _MensajeCardState extends State<_MensajeCard> {
           Row(
             children: [
               EdumonAvatar(
-                radius: 14,
+                radius: 16,
                 imageUrl: autor?.avatarUrl,
-                fallbackText: (autor?.nombre.isNotEmpty == true ? autor!.nombre[0] : '?').toUpperCase(),
+                fallbackText: _iniciales(autor),
+                semanticLabel: autor?.nombreCompleto,
               ),
               const SizedBox(width: AppSpacing.xs),
-              Flexible(
-                child: Text(
-                  autor?.nombreCompleto ?? 'Usuario',
-                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
-                  overflow: TextOverflow.ellipsis,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            (autor == null || autor.nombreCompleto.isEmpty)
+                                ? 'Usuario eliminado'
+                                : '${autor.nombreCompleto}${widget.isOwn ? ' (tú)' : ''}',
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        _RoleBadge(
+                          rol: autor?.rol,
+                          label: widget.esDocenteDelCurso && autor?.rol == UserRole.docente ? 'Docente del curso' : null,
+                        ),
+                      ],
+                    ),
+                    Text(_relativeTime(m.fecha), style: TextStyle(color: AppColors.subtleText(context), fontSize: 11)),
+                  ],
                 ),
               ),
-              const SizedBox(width: 6),
-              _RoleBadge(rol: autor?.rol),
-              const Spacer(),
-              Text(_relativeTime(m.fecha), style: TextStyle(color: AppColors.subtleText(context), fontSize: 11)),
+              if ((widget.canEdit || widget.canDelete) && !_editing)
+                PopupMenuButton<String>(
+                  icon: Icon(LucideIcons.ellipsisVertical, size: 16, color: AppColors.mutedText(context)),
+                  tooltip: 'Opciones del mensaje',
+                  padding: EdgeInsets.zero,
+                  onSelected: (v) {
+                    if (v == 'editar') _startEditing();
+                    if (v == 'eliminar') widget.onDelete();
+                  },
+                  itemBuilder: (context) => [
+                    if (widget.canEdit)
+                      const PopupMenuItem(
+                        value: 'editar',
+                        child: Row(children: [Icon(LucideIcons.pencil, size: 16), SizedBox(width: 8), Text('Editar')]),
+                      ),
+                    if (widget.canDelete)
+                      PopupMenuItem(
+                        value: 'eliminar',
+                        child: Row(
+                          children: [
+                            const Icon(LucideIcons.trash2, size: 16, color: AppColors.error),
+                            const SizedBox(width: 8),
+                            Text(
+                              widget.isOwn ? 'Eliminar' : 'Eliminar (moderar)',
+                              style: const TextStyle(color: AppColors.error),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
             ],
           ),
           const SizedBox(height: 6),
@@ -704,14 +916,22 @@ class _MensajeCardState extends State<_MensajeCard> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                TextField(controller: _editController, maxLines: null, style: const TextStyle(fontSize: 14)),
+                TextField(
+                  controller: _editController,
+                  maxLines: null,
+                  maxLength: 1500,
+                  autofocus: true,
+                  style: const TextStyle(fontSize: 14),
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     TextButton(onPressed: () => setState(() => _editing = false), child: const Text('Cancelar')),
                     TextButton(
                       onPressed: () {
-                        widget.onEditSave(_editController.text.trim());
+                        final texto = _editController.text.trim();
+                        if (texto.isEmpty) return;
+                        if (texto != m.contenido) widget.onEditSave(texto);
                         setState(() => _editing = false);
                       },
                       child: const Text('Guardar'),
@@ -736,32 +956,7 @@ class _MensajeCardState extends State<_MensajeCard> {
               child: Wrap(
                 spacing: 6,
                 runSpacing: 4,
-                children: m.archivos
-                    .map(
-                      (a) => Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: isDark ? AppColors.surface2Dark : AppColors.surface2,
-                          borderRadius: BorderRadius.circular(AppRadius.sm),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(LucideIcons.paperclip, size: 12, color: AppColors.mutedText(context)),
-                            const SizedBox(width: 4),
-                            Flexible(
-                              child: Text(
-                                a.nombre,
-                                style: const TextStyle(fontSize: 11),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
-                    .toList(),
+                children: [for (final a in m.archivos) _ArchivoChip(nombre: a.nombre, tipo: a.tipo)],
               ),
             ),
           const SizedBox(height: 4),
@@ -772,7 +967,7 @@ class _MensajeCardState extends State<_MensajeCard> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(LucideIcons.heart, size: 14, color: m.yaLeDioLike ? AppColors.secondary : AppColors.mutedText(context)),
+                    Icon(LucideIcons.heart, size: 14, color: widget.liked ? AppColors.secondary : AppColors.mutedText(context)),
                     const SizedBox(width: 2),
                     Text('${m.totalLikes}', style: TextStyle(fontSize: 11, color: AppColors.mutedText(context))),
                   ],
@@ -783,20 +978,6 @@ class _MensajeCardState extends State<_MensajeCard> {
                 InkWell(
                   onTap: widget.onReply,
                   child: Text('Responder', style: TextStyle(fontSize: 11, color: AppColors.mutedText(context))),
-                ),
-              ],
-              if (widget.canEdit && !_editing) ...[
-                const SizedBox(width: AppSpacing.sm),
-                InkWell(
-                  onTap: () => setState(() => _editing = true),
-                  child: Text('Editar', style: TextStyle(fontSize: 11, color: AppColors.mutedText(context))),
-                ),
-              ],
-              if (widget.canDelete) ...[
-                const SizedBox(width: AppSpacing.sm),
-                InkWell(
-                  onTap: widget.onDelete,
-                  child: const Text('Eliminar', style: TextStyle(fontSize: 11, color: AppColors.error)),
                 ),
               ],
             ],

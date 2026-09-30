@@ -44,20 +44,29 @@ class CalendarioRemoteDataSource {
 
   CalendarioEntry _entryFromJson(Map<String, dynamic> json) {
     final esTarea = json['tipo'] == 'tarea';
-    final fecha = DateTime.tryParse((json['fecha'] ?? '').toString()) ?? DateTime.now();
+    // toLocal: el backend manda UTC; sin convertir, un evento a las 8pm
+    // (hora Colombia) caía en el día siguiente del grid.
+    final fecha = (DateTime.tryParse((json['fecha'] ?? '').toString()) ?? DateTime.now()).toLocal();
+    final fechaFin = DateTime.tryParse((json['fechaFin'] ?? '').toString())?.toLocal();
 
     String? cursoId;
     String? cursoNombre;
+    var cursosNombres = <String>[];
     if (esTarea) {
       cursoId = json['cursoId']?.toString();
       cursoNombre = json['cursoNombre']?.toString();
+      if (cursoNombre != null) cursosNombres = [cursoNombre];
     } else {
-      // Un evento puede estar asociado a varios cursos (cursosIds/cursosNombres)
-      // — CalendarioEntry solo modela uno, se toma el primero para el badge.
+      // Un evento puede estar asociado a varios cursos (cursosIds/cursosNombres).
       final cursosIds = json['cursosIds'] as List?;
-      final cursosNombres = json['cursosNombres'] as List?;
-      cursoId = cursosIds != null && cursosIds.isNotEmpty ? cursosIds.first.toString() : null;
-      cursoNombre = cursosNombres != null && cursosNombres.isNotEmpty ? cursosNombres.first.toString() : null;
+      cursosNombres = ((json['cursosNombres'] as List?) ?? const []).map((e) => e is Map ? '${e['nombre']}' : '$e').toList();
+      final primerId = cursosIds != null && cursosIds.isNotEmpty ? cursosIds.first : null;
+      cursoId = primerId is Map ? (primerId['id'] ?? primerId['_id'])?.toString() : primerId?.toString();
+      cursoNombre = cursosNombres.isNotEmpty ? cursosNombres.first : null;
+    }
+    String? texto(String k) {
+      final v = json[k]?.toString().trim();
+      return v == null || v.isEmpty ? null : v;
     }
 
     // Tarea.estaVencida real (virtual) ya resuelve esto en el backend, pero
@@ -73,7 +82,13 @@ class CalendarioRemoteDataSource {
       categoria: esTarea ? null : EventoCategoria.fromApiString(json['categoria']?.toString()).label,
       cursoId: cursoId,
       cursoNombre: cursoNombre,
+      cursosNombres: cursosNombres,
       vencida: vencida,
+      descripcion: texto('descripcion'),
+      fechaFin: fechaFin,
+      hora: texto('hora'),
+      ubicacion: texto('ubicacion'),
+      estado: texto('estado'),
     );
   }
 }

@@ -31,6 +31,26 @@ enum NotificacionTipo {
         return NotificacionTipo.sistema;
     }
   }
+
+  /// Título cuando la notificación no trae uno propio — mismos textos que
+  /// obtenerTitulo() del backend (sin emoji).
+  String get tituloPorDefecto => switch (this) {
+    NotificacionTipo.tarea => 'Nueva tarea',
+    NotificacionTipo.entrega => 'Nueva entrega',
+    NotificacionTipo.calificacion => 'Valoración recibida',
+    NotificacionTipo.foro => 'Nuevo mensaje en foro',
+    NotificacionTipo.evento => 'Nuevo evento',
+    NotificacionTipo.sistema => 'Notificación',
+  };
+
+  String get etiqueta => switch (this) {
+    NotificacionTipo.tarea => 'Tarea',
+    NotificacionTipo.entrega => 'Entrega',
+    NotificacionTipo.calificacion => 'Calificación',
+    NotificacionTipo.foro => 'Foro',
+    NotificacionTipo.evento => 'Evento',
+    NotificacionTipo.sistema => 'Sistema',
+  };
 }
 
 class Notificacion {

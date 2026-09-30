@@ -13,6 +13,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../auth/presentation/providers/auth_controller.dart';
 import '../../data/calendario_aggregator.dart';
 import '../../domain/entities/calendario_entry.dart';
+import '../widgets/calendario_entry_tile.dart';
 
 /// Calendario global (agregado) — BLUEPRINT.md FASE 3.5. Vista agregada de
 /// tareas+eventos de todos los cursos accesibles para el usuario.
@@ -154,7 +155,7 @@ class _CalendarioScreenState extends ConsumerState<CalendarioScreen> {
               child: Center(child: Text('Sin retos ni eventos ese día.', style: TextStyle(color: AppColors.mutedText(context)))),
             )
           else
-            ...seleccionados.map((e) => _EntryTile(entry: e)),
+            ...seleccionados.map((e) => CalendarioEntryTile(entry: e, onChanged: _load)),
         ],
       ),
     );
@@ -175,41 +176,6 @@ class _StatChip extends StatelessWidget {
           children: [
             Text('$value', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 18)),
             Text(label, style: TextStyle(color: AppColors.mutedText(context), fontSize: 10)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EntryTile extends StatelessWidget {
-  const _EntryTile({required this.entry});
-
-  final CalendarioEntry entry;
-
-  @override
-  Widget build(BuildContext context) {
-    final esTarea = entry.tipo == CalendarioEntryTipo.tarea;
-    final color = esTarea ? AppColors.sectionTareas : AppColors.sectionCalendario;
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: EdumonCard(
-        child: Row(
-          children: [
-            Icon(esTarea ? LucideIcons.target : LucideIcons.calendarDays, color: color, size: 18),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(entry.titulo, style: const TextStyle(fontWeight: FontWeight.w600), overflow: TextOverflow.ellipsis),
-                  Text(
-                    entry.cursoNombre ?? (esTarea ? (entry.vencida ? 'Reto vencido' : 'Reto') : (entry.categoria ?? 'Evento')),
-                    style: TextStyle(color: AppColors.mutedText(context), fontSize: 12),
-                  ),
-                ],
-              ),
-            ),
           ],
         ),
       ),

@@ -2,6 +2,16 @@ import 'dart:typed_data';
 
 import '../entities/entrega.dart';
 
+/// Enlace externo de una entrega (Entrega.js real: {url, titulo, descripcion}).
+class EnlaceEntrega {
+  const EnlaceEntrega({required this.url, this.titulo});
+
+  final String url;
+  final String? titulo;
+
+  Map<String, dynamic> toJson() => {'url': url, if (titulo != null && titulo!.isNotEmpty) 'titulo': titulo};
+}
+
 class ArchivoUpload {
   const ArchivoUpload({required this.bytes, required this.filename});
 
@@ -25,12 +35,14 @@ abstract class EntregasRepository {
     required String padreId,
     String? textoRespuesta,
     List<ArchivoUpload>? archivos,
+    List<EnlaceEntrega>? enlaces,
   });
 
   Future<Entrega> actualizarBorrador({
     required String id,
     String? textoRespuesta,
     List<ArchivoUpload>? archivosNuevos,
+    List<EnlaceEntrega>? enlaces,
   });
 
   Future<void> enviarEntrega(String id);

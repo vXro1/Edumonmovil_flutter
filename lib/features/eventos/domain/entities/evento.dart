@@ -49,6 +49,10 @@ class Evento {
     this.cursosIds = const [],
     this.adjunto,
     this.estado = 'programado',
+    this.cursosNombres = const [],
+    this.docenteNombre,
+    this.imagenPortadaUrl,
+    this.fechaCreacion,
   });
 
   final String id;
@@ -68,6 +72,19 @@ class Evento {
   /// para no pisarlo).
   final String estado;
 
+  /// getEventoById real popula cursosIds (nombre) y docenteId (nombre apellido).
+  final List<String> cursosNombres;
+  final String? docenteNombre;
+  final String? imagenPortadaUrl;
+  final DateTime? fechaCreacion;
+
   bool get cancelado => estado == 'cancelado';
   bool get finalizado => estado == 'finalizado';
+
+  String get estadoLabel => switch (estado) {
+    'en_curso' => 'En curso',
+    'finalizado' => 'Finalizado',
+    'cancelado' => 'Cancelado',
+    _ => 'Programado',
+  };
 }

@@ -44,6 +44,9 @@ class ForoModel {
     this.estado = 'abierto',
     required this.cursoId,
     this.docenteId,
+    this.docente,
+    this.archivos = const [],
+    this.fechaCreacion,
     this.totalMensajes = 0,
     this.publico = false,
     this.fijado = false,
@@ -56,6 +59,9 @@ class ForoModel {
   final String estado;
   final String cursoId;
   final String? docenteId;
+  final ForoAutorModel? docente;
+  final List<Archivo> archivos;
+  final DateTime? fechaCreacion;
   final int totalMensajes;
   final bool publico;
   final bool fijado;
@@ -66,7 +72,14 @@ class ForoModel {
 
     // Foro.js real: el creador es "docenteId", no "creadorId".
     final docenteRaw = json['docenteId'];
-    final docenteId = docenteRaw is Map ? (docenteRaw['id'] ?? docenteRaw['_id'])?.toString() : docenteRaw?.toString();
+    final docente = docenteRaw is Map ? ForoAutorModel.fromJson(docenteRaw as Map<String, dynamic>) : null;
+    final docenteId = docente?.id ?? docenteRaw?.toString();
+
+    final archivosRaw = json['archivos'] ?? json['archivosAdjuntos'];
+    final archivos = (archivosRaw is List ? archivosRaw : const [])
+        .whereType<Map>()
+        .map((e) => Archivo.fromJson(e.cast<String, dynamic>()))
+        .toList();
 
     return ForoModel(
       id: (json['id'] ?? json['_id']).toString(),
@@ -76,6 +89,9 @@ class ForoModel {
       estado: json['estado']?.toString() ?? 'abierto',
       cursoId: cursoId,
       docenteId: docenteId,
+      docente: docente,
+      archivos: archivos,
+      fechaCreacion: DateTime.tryParse((json['fechaCreacion'] ?? json['createdAt'] ?? '').toString())?.toLocal(),
       totalMensajes: json['totalMensajes'] is num
           ? (json['totalMensajes'] as num).toInt()
           : (json['totalMensajes'] == null ? 0 : int.tryParse(json['totalMensajes'].toString()) ?? 0),
@@ -92,13 +108,19 @@ class ForoModel {
     estado: estado,
     cursoId: cursoId,
     docenteId: docenteId,
+    docente: docente?.toEntity(),
+    archivos: archivos,
+    fechaCreacion: fechaCreacion,
     totalMensajes: totalMensajes,
     publico: publico,
     fijado: fijado,
   );
 }
 
-/// DTO — BLUEPRINT.md FASE 9.9, (⚠️) shape inferido del blueprint.
+/// DTO — verificado contra mensajeForoController.js/MensajeForo.js reales:
+/// el autor viene populado en `usuarioId` (nombre apellido fotoPerfilUrl rol),
+/// los likes son un contador `likes` + array `likedBy`, y la fecha es
+/// `fechaCreacion`.
 class MensajeForoModel {
   const MensajeForoModel({
     required this.id,
@@ -109,6 +131,7 @@ class MensajeForoModel {
     required this.fecha,
     this.totalLikes = 0,
     this.yaLeDioLike = false,
+    this.likedBy = const [],
     this.archivos = const [],
     this.respuestaA,
     this.respuestas = const [],
@@ -124,6 +147,7 @@ class MensajeForoModel {
   final DateTime fecha;
   final int totalLikes;
   final bool yaLeDioLike;
+  final List<String> likedBy;
   final List<Archivo> archivos;
   final String? respuestaA;
   final List<MensajeForoModel> respuestas;
@@ -131,7 +155,10 @@ class MensajeForoModel {
   final bool fijado;
 
   factory MensajeForoModel.fromJson(Map<String, dynamic> json) {
-    final autorRaw = json['autorId'] ?? json['autor'];
+    // BUG REAL corregido: el backend popula el autor en "usuarioId" (y el
+    // virtual "usuario"), nunca en "autorId"/"autor" — con las claves viejas
+    // todos los mensajes salían como "Usuario", sin avatar ni rol.
+    final autorRaw = json['usuarioId'] ?? json['usuario'] ?? json['autorId'] ?? json['autor'];
     ForoAutorModel? autor;
     String? autorId;
     if (autorRaw is Map) {
@@ -157,17 +184,26 @@ class MensajeForoModel {
     final respuestaARaw = json['respuestaA'];
     final respuestaA = respuestaARaw is Map ? (respuestaARaw['id'] ?? respuestaARaw['_id'])?.toString() : respuestaARaw?.toString();
 
+    // MensajeForo.js real: `likes` es un contador numérico y `likedBy` el
+    // array de ids — el listado (lean) no trae `yaLeDioLike`, se calcula en
+    // la pantalla cruzando `likedBy` con el usuario actual.
+    final likesRaw = json['likes'] ?? json['totalLikes'];
+    final likedBy = (json['likedBy'] is List ? json['likedBy'] as List : const [])
+        .map((e) => e is Map ? (e['id'] ?? e['_id']).toString() : e.toString())
+        .toList();
+
     return MensajeForoModel(
       id: (json['id'] ?? json['_id']).toString(),
       foroId: foroId,
       contenido: json['contenido']?.toString() ?? '',
       autor: autor,
       autorId: autorId,
-      fecha: DateTime.tryParse((json['fecha'] ?? json['createdAt'] ?? '').toString()) ?? DateTime.now(),
-      totalLikes: json['totalLikes'] is num
-          ? (json['totalLikes'] as num).toInt()
-          : (json['likes'] is List ? (json['likes'] as List).length : 0),
+      fecha: (DateTime.tryParse((json['fechaCreacion'] ?? json['createdAt'] ?? json['fecha'] ?? '').toString()) ??
+              DateTime.now())
+          .toLocal(),
+      totalLikes: likesRaw is num ? likesRaw.toInt() : (likesRaw is List ? likesRaw.length : likedBy.length),
       yaLeDioLike: json['yaLeDioLike'] == true,
+      likedBy: likedBy,
       archivos: archivos,
       respuestaA: respuestaA,
       respuestas: respuestas,
@@ -185,6 +221,7 @@ class MensajeForoModel {
     fecha: fecha,
     totalLikes: totalLikes,
     yaLeDioLike: yaLeDioLike,
+    likedBy: likedBy,
     archivos: archivos,
     respuestaA: respuestaA,
     respuestas: respuestas.map((e) => e.toEntity()).toList(),

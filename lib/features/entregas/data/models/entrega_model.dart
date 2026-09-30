@@ -2,13 +2,16 @@ import '../../../../core/config/env.dart';
 import '../../../../shared/models/archivo.dart';
 import '../../domain/entities/entrega.dart';
 
+DateTime? _fecha(dynamic raw) => raw == null ? null : DateTime.tryParse(raw.toString())?.toLocal();
+
 class EntregaPadreModel {
-  const EntregaPadreModel({required this.id, required this.nombre, this.apellido, this.avatarUrl});
+  const EntregaPadreModel({required this.id, required this.nombre, this.apellido, this.avatarUrl, this.correo});
 
   final String id;
   final String nombre;
   final String? apellido;
   final String? avatarUrl;
+  final String? correo;
 
   factory EntregaPadreModel.fromJson(Map<String, dynamic> json) {
     return EntregaPadreModel(
@@ -17,33 +20,61 @@ class EntregaPadreModel {
       apellido: json['apellido']?.toString(),
       // Mismo campo que en todo el resto del backend real (User.fotoPerfilUrl).
       avatarUrl: Env.resolveUrl(json['fotoPerfilUrl']?.toString()),
+      correo: json['correo']?.toString(),
     );
   }
 
-  EntregaPadre toEntity() => EntregaPadre(id: id, nombre: nombre, apellido: apellido, avatarUrl: avatarUrl);
+  EntregaPadre toEntity() =>
+      EntregaPadre(id: id, nombre: nombre, apellido: apellido, avatarUrl: avatarUrl, correo: correo);
 }
 
 class CalificacionModel {
-  const CalificacionModel({required this.valoracion, this.comentario, this.fechaCalificacion});
+  const CalificacionModel({
+    required this.valoracion,
+    this.comentario,
+    this.fechaCalificacion,
+    this.fechaUltimaModificacion,
+    this.valoracionAnterior,
+    this.docenteNombre,
+  });
 
   final int valoracion;
   final String? comentario;
   final DateTime? fechaCalificacion;
+  final DateTime? fechaUltimaModificacion;
+  final int? valoracionAnterior;
+  final String? docenteNombre;
 
-  /// Confirmado contra entregaController.js real: calificarEntrega guarda
-  /// "valoracion" (no "nota" — esa duda del blueprint queda resuelta).
+  /// Confirmado contra entregaController.js/Entrega.js reales: calificarEntrega
+  /// guarda "valoracion" (1-5), "comentario" (retroalimentación) y el
+  /// docente que calificó en "docenteId" (populado con nombre/apellido).
   factory CalificacionModel.fromJson(Map<String, dynamic> json) {
     final valor = json['valoracion'] ?? json['nota'];
+    final anterior = json['valoracionAnterior'];
+    final docenteRaw = json['docenteId'];
+    String? docenteNombre;
+    if (docenteRaw is Map) {
+      docenteNombre = '${docenteRaw['nombre'] ?? ''} ${docenteRaw['apellido'] ?? ''}'.trim();
+      if (docenteNombre.isEmpty) docenteNombre = null;
+    }
     return CalificacionModel(
-      valoracion: valor is num ? valor.toInt() : 0,
+      valoracion: valor is num ? valor.toInt() : int.tryParse(valor?.toString() ?? '') ?? 0,
       comentario: json['comentario']?.toString(),
-      fechaCalificacion: json['fechaCalificacion'] != null
-          ? DateTime.tryParse(json['fechaCalificacion'].toString())
-          : null,
+      fechaCalificacion: _fecha(json['fechaCalificacion']),
+      fechaUltimaModificacion: _fecha(json['fechaUltimaModificacion']),
+      valoracionAnterior: anterior is num ? anterior.toInt() : null,
+      docenteNombre: docenteNombre,
     );
   }
 
-  Calificacion toEntity() => Calificacion(valoracion: valoracion, comentario: comentario, fechaCalificacion: fechaCalificacion);
+  Calificacion toEntity() => Calificacion(
+    valoracion: valoracion,
+    comentario: comentario,
+    fechaCalificacion: fechaCalificacion,
+    fechaUltimaModificacion: fechaUltimaModificacion,
+    valoracionAnterior: valoracionAnterior,
+    docenteNombre: docenteNombre,
+  );
 }
 
 /// DTO — BLUEPRINT.md FASE 9.6, verificado contra entregaController.js real.
@@ -56,6 +87,7 @@ class EntregaModel {
     this.textoRespuesta,
     this.estado = 'borrador',
     this.archivos = const [],
+    this.enlaces = const [],
     this.fechaEnvio,
     this.calificacion,
   });
@@ -67,6 +99,7 @@ class EntregaModel {
   final String? textoRespuesta;
   final String estado;
   final List<Archivo> archivos;
+  final List<Archivo> enlaces;
   final DateTime? fechaEnvio;
   final CalificacionModel? calificacion;
 
@@ -89,7 +122,23 @@ class EntregaModel {
     final archivosRaw = json['archivosAdjuntos'] as List?;
     final archivos = (archivosRaw ?? const []).map((e) => Archivo.fromJson(e as Map<String, dynamic>)).toList();
 
+    // Entrega.js real: enlaces [{url, titulo, descripcion}] — antes se
+    // ignoraban por completo y el docente nunca veía los enlaces entregados.
+    final enlacesRaw = json['enlaces'] as List?;
+    final enlaces = (enlacesRaw ?? const []).whereType<Map>().map((e) {
+      final url = e['url']?.toString() ?? '';
+      final titulo = e['titulo']?.toString();
+      return Archivo(
+        id: url,
+        url: url,
+        nombre: titulo != null && titulo.trim().isNotEmpty ? titulo : url,
+        tipo: 'enlace',
+        descripcion: e['descripcion']?.toString(),
+      );
+    }).toList();
+
     final calificacionRaw = json['calificacion'];
+    final calificacion = calificacionRaw is Map ? CalificacionModel.fromJson(calificacionRaw.cast<String, dynamic>()) : null;
 
     return EntregaModel(
       id: (json['id'] ?? json['_id']).toString(),
@@ -99,11 +148,15 @@ class EntregaModel {
       textoRespuesta: json['textoRespuesta']?.toString(),
       estado: json['estado']?.toString() ?? 'borrador',
       archivos: archivos,
+      enlaces: enlaces,
       // createEntrega/enviarEntrega reales escriben la fecha bajo la clave
       // "fechaEntrega" (mismo nombre que el campo de vencimiento en Tarea,
       // pero acá significa "cuándo se envió esta entrega").
-      fechaEnvio: json['fechaEntrega'] != null ? DateTime.tryParse(json['fechaEntrega'].toString()) : null,
-      calificacion: calificacionRaw is Map ? CalificacionModel.fromJson(calificacionRaw as Map<String, dynamic>) : null,
+      fechaEnvio: _fecha(json['fechaEntrega']),
+      // Entrega.js real: `calificacion` es un subobjeto que Mongoose puede
+      // devolver vacío ({}) aunque no esté valorada — solo cuenta si trae
+      // una valoración real 1-5.
+      calificacion: calificacion != null && calificacion.valoracion >= 1 ? calificacion : null,
     );
   }
 
@@ -115,6 +168,7 @@ class EntregaModel {
     textoRespuesta: textoRespuesta,
     estado: estado,
     archivos: archivos,
+    enlaces: enlaces,
     fechaEnvio: fechaEnvio,
     calificacion: calificacion?.toEntity(),
   );

@@ -50,6 +50,9 @@ class Tarea {
     this.totalEntregas = 0,
     this.totalPendientes = 0,
     this.totalCalificadas = 0,
+    this.docenteNombre,
+    this.moduloTitulo,
+    this.fechaCreacion,
   });
 
   final String id;
@@ -73,6 +76,12 @@ class Tarea {
   final int totalEntregas;
   final int totalPendientes;
   final int totalCalificadas;
+
+  /// tareaController.js real popula docenteId (nombre apellido) y
+  /// moduloId (titulo) — antes se descartaban.
+  final String? docenteNombre;
+  final String? moduloTitulo;
+  final DateTime? fechaCreacion;
 
   /// Regla de negocio a portar siempre en cliente — BLUEPRINT.md FASE 9.5.
   bool get vencida => estado == 'publicada' && fechaEntrega != null && fechaEntrega!.isBefore(DateTime.now());

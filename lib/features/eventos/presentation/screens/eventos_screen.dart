@@ -162,12 +162,11 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
         itemBuilder: (context, index) {
           final evento = _items[index];
           return EdumonCard(
-            onTap: canManage
-                ? () async {
-                    final updated = await context.push<bool>('/eventos/${evento.id}/editar');
-                    if (updated == true) _load();
-                  }
-                : null,
+            // Todos los roles ven el detalle completo; editar está dentro.
+            onTap: () async {
+              final updated = await context.push<bool>('/eventos/${evento.id}');
+              if (updated == true) _load();
+            },
             child: Row(
               children: [
                 Container(

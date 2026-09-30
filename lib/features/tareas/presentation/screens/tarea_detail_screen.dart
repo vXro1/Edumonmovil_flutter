@@ -11,7 +11,11 @@ import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/security/role.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../shared/widgets/archivos_adjuntos_view.dart';
 import '../../../auth/presentation/providers/auth_controller.dart';
+import '../../../entregas/domain/entities/entrega.dart';
+import '../../../entregas/presentation/providers/entregas_providers.dart';
+import '../../../entregas/presentation/widgets/calificacion_widgets.dart';
 import '../../domain/entities/tarea.dart';
 import '../providers/tareas_providers.dart';
 
@@ -28,6 +32,8 @@ class TareaDetailScreen extends ConsumerStatefulWidget {
 
 class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
   Tarea? _tarea;
+  // Solo rol padre: su entrega para este reto (estado, nota, comentario).
+  Entrega? _miEntrega;
   bool _loading = true;
   String? _error;
 
@@ -43,10 +49,15 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
       _error = null;
     });
     try {
-      final tarea = await ref.read(tareasRepositoryProvider).fetchTareaById(widget.tareaId);
+      final esPadre = ref.read(authControllerProvider).user?.rol == UserRole.padreTutor;
+      final results = await Future.wait<Object?>([
+        ref.read(tareasRepositoryProvider).fetchTareaById(widget.tareaId),
+        if (esPadre) ref.read(entregasRepositoryProvider).fetchMiEntrega(widget.tareaId).catchError((_) => null),
+      ]);
       if (!mounted) return;
       setState(() {
-        _tarea = tarea;
+        _tarea = results[0] as Tarea;
+        _miEntrega = esPadre ? results[1] as Entrega? : null;
         _loading = false;
       });
     } catch (e) {
@@ -136,6 +147,7 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
     }
 
     final tarea = _tarea!;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     return Column(
       children: [
@@ -148,7 +160,9 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
                 children: [
                   _Badge(
                     text: tarea.vencida ? 'Vencida' : (tarea.cerrada ? 'Cerrada' : 'Activa'),
-                    color: tarea.vencida ? AppColors.error : (tarea.cerrada ? AppColors.mutedText(context) : AppColors.success),
+                    color: tarea.vencida
+                        ? (isDark ? AppColors.error : AppColors.errorHover)
+                        : (tarea.cerrada ? AppColors.mutedText(context) : (isDark ? AppColors.green300 : AppColors.green700)),
                   ),
                   _Badge(
                     text: tarea.asignacionTipo == AsignacionTipo.todos ? 'Para todos' : 'Seleccionados',
@@ -159,7 +173,15 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
               ),
               const SizedBox(height: AppSpacing.md),
               Text(tarea.titulo, style: Theme.of(context).textTheme.headlineSmall),
+              const SizedBox(height: AppSpacing.sm),
+              _MetaReto(tarea: tarea),
+              if (!isStaffView) ...[
+                const SizedBox(height: AppSpacing.md),
+                _MiEstado(entrega: _miEntrega, tarea: tarea),
+              ],
               if (tarea.descripcion != null && tarea.descripcion!.isNotEmpty) ...[
+                const SizedBox(height: AppSpacing.md),
+                const Text('Instrucciones', style: TextStyle(fontWeight: FontWeight.w700)),
                 const SizedBox(height: AppSpacing.sm),
                 HtmlLiteView(html: tarea.descripcion!),
               ],
@@ -173,20 +195,6 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
                       .toList(),
                 ),
               ],
-              if (tarea.fechaEntrega != null) ...[
-                const SizedBox(height: AppSpacing.md),
-                EdumonCard(
-                  child: Row(
-                    children: [
-                      Icon(LucideIcons.calendar, size: 18, color: AppColors.mutedText(context)),
-                      const SizedBox(width: AppSpacing.xs),
-                      Text(
-                        'Entrega: ${tarea.fechaEntrega!.day}/${tarea.fechaEntrega!.month}/${tarea.fechaEntrega!.year} ${tarea.fechaEntrega!.hour.toString().padLeft(2, '0')}:${tarea.fechaEntrega!.minute.toString().padLeft(2, '0')}',
-                      ),
-                    ],
-                  ),
-                ),
-              ],
               if (tarea.criterios != null && tarea.criterios!.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.md),
                 const Text('Criterios de evaluación', style: TextStyle(fontWeight: FontWeight.w700)),
@@ -195,26 +203,9 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
               ],
               if (tarea.archivos.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.md),
-                const Text('Archivos', style: TextStyle(fontWeight: FontWeight.w700)),
+                Text('Material del reto (${tarea.archivos.length})', style: const TextStyle(fontWeight: FontWeight.w700)),
                 const SizedBox(height: AppSpacing.sm),
-                ...tarea.archivos.map((a) => EdumonCard(
-                      child: Row(
-                        children: [
-                          Icon(a.esEnlace ? LucideIcons.link : LucideIcons.file, size: 18, color: AppColors.mutedText(context)),
-                          const SizedBox(width: AppSpacing.xs),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(a.nombre, overflow: TextOverflow.ellipsis),
-                                if (a.esEnlace)
-                                  Text(a.url, overflow: TextOverflow.ellipsis, style: TextStyle(color: AppColors.mutedText(context), fontSize: 12)),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    )),
+                ArchivosAdjuntosView(archivos: tarea.archivos),
               ],
             ],
           ),
@@ -222,13 +213,96 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
         Padding(
           padding: const EdgeInsets.all(AppSpacing.md),
           child: EdumonButton(
-            label: isStaffView ? 'Ver entregas' : 'Ver mi entrega',
+            label: isStaffView ? 'Ver entregas' : _accionPadre(tarea),
             fullWidth: true,
             size: EdumonButtonSize.lg,
-            onPressed: () => context.push(isStaffView ? '/tareas/${tarea.id}/entregas' : '/tareas/${tarea.id}/mi-entrega'),
+            onPressed: () async {
+              final changed = await context.push<bool>(
+                isStaffView ? '/tareas/${tarea.id}/entregas' : '/tareas/${tarea.id}/mi-entrega',
+              );
+              if (changed == true) _load();
+            },
           ),
         ),
       ],
+    );
+  }
+}
+
+extension on _TareaDetailScreenState {
+  String _accionPadre(Tarea tarea) {
+    final e = _miEntrega;
+    if (e == null) return tarea.cerrada ? 'Ver reto' : 'Realizar entrega';
+    if (e.esBorrador) return 'Continuar mi borrador';
+    return e.calificada ? 'Ver calificación y comentario' : 'Ver mi entrega';
+  }
+}
+
+class _MetaReto extends StatelessWidget {
+  const _MetaReto({required this.tarea});
+
+  final Tarea tarea;
+
+  @override
+  Widget build(BuildContext context) {
+    final muted = AppColors.mutedText(context);
+    Widget fila(IconData icon, String texto) => Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, size: 16, color: muted),
+          const SizedBox(width: 8),
+          Expanded(child: Text(texto, style: const TextStyle(fontSize: 14))),
+        ],
+      ),
+    );
+    return EdumonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (tarea.docenteNombre != null) fila(LucideIcons.user, 'Docente: ${tarea.docenteNombre}'),
+          if (tarea.cursoNombre != null) fila(LucideIcons.bookOpen, 'Curso: ${tarea.cursoNombre}'),
+          if (tarea.moduloTitulo != null) fila(LucideIcons.layers, 'Módulo: ${tarea.moduloTitulo}'),
+          if (tarea.fechaCreacion != null) fila(LucideIcons.calendarPlus, 'Publicado: ${formatFechaHora(tarea.fechaCreacion!)}'),
+          if (tarea.fechaEntrega != null)
+            fila(
+              LucideIcons.calendarClock,
+              'Fecha límite: ${formatFechaHora(tarea.fechaEntrega!)}${tarea.cerrada ? '' : ' · ${tiempoRestante(tarea.fechaEntrega!)}'}',
+            ),
+          fila(LucideIcons.upload, 'Tipo de entrega: ${tarea.tipoEntrega.label}'),
+        ],
+      ),
+    );
+  }
+}
+
+/// Resumen de la entrega del padre dentro del detalle del reto: estado y,
+/// si ya fue calificada, la nota y la retroalimentación del docente.
+class _MiEstado extends StatelessWidget {
+  const _MiEstado({required this.entrega, required this.tarea});
+
+  final Entrega? entrega;
+  final Tarea tarea;
+
+  @override
+  Widget build(BuildContext context) {
+    final e = entrega;
+    if (e?.calificacion != null) return CalificacionCard(calificacion: e!.calificacion!);
+    final muted = AppColors.mutedText(context);
+    return EdumonCard(
+      child: Row(
+        children: [
+          const Text('Mi entrega: ', style: TextStyle(fontWeight: FontWeight.w700)),
+          EstadoEntregaBadge(entrega: e, tarea: tarea),
+          if (e != null && !e.esBorrador && e.fechaEnvio != null) ...[
+            const SizedBox(width: 8),
+            Flexible(
+              child: Text(formatFechaHora(e.fechaEnvio!), style: TextStyle(color: muted, fontSize: 12), overflow: TextOverflow.ellipsis),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

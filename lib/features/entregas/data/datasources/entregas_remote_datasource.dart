@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
 
 import '../../../../core/network/network_exceptions.dart';
@@ -18,7 +20,9 @@ class EntregasRemoteDataSource {
   /// en cliente, porque con paginación el conteo client-side subestimaría el total.
   Future<({List<EntregaModel> items, EntregasStats stats})> fetchEntregasPorTarea(String tareaId) async {
     try {
-      final response = await _dio.get('/entregas/tarea/$tareaId');
+      // getEntregasByTarea real pagina con limit=10 por defecto (máx. 50):
+      // sin pedirlo explícito el docente solo veía las 10 primeras entregas.
+      final response = await _dio.get('/entregas/tarea/$tareaId', queryParameters: {'limit': 50});
       final data = response.data as Map<String, dynamic>;
       final items = (data['entregas'] as List).map((e) => EntregaModel.fromJson(e as Map<String, dynamic>)).toList();
       final stats = data['estadisticas'] as Map<String, dynamic>? ?? const {};
@@ -58,6 +62,7 @@ class EntregasRemoteDataSource {
     required String padreId,
     String? textoRespuesta,
     List<ArchivoUpload>? archivos,
+    List<EnlaceEntrega>? enlaces,
   }) async {
     try {
       final formData = FormData.fromMap({
@@ -65,6 +70,9 @@ class EntregasRemoteDataSource {
         'padreId': padreId,
         if (textoRespuesta != null && textoRespuesta.isNotEmpty) 'textoRespuesta': textoRespuesta,
         'estado': 'borrador',
+        // createEntrega real: sanitizarEnlaces(req.body.enlaces) acepta el
+        // array como string JSON dentro del multipart.
+        if (enlaces != null && enlaces.isNotEmpty) 'enlaces': jsonEncode([for (final e in enlaces) e.toJson()]),
         if (archivos != null)
           'archivos': [for (final a in archivos) MultipartFile.fromBytes(a.bytes, filename: a.filename)],
       });
@@ -80,10 +88,13 @@ class EntregasRemoteDataSource {
     required String id,
     String? textoRespuesta,
     List<ArchivoUpload>? archivosNuevos,
+    List<EnlaceEntrega>? enlaces,
   }) async {
     try {
       final formData = FormData.fromMap({
         'textoRespuesta': ?textoRespuesta,
+        // updateEntrega real: si viene `enlaces` reemplaza la lista completa.
+        if (enlaces != null) 'enlaces': jsonEncode([for (final e in enlaces) e.toJson()]),
         if (archivosNuevos != null)
           'archivos': [for (final a in archivosNuevos) MultipartFile.fromBytes(a.bytes, filename: a.filename)],
       });

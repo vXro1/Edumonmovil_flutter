@@ -25,6 +25,9 @@ class Foro {
     this.estado = 'abierto',
     required this.cursoId,
     this.docenteId,
+    this.docente,
+    this.archivos = const [],
+    this.fechaCreacion,
     this.totalMensajes = 0,
     this.publico = false,
     this.fijado = false,
@@ -45,6 +48,11 @@ class Foro {
   // Foro.js real: el creador se llama `docenteId` (no "creadorId" — ese
   // nombre no existe en el schema; con él, este campo daba siempre null).
   final String? docenteId;
+
+  /// Docente creador, populado por el backend (nombre apellido fotoPerfilUrl rol).
+  final ForoAutor? docente;
+  final List<Archivo> archivos;
+  final DateTime? fechaCreacion;
   final int totalMensajes;
   final bool publico;
   final bool fijado;
@@ -52,7 +60,7 @@ class Foro {
   bool get cerrado => estado == 'cerrado';
 }
 
-/// Entidad de dominio — BLUEPRINT.md FASE 9.9.
+/// Entidad de dominio — verificada contra MensajeForo.js real.
 class MensajeForo {
   const MensajeForo({
     required this.id,
@@ -63,6 +71,7 @@ class MensajeForo {
     required this.fecha,
     this.totalLikes = 0,
     this.yaLeDioLike = false,
+    this.likedBy = const [],
     this.archivos = const [],
     this.respuestaA,
     this.respuestas = const [],
@@ -78,9 +87,12 @@ class MensajeForo {
   final DateTime fecha;
   final int totalLikes;
   final bool yaLeDioLike;
+  final List<String> likedBy;
   final List<Archivo> archivos;
   final String? respuestaA;
   final List<MensajeForo> respuestas;
   final bool editado;
   final bool fijado;
+
+  bool likedByUser(String? userId) => yaLeDioLike || (userId != null && likedBy.contains(userId));
 }

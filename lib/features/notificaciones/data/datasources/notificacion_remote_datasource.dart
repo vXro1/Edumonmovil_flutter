@@ -10,9 +10,9 @@ class NotificacionRemoteDataSource {
 
   final Dio _dio;
 
-  /// createNotificacion real (POST /notificaciones, admin/superadmin) —
-  /// (⚠️) no vimos notificacionValidator.js/Notificacion.js reales, los
-  /// nombres de campo se infieren del shape que ya devuelve getMisNotificaciones.
+  /// createNotificacion real (POST /notificaciones, admin/superadmin).
+  /// Notificacion.js real NO tiene campo `titulo` (el schema lo descarta), así
+  /// que el título viaja en `metadata.titulo`, que sí se persiste.
   Future<void> createNotificacion({
     required String usuarioId,
     required String titulo,
@@ -22,7 +22,12 @@ class NotificacionRemoteDataSource {
     try {
       await _dio.post(
         '/notificaciones',
-        data: {'usuarioId': usuarioId, 'titulo': titulo, 'mensaje': mensaje, 'tipo': tipo.name},
+        data: {
+          'usuarioId': usuarioId,
+          'mensaje': mensaje,
+          'tipo': tipo.name,
+          'metadata': {'titulo': titulo},
+        },
       );
     } on DioException catch (e) {
       throw AppException.fromDioException(e);

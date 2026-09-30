@@ -23,6 +23,8 @@ import '../../features/docentes/presentation/screens/docentes_screen.dart';
 import '../../features/entregas/presentation/screens/entregas_list_screen.dart';
 import '../../features/entregas/presentation/screens/mis_entregas_screen.dart';
 import '../../features/entregas/presentation/screens/realizar_entrega_screen.dart';
+import '../../features/calendario/domain/entities/calendario_entry.dart';
+import '../../features/eventos/presentation/screens/evento_detalle_screen.dart';
 import '../../features/eventos/presentation/screens/evento_form_screen.dart';
 import '../../features/eventos/presentation/screens/eventos_screen.dart';
 import '../../features/foros/presentation/screens/foro_dashboard_screen.dart';
@@ -199,6 +201,13 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/eventos/:id/editar',
         builder: (context, state) => EventoFormScreen(eventoId: state.pathParameters['id']),
+      ),
+      GoRoute(
+        path: '/eventos/:id',
+        builder: (context, state) => EventoDetalleScreen(
+          eventoId: state.pathParameters['id']!,
+          inicial: state.extra is CalendarioEntry ? state.extra as CalendarioEntry : null,
+        ),
       ),
 
       // Familia (Sprint 7) — Cursos/Retos/Foros/Calendario reutilizan las
