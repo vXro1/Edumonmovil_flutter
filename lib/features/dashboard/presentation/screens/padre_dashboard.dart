@@ -142,7 +142,10 @@ class PadreDashboard extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => const EdumonEmptyHint(text: 'No se pudieron cargar los cursos.'),
+              error: (_, _) => EdumonErrorRetry(
+                text: 'No se pudieron cargar los cursos.',
+                onRetry: () => ref.invalidate(misCursosProvider(_misCursosLimit)),
+              ),
             ),
             const SizedBox(height: AppSpacing.lg),
             const Text('Eventos de hoy', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
@@ -190,7 +193,10 @@ class PadreDashboard extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => const EdumonEmptyHint(text: 'No se pudieron cargar los eventos.'),
+              error: (_, _) => EdumonErrorRetry(
+                text: 'No se pudieron cargar los eventos.',
+                onRetry: () => ref.invalidate(eventosHoyProvider),
+              ),
             ),
           ],
         ),

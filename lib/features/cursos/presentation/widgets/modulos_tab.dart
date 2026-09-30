@@ -225,7 +225,7 @@ class _ModulosTabState extends ConsumerState<ModulosTab> {
                 FloatingActionButton.small(
                   heroTag: 'modulos-csv',
                   onPressed: _importing ? null : _importCsv,
-                  tooltip: 'Importar CSV',
+                  tooltip: 'Agregar varios módulos',
                   child: _importing
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(LucideIcons.fileUp),

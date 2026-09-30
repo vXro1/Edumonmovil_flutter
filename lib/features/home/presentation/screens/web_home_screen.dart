@@ -12,8 +12,8 @@ import '../widgets/landing_quienes_section.dart';
 /// Home pública — BLUEPRINT: Home web de Edumont para padres/madres de
 /// familia. Reconstruida desde cero en Flutter Web a partir del diseño
 /// previo en React (misma distribución/UX de referencia, identidad visual
-/// completamente nueva: paleta AppColors, tipografía Fredoka/Poppins ya
-/// establecidas en el resto de la app — ver design_system).
+/// completamente nueva: paleta AppColors, tipografía Nunito ya
+/// establecida en el resto de la app — ver design_system).
 /// Solo se registra/muestra en web (ver `app_router.dart`, `kIsWeb`).
 class WebHomeScreen extends StatefulWidget {
   const WebHomeScreen({super.key});

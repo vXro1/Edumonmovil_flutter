@@ -164,7 +164,10 @@ class SuperadminDashboard extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => const EdumonEmptyHint(text: 'No se pudieron cargar las instituciones.'),
+              error: (_, _) => EdumonErrorRetry(
+                text: 'No se pudieron cargar las instituciones.',
+                onRetry: () => ref.invalidate(institucionesProvider),
+              ),
             ),
             const SizedBox(height: AppSpacing.lg),
             Row(
@@ -223,7 +226,10 @@ class SuperadminDashboard extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => const EdumonEmptyHint(text: 'No se pudieron cargar los mensajes del buzón.'),
+              error: (_, _) => EdumonErrorRetry(
+                text: 'No se pudieron cargar los mensajes del buzón.',
+                onRetry: () => ref.invalidate(buzonRecientesProvider),
+              ),
             ),
           ],
         ),

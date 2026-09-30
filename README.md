@@ -24,7 +24,7 @@ Migración/reimplementación en Flutter de la plataforma web EDUMON. La especifi
 
 EDUMON es un **LMS (Learning Management System) educativo multi-tenant**: conecta instituciones escolares completas (colegios como clientes independientes, cada uno con sus propios docentes, cursos y usuarios) alrededor del ciclo de vida de un curso — módulos, tareas ("retos"), entregas calificadas, foros y calendario.
 
-Esta app es la reimplementación nativa (Flutter/Android, con soporte Web) de la plataforma web original (React), consumiendo el mismo backend (`https://backend-edumon.onrender.com`). El detalle completo de la ingeniería inversa de la web original, decisiones de arquitectura y mapeo pantalla-por-pantalla está en [`docs/flutter-migration/BLUEPRINT.md`](docs/flutter-migration/BLUEPRINT.md).
+Esta app es la reimplementación nativa (Flutter/Android, con soporte Web) de la plataforma web original (React), consumiendo el mismo backend (`https://edumon.uniautonoma.edu.co/api`). El detalle completo de la ingeniería inversa de la web original, decisiones de arquitectura y mapeo pantalla-por-pantalla está en [`docs/flutter-migration/BLUEPRINT.md`](docs/flutter-migration/BLUEPRINT.md).
 
 ## Roles y funcionalidades
 
@@ -51,7 +51,7 @@ Dominios funcionales (un folder por feature en `lib/features/`): autenticación,
 
 - Flutter SDK **3.44.x** (canal stable) / Dart **3.12.2** — verificar con `flutter --version`.
 - Un dispositivo/emulador Android, o Chrome para correr en Web (`flutter run -d chrome`).
-- Backend real en `https://backend-edumon.onrender.com` (no hay backend local en este repo; no se necesita levantar nada aparte de la app).
+- Backend real en `https://edumon.uniautonoma.edu.co/api` (no hay backend local en este repo; no se necesita levantar nada aparte de la app).
 
 ## Getting started
 
@@ -62,7 +62,7 @@ flutter run -d chrome       # más rápido para iterar sobre UI
 flutter test                 # suite de tests
 ```
 
-Backend real: `https://backend-edumon.onrender.com` (configurado en `lib/core/network/`). No hay backend local en este repo.
+Backend real: `https://edumon.uniautonoma.edu.co/api` (configurado en `lib/core/config/env.dart`). No hay backend local en este repo.
 
 ## ⚠️ Compilar en Windows dentro de una carpeta de OneDrive
 

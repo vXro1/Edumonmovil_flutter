@@ -67,7 +67,9 @@ class DocenteDashboard extends ConsumerWidget {
                   onTap: () => context.push('/cursos'),
                 ),
                 EdumonStatCard(
-                  label: 'Estudiantes',
+                  // totalParticipantes son cuentas de padres de familia, no
+                  // de estudiantes (los estudiantes no tienen cuenta propia)
+                  label: 'Padres de familia',
                   icon: LucideIcons.users,
                   color: AppColors.sectionInicio,
                   value: cursosAsync.when(
@@ -167,7 +169,10 @@ class DocenteDashboard extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => const EdumonEmptyHint(text: 'No se pudieron cargar tus cursos.'),
+              error: (_, _) => EdumonErrorRetry(
+                text: 'No se pudieron cargar tus cursos.',
+                onRetry: () => ref.invalidate(misCursosProvider(_misCursosLimit)),
+              ),
             ),
             const SizedBox(height: AppSpacing.lg),
             const Text('Retos activos', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
@@ -212,7 +217,10 @@ class DocenteDashboard extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => const EdumonEmptyHint(text: 'No se pudieron cargar tus retos.'),
+              error: (_, _) => EdumonErrorRetry(
+                text: 'No se pudieron cargar tus retos.',
+                onRetry: () => ref.invalidate(tareasActivasProvider),
+              ),
             ),
             const SizedBox(height: AppSpacing.lg),
             const Text('Eventos de hoy', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
@@ -258,7 +266,10 @@ class DocenteDashboard extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => const EdumonEmptyHint(text: 'No se pudieron cargar los eventos.'),
+              error: (_, _) => EdumonErrorRetry(
+                text: 'No se pudieron cargar los eventos.',
+                onRetry: () => ref.invalidate(eventosHoyProvider),
+              ),
             ),
           ],
         ),

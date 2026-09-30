@@ -113,7 +113,7 @@ class _EntregasListScreenState extends ConsumerState<EntregasListScreen> {
                     minRating: 1,
                     itemCount: 5,
                     itemSize: 40,
-                    itemBuilder: (context, _) => const Icon(Icons.star, color: AppColors.warning),
+                    itemBuilder: (context, _) => const Icon(Icons.star_rounded, color: AppColors.warning),
                     onRatingUpdate: (rating) => valoracion = rating.round(),
                   ),
                 ),
@@ -218,7 +218,7 @@ class _EntregasListScreenState extends ConsumerState<EntregasListScreen> {
                                             children: List.generate(
                                               5,
                                               (i) => Icon(
-                                                Icons.star,
+                                                Icons.star_rounded,
                                                 size: 14,
                                                 color: i < entrega.calificacion!.valoracion ? AppColors.warning : AppColors.neutral200,
                                               ),

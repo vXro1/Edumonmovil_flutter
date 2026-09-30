@@ -217,7 +217,11 @@ class _ParticipantesTabState extends ConsumerState<ParticipantesTab> {
   }
 
   Future<void> _importCsv() async {
-    final result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: ['csv'], withData: true);
+    // El backend dejó de aceptar CSV para este endpoint — usuarios-masivo
+    // ahora exige Excel real (.xlsx/.xlsm, parseado con ExcelJS). Con
+    // allowedExtensions:['csv'] el picker ni dejaba elegir un .xlsx, así que
+    // la importación fallaba siempre sin importar qué archivo se subiera.
+    final result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: ['xlsx', 'xlsm'], withData: true);
     final file = result?.files.singleOrNull;
     if (file == null || file.bytes == null) return;
 
@@ -278,7 +282,7 @@ class _ParticipantesTabState extends ConsumerState<ParticipantesTab> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _importing = false);
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo importar el CSV.')));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo agregar el archivo.')));
     }
   }
 
@@ -292,7 +296,7 @@ class _ParticipantesTabState extends ConsumerState<ParticipantesTab> {
                 FloatingActionButton.small(
                   heroTag: 'participantes-csv',
                   onPressed: _importing ? null : _importCsv,
-                  tooltip: 'Importar CSV',
+                  tooltip: 'Agregar varios padres',
                   child: _importing
                       ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
                       : const Icon(LucideIcons.fileUp),

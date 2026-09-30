@@ -6,6 +6,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/presentation/providers/auth_providers.dart';
+import '../router/app_router.dart';
 
 /// Debe coincidir con el meta-data
 /// `com.google.firebase.messaging.default_notification_channel_id` en
@@ -70,11 +71,34 @@ class FcmService {
             ),
           );
       FirebaseMessaging.onMessage.listen(_showForegroundNotification);
+
+      // App en background (no cerrada) y el usuario toca la notificación
+      // del sistema — vuelve a foreground y este stream entrega el mensaje.
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+
+      // App cerrada del todo (cold start) y el usuario toca la notificación:
+      // no hay stream que la entregue, hay que preguntar una sola vez si
+      // fue así el motivo del arranque.
+      final initialMessage = await FirebaseMessaging.instance.getInitialMessage();
+      if (initialMessage != null) _handleNotificationTap(initialMessage);
     } catch (e) {
       // Firebase no configurado todavía en este build (falta
       // google-services.json) — la app sigue funcionando normal, solo sin
       // notificaciones push.
       debugPrint('[FCM] init() no disponible: $e');
+    }
+  }
+
+  /// El backend siempre manda data.url (ver FCMStrategy.js real: hoy
+  /// siempre es '/notificaciones', nunca un deep-link a la tarea/entrega/
+  /// foro puntual) — se navega ahí en vez de asumir una ruta fija, para que
+  /// esto siga funcionando si el backend empieza a mandar otras rutas.
+  void _handleNotificationTap(RemoteMessage message) {
+    final url = message.data['url'] as String? ?? '/notificaciones';
+    try {
+      _ref.read(goRouterProvider).go(url);
+    } catch (e) {
+      debugPrint('[FCM] No se pudo navegar a "$url" desde la notificación: $e');
     }
   }
 

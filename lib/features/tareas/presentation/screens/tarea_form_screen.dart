@@ -6,10 +6,12 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/design_system/buttons/edumon_button.dart';
 import '../../../../core/design_system/dialogs/edumon_dialog.dart';
 import '../../../../core/design_system/inputs/edumon_text_field.dart';
+import '../../../../core/design_system/inputs/rich_text_lite_field.dart';
 import '../../../../core/design_system/loading/loading_screen.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
+import '../../../../core/utils/rich_text_lite.dart';
 import '../../../../shared/models/archivo.dart';
 import '../../../cursos/domain/entities/modulo.dart';
 import '../../../cursos/presentation/providers/cursos_providers.dart';
@@ -95,9 +97,12 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
       final tarea = await ref.read(tareasRepositoryProvider).fetchTareaById(widget.tareaId!);
       if (!mounted) return;
       _tituloController.text = tarea.titulo;
-      _descripcionController.text = tarea.descripcion ?? '';
+      // descripcion/criterios llegan como HTML (puede venir de un reto
+      // creado desde la web) — se convierten a la sintaxis de marcadores
+      // del mini-editor para poder seguir editándolos acá.
+      _descripcionController.text = htmlToRichTextLite(tarea.descripcion);
       _etiquetasController.text = tarea.etiquetas.join(', ');
-      _criteriosController.text = tarea.criterios ?? '';
+      _criteriosController.text = htmlToRichTextLite(tarea.criterios);
       setState(() {
         _fechaEntrega = tarea.fechaEntrega;
         _tipoEntrega = tarea.tipoEntrega;
@@ -212,14 +217,17 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
           .map((e) => e.trim())
           .where((e) => e.isNotEmpty)
           .toList();
-      final criterios = _criteriosController.text.trim();
+      // mismo HTML que produce/espera RichTextEditor.jsx en la web (b, i, u,
+      // ul, ol, li, p, br, hr) — ver rich_text_lite.dart
+      final descripcion = richTextLiteToHtml(_descripcionController.text);
+      final criterios = isRichTextLiteEmpty(_criteriosController.text) ? '' : richTextLiteToHtml(_criteriosController.text);
 
       final repo = ref.read(tareasRepositoryProvider);
       if (_isEditing) {
         await repo.updateTarea(
           id: widget.tareaId!,
           titulo: titulo,
-          descripcion: _descripcionController.text.trim(),
+          descripcion: descripcion,
           moduloId: _moduloId,
           fechaEntrega: _fechaEntrega,
           asignacionTipo: _asignacionTipo,
@@ -234,7 +242,7 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
       } else {
         await repo.createTarea(
           titulo: titulo,
-          descripcion: _descripcionController.text.trim(),
+          descripcion: descripcion,
           cursoId: widget.cursoId,
           moduloId: _moduloId!,
           fechaEntrega: _fechaEntrega,
@@ -268,7 +276,7 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   EdumonTextField(controller: _tituloController, label: 'Título'),
-                  EdumonTextField(controller: _descripcionController, label: 'Descripción (opcional)'),
+                  RichTextLiteField(controller: _descripcionController, label: 'Descripción (opcional)', minLines: 3, maxLines: 8),
                   const SizedBox(height: AppSpacing.sm),
                   const Text('Módulo', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   const SizedBox(height: 6),
@@ -364,7 +372,7 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
                   const SizedBox(height: AppSpacing.sm),
                   const Text('Criterios de evaluación (opcional)', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   const SizedBox(height: 6),
-                  EdumonTextField(controller: _criteriosController, label: 'Criterios', maxLines: 4),
+                  RichTextLiteField(controller: _criteriosController, label: 'Criterios', minLines: 3, maxLines: 6),
                   const SizedBox(height: AppSpacing.sm),
                   const Text('Archivos', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   const SizedBox(height: 6),

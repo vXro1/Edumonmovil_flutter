@@ -46,7 +46,14 @@ import 'app_shell.dart';
 /// Replica ProtectedRoute/PublicOnlyRoute/RoleRedirect de la web vía `redirect`,
 /// sin los guards muertos (RoleGuard/RequireRole/RequireAuth no se portan).
 
-const _publicOnlyRoutes = {'/', '/login', '/forgot-password', '/reset-password'};
+// '/' (landing web) es pública siempre, con o sin sesión — a diferencia de
+// login/forgot/reset, que solo tienen sentido SIN sesión. Antes estaba en
+// _publicOnlyRoutes junto con esas, así que el chequeo de más abajo
+// (línea ~92) mandaba a la fuerza a un usuario autenticado que visitaba '/'
+// a su home de rol, sin poder quedarse a ver la landing — mismo bug que
+// tenía LandingPage.jsx en la web (ver ese fix).
+const _alwaysPublicRoutes = {'/'};
+const _publicOnlyRoutes = {'/login', '/forgot-password', '/reset-password'};
 
 class _AuthRouterRefresh extends ChangeNotifier {
   _AuthRouterRefresh(Ref ref) {
@@ -77,11 +84,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         // recuperar contraseña) necesita esperar a que termine ese chequeo:
         // si resulta que ya había sesión, las ramas de abajo lo corrigen
         // solas apenas el estado se resuelve (refreshListenable reevalúa).
-        return _publicOnlyRoutes.contains(location) ? null : '/splash';
+        return (_alwaysPublicRoutes.contains(location) || _publicOnlyRoutes.contains(location)) ? null : '/splash';
       }
 
       if (!auth.isAuthenticated) {
-        return _publicOnlyRoutes.contains(location) ? null : '/login';
+        return (_alwaysPublicRoutes.contains(location) || _publicOnlyRoutes.contains(location)) ? null : '/login';
       }
 
       // A partir de acá el usuario está autenticado.

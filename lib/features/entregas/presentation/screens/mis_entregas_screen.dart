@@ -188,7 +188,7 @@ class _EntregaCard extends StatelessWidget {
                   children: List.generate(
                     5,
                     (i) => Icon(
-                      Icons.star,
+                      Icons.star_rounded,
                       size: 14,
                       color: i < entrega!.calificacion!.valoracion ? AppColors.warning : AppColors.neutral200,
                     ),

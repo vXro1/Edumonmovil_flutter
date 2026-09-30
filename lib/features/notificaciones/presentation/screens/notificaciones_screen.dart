@@ -193,6 +193,20 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
               onSelectionChanged: (s) => _onFilterChanged(s.first),
             ),
           ),
+          // el borrado NO es automático — solo pasa si el usuario toca
+          // "Limpiar leídas antiguas" en el menú (ver eliminarLeidasAntiguas
+          // en el backend, no hay ningún scheduler para notificaciones)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Puedes borrar las notificaciones leídas de hace más de 30 días con "Limpiar leídas antiguas".',
+                style: TextStyle(color: AppColors.subtleText(context), fontSize: 11),
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
           Expanded(child: _buildBody()),
         ],
       ),

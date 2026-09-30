@@ -95,7 +95,10 @@ class _DocentesScreenState extends ConsumerState<DocentesScreen> {
   }
 
   Future<void> _importCsv() async {
-    final result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: ['csv'], withData: true);
+    // preregistrarDocentesCSV real exige Excel (.xlsx/.xlsm) desde que el
+    // backend migró de CSV a ExcelJS — con 'csv' acá el picker nunca
+    // dejaba elegir el archivo que el backend realmente acepta.
+    final result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: ['xlsx', 'xlsm'], withData: true);
     final file = result?.files.singleOrNull;
     if (file == null || file.bytes == null) return;
 
@@ -158,7 +161,7 @@ class _DocentesScreenState extends ConsumerState<DocentesScreen> {
       setState(() => _importing = false);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo importar el CSV.')));
+      ).showSnackBar(SnackBar(content: Text(e is AppException ? e.message : 'No se pudo agregar el archivo.')));
     }
   }
 
@@ -181,7 +184,7 @@ class _DocentesScreenState extends ConsumerState<DocentesScreen> {
             icon: _importing
                 ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                 : const Icon(LucideIcons.fileUp),
-            tooltip: 'Importar CSV',
+            tooltip: 'Agregar varios docentes',
             onPressed: _importing ? null : _importCsv,
           ),
         ],

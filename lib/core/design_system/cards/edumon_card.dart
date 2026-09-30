@@ -151,3 +151,36 @@ class EdumonEmptyHint extends StatelessWidget {
     );
   }
 }
+
+/// Igual que [EdumonEmptyHint] pero para una sección que SÍ falló al cargar
+/// (no un estado vacío legítimo) — agrega un botón "Reintentar" explícito.
+/// Sprint 8 (BLUEPRINT.md FASE 14): las pantallas que ya tienen pull-to-
+/// refresh a nivel de página igual se benefician de esto para una sección
+/// puntual, sin depender de que el usuario conozca el gesto.
+class EdumonErrorRetry extends StatelessWidget {
+  const EdumonErrorRetry({super.key, required this.text, required this.onRetry, this.icon = LucideIcons.wifiOff});
+
+  final String text;
+  final VoidCallback onRetry;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return EdumonCard(
+      child: Row(
+        children: [
+          Icon(icon, color: isDark ? AppColors.textSubtleDark : AppColors.textSubtle, size: 18),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(color: isDark ? AppColors.textMutedDark : AppColors.textMuted, fontSize: 13),
+            ),
+          ),
+          TextButton(onPressed: onRetry, child: const Text('Reintentar')),
+        ],
+      ),
+    );
+  }
+}

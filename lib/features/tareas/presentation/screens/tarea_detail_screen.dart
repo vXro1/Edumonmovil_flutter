@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../../../core/design_system/buttons/edumon_button.dart';
 import '../../../../core/design_system/cards/edumon_card.dart';
 import '../../../../core/design_system/loading/loading_screen.dart';
+import '../../../../core/design_system/text/html_lite_view.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../../../../core/security/role.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -160,7 +161,7 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
               Text(tarea.titulo, style: Theme.of(context).textTheme.headlineSmall),
               if (tarea.descripcion != null && tarea.descripcion!.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.sm),
-                Text(tarea.descripcion!),
+                HtmlLiteView(html: tarea.descripcion!),
               ],
               if (tarea.etiquetas.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.sm),
@@ -190,7 +191,7 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
                 const SizedBox(height: AppSpacing.md),
                 const Text('Criterios de evaluación', style: TextStyle(fontWeight: FontWeight.w700)),
                 const SizedBox(height: AppSpacing.sm),
-                Text(tarea.criterios!),
+                HtmlLiteView(html: tarea.criterios!),
               ],
               if (tarea.archivos.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.md),

@@ -1,13 +1,17 @@
 /// Configuración de entorno de la app.
 ///
 /// El base URL se resuelve en tiempo de build vía `--dart-define=API_BASE_URL=...`.
-/// Sin ese flag, apunta al backend de producción real (Render).
+/// Sin ese flag, apunta al backend de producción real. El backend ya NO vive
+/// en Render (migró a un despliegue Docker propio); el dominio real
+/// (`edumon.uniautonoma.edu.co`) sirve el frontend web Y hace de proxy nginx
+/// de `/api/` hacia el backend interno (ver `EDUMON WEB/nginx.conf.template`),
+/// así que este mismo host+prefijo es el equivalente correcto para Flutter.
 class Env {
   const Env._();
 
   static const String apiBaseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://backend-edumon.onrender.com/api',
+    defaultValue: 'https://edumon.uniautonoma.edu.co/api',
   );
 
   /// Origen del backend SIN el sufijo "/api" — cloudinaryUpload.js real

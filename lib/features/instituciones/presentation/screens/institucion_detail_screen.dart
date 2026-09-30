@@ -24,10 +24,12 @@ class InstitucionDetailScreen extends ConsumerStatefulWidget {
   final String institucionId;
 
   @override
-  ConsumerState<InstitucionDetailScreen> createState() => _InstitucionDetailScreenState();
+  ConsumerState<InstitucionDetailScreen> createState() =>
+      _InstitucionDetailScreenState();
 }
 
-class _InstitucionDetailScreenState extends ConsumerState<InstitucionDetailScreen> {
+class _InstitucionDetailScreenState
+    extends ConsumerState<InstitucionDetailScreen> {
   final _nombreController = TextEditingController();
   final _direccionController = TextEditingController();
   final _telefonoController = TextEditingController();
@@ -76,7 +78,9 @@ class _InstitucionDetailScreenState extends ConsumerState<InstitucionDetailScree
       if (!mounted) return;
       setState(() {
         _saving = false;
-        _error = e is AppException ? e.message : 'No se pudo actualizar la institución.';
+        _error = e is AppException
+            ? e.message
+            : 'No se pudo actualizar la institución.';
       });
     }
   }
@@ -89,87 +93,140 @@ class _InstitucionDetailScreenState extends ConsumerState<InstitucionDetailScree
       appBar: AppBar(title: const Text('Institución')),
       body: institucionesAsync.when(
         data: (instituciones) {
-          final institucion = instituciones.where((i) => i.id == widget.institucionId).firstOrNull;
+          final institucion = instituciones
+              .where((i) => i.id == widget.institucionId)
+              .firstOrNull;
           if (institucion == null) {
-            return Center(child: Text('Institución no encontrada.', style: TextStyle(color: AppColors.mutedText(context))));
+            return Center(
+              child: Text(
+                'Institución no encontrada.',
+                style: TextStyle(color: AppColors.mutedText(context)),
+              ),
+            );
           }
           _fillFrom(institucion);
 
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                if (_error != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(AppSpacing.sm),
-                    decoration: BoxDecoration(
-                      color: AppColors.errorSurface(context.isDarkMode),
-                      borderRadius: BorderRadius.circular(AppRadius.md),
-                    ),
-                    child: Text(_error!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                ],
-                Builder(
-                  builder: (context) {
-                    final parts = [
-                      if (institucion.nit != null) 'NIT ${institucion.nit}',
-                      if (institucion.codigo != null) 'Código ${institucion.codigo}',
-                    ];
-                    if (parts.isEmpty) return const SizedBox.shrink();
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                      child: Text(
-                        '${parts.join(' · ')} (no editable)',
-                        style: TextStyle(color: AppColors.mutedText(context), fontSize: 12),
+          return RefreshIndicator(
+            onRefresh: () => ref.refresh(institucionesListProvider.future),
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(AppSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (_error != null) ...[
+                    Container(
+                      padding: const EdgeInsets.all(AppSpacing.sm),
+                      decoration: BoxDecoration(
+                        color: AppColors.errorSurface(context.isDarkMode),
+                        borderRadius: BorderRadius.circular(AppRadius.md),
                       ),
-                    );
-                  },
-                ),
-                EdumonTextField(controller: _nombreController, label: 'Nombre'),
-                EdumonTextField(controller: _direccionController, label: 'Dirección'),
-                EdumonTextField(controller: _telefonoController, label: 'Teléfono', keyboardType: TextInputType.phone),
-                EdumonTextField(controller: _correoController, label: 'Correo', keyboardType: TextInputType.emailAddress),
-                const SizedBox(height: AppSpacing.sm),
-                EdumonButton(
-                  label: 'Guardar cambios',
-                  onPressed: _saving ? null : _submit,
-                  loading: _saving,
-                  fullWidth: true,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                const Text('Administrador', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                const SizedBox(height: AppSpacing.sm),
-                if (institucion.admin == null)
-                  EdumonCard(child: Text('Sin admin asociado.', style: TextStyle(color: AppColors.mutedText(context))))
-                else
-                  EdumonCard(
-                    child: Row(
-                      children: [
-                        EdumonAvatar(
-                          radius: 20,
-                          imageUrl: institucion.admin!.avatarUrl,
-                          fallbackText: institucion.admin!.nombre.isNotEmpty ? institucion.admin!.nombre[0].toUpperCase() : '?',
+                      child: Text(
+                        _error!,
+                        style: const TextStyle(
+                          color: AppColors.error,
+                          fontSize: 13,
                         ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(institucion.admin!.nombreCompleto, style: const TextStyle(fontWeight: FontWeight.w600)),
-                              if (institucion.admin!.correo != null)
-                                Text(
-                                  institucion.admin!.correo!,
-                                  style: TextStyle(color: AppColors.mutedText(context), fontSize: 12),
-                                ),
-                            ],
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                  ],
+                  Builder(
+                    builder: (context) {
+                      final parts = [
+                        if (institucion.nit != null) 'NIT ${institucion.nit}',
+                        if (institucion.codigo != null)
+                          'Código ${institucion.codigo}',
+                      ];
+                      if (parts.isEmpty) return const SizedBox.shrink();
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: Text(
+                          '${parts.join(' · ')} (no editable)',
+                          style: TextStyle(
+                            color: AppColors.mutedText(context),
+                            fontSize: 12,
                           ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
-              ],
+                  EdumonTextField(
+                    controller: _nombreController,
+                    label: 'Nombre',
+                  ),
+                  EdumonTextField(
+                    controller: _direccionController,
+                    label: 'Dirección',
+                  ),
+                  EdumonTextField(
+                    controller: _telefonoController,
+                    label: 'Teléfono',
+                    keyboardType: TextInputType.phone,
+                  ),
+                  EdumonTextField(
+                    controller: _correoController,
+                    label: 'Correo',
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  EdumonButton(
+                    label: 'Guardar cambios',
+                    onPressed: _saving ? null : _submit,
+                    loading: _saving,
+                    fullWidth: true,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  const Text(
+                    'Administrador',
+                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  if (institucion.admin == null)
+                    EdumonCard(
+                      child: Text(
+                        'Sin admin asociado.',
+                        style: TextStyle(color: AppColors.mutedText(context)),
+                      ),
+                    )
+                  else
+                    EdumonCard(
+                      child: Row(
+                        children: [
+                          EdumonAvatar(
+                            radius: 20,
+                            imageUrl: institucion.admin!.avatarUrl,
+                            fallbackText: institucion.admin!.nombre.isNotEmpty
+                                ? institucion.admin!.nombre[0].toUpperCase()
+                                : '?',
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  institucion.admin!.nombreCompleto,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                if (institucion.admin!.correo != null)
+                                  Text(
+                                    institucion.admin!.correo!,
+                                    style: TextStyle(
+                                      color: AppColors.mutedText(context),
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
             ),
           );
         },
@@ -178,7 +235,10 @@ class _InstitucionDetailScreenState extends ConsumerState<InstitucionDetailScree
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('No se pudo cargar la institución.', style: TextStyle(color: AppColors.mutedText(context))),
+              Text(
+                'No se pudo cargar la institución.',
+                style: TextStyle(color: AppColors.mutedText(context)),
+              ),
               const SizedBox(height: AppSpacing.sm),
               TextButton(
                 onPressed: () => ref.invalidate(institucionesListProvider),

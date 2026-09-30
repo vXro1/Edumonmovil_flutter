@@ -45,14 +45,17 @@ class ApiClient {
 
   static BaseOptions get _baseOptions => BaseOptions(
     baseUrl: Env.apiBaseUrl,
-    // Render (plan free) hiberna el backend tras inactividad y puede
-    // tardar 30-50s en despertar en el primer request — 15s cortaba
-    // esa espera antes de que el backend llegara a responder.
+    // El backend ya no vive en Render (se movió a un despliegue Docker
+    // propio en edumon.uniautonoma.edu.co), pero se deja este margen amplio
+    // por si el hosting actual también tiene cold start o picos de latencia
+    // — antes, con Render (plan free hibernaba tras inactividad y tardaba
+    // 30-50s en despertar), 15s cortaba la espera antes de que respondiera.
     connectTimeout: const Duration(seconds: 45),
     receiveTimeout: const Duration(seconds: 45),
     headers: {'Accept': 'application/json'},
     // BUG REAL (login no funcionaba en web): las cookies httpOnly de sesión
-    // vienen de un backend en otro origen (backend-edumon.onrender.com), y
+    // vienen de un backend en otro origen (antes backend-edumon.onrender.com,
+    // ahora edumon.uniautonoma.edu.co), y
     // el adaptador de Dio para navegador (dio_web_adapter) por defecto arma
     // el XHR con `withCredentials: false` — el navegador entonces IGNORA por
     // completo el `Set-Cookie` de la respuesta del login (nunca guarda la

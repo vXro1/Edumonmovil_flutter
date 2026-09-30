@@ -12,10 +12,6 @@ import '../../../dashboard/presentation/widgets/dashboard_stats_grid.dart';
 const _cursosLimit = 50;
 
 /// Mi Institución (admin, solo lectura) — BLUEPRINT.md FASE 3.3.2.
-/// (⚠️) "Estudiantes" queda como placeholder porque no hay endpoint que
-/// cuente estudiantes por institución en el backend actual — el resto de
-/// los stats sí son reales (a diferencia del hardcode "1"/"—" que tenía la
-/// web original para Administradores y Docentes).
 class MiInstitucionScreen extends ConsumerWidget {
   const MiInstitucionScreen({super.key});
 
@@ -49,7 +45,12 @@ class MiInstitucionScreen extends ConsumerWidget {
                   color: AppColors.sectionInicio,
                   watch: (ref) => ref.watch(usersCountProvider('docente')),
                 ),
-                const EdumonStatCard(label: 'Estudiantes', icon: LucideIcons.graduationCap, color: AppColors.sectionForos, value: '—'),
+                AsyncStatCard(
+                  label: 'Padres de familia',
+                  icon: LucideIcons.graduationCap,
+                  color: AppColors.sectionForos,
+                  watch: (ref) => ref.watch(usersCountProvider('padre')),
+                ),
                 AsyncStatCard(
                   label: 'Administradores',
                   icon: LucideIcons.userCog,
@@ -84,8 +85,9 @@ class MiInstitucionScreen extends ConsumerWidget {
                 padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (_, _) => EdumonCard(
-                child: Text('No se pudo cargar la información institucional.', style: TextStyle(color: AppColors.mutedText(context))),
+              error: (_, _) => EdumonErrorRetry(
+                text: 'No se pudo cargar la información institucional.',
+                onRetry: () => ref.invalidate(miInstitucionProvider),
               ),
             ),
             const SizedBox(height: AppSpacing.lg),

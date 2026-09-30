@@ -32,7 +32,8 @@ void main() async {
   // La app no debe depender de la red para renderizar texto: si no hay
   // internet (wifi de colegio inestable, primer arranque sin conexión),
   // google_fonts cae al font del sistema en vez de intentar descargar
-  // Inter/Poppins desde fonts.gstatic.com y tirar una excepción.
+  // Nunito desde fonts.gstatic.com y tirar una excepción. Por eso Nunito
+  // viene embebido en assets/fonts/ (ver app_typography.dart).
   GoogleFonts.config.allowRuntimeFetching = false;
 
   // FASE 5.6: es-CO como locale principal — DateFormat lo requiere

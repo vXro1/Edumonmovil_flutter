@@ -55,12 +55,16 @@ class _InstitucionFormScreenState extends ConsumerState<InstitucionFormScreen> {
   }
 
   Future<void> _submit() async {
+    // el teléfono del admin es su usuario para iniciar sesión (login es por
+    // teléfono, no por correo) -- sin él, la cuenta queda creada pero nadie
+    // puede entrar nunca; por eso es obligatorio, no opcional.
     if (_nombreController.text.trim().isEmpty ||
         _nitController.text.trim().isEmpty ||
         _adminNombreController.text.trim().isEmpty ||
         _adminApellidoController.text.trim().isEmpty ||
+        _adminTelefonoController.text.trim().isEmpty ||
         !AppConstants.cedulaRegex.hasMatch(_adminCedulaController.text.trim())) {
-      setState(() => _error = 'Completá los campos obligatorios (nombre, NIT y datos del admin).');
+      setState(() => _error = 'Completá los campos obligatorios (nombre, NIT, y nombre/apellido/cédula/teléfono del admin).');
       return;
     }
 

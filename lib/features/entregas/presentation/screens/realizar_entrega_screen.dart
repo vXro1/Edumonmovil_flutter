@@ -36,6 +36,10 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
   bool _loading = true;
   bool _saving = false;
   String? _error;
+  // Distingue "_load() falló" (sí tiene sentido un botón Reintentar) de un
+  // error de validación/guardado (el usuario ya tiene el botón de guardar
+  // a mano abajo — un "Reintentar" aparte ahí sería redundante).
+  bool _loadFailed = false;
 
   bool get _canEdit => _entrega == null || _entrega!.esBorrador;
 
@@ -55,6 +59,7 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
     setState(() {
       _loading = true;
       _error = null;
+      _loadFailed = false;
     });
     try {
       final entrega = await ref.read(entregasRepositoryProvider).fetchMiEntrega(widget.tareaId);
@@ -69,6 +74,7 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
       setState(() {
         _loading = false;
         _error = e is AppException ? e.message : 'No se pudo cargar la entrega.';
+        _loadFailed = true;
       });
     }
   }
@@ -99,6 +105,7 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
       setState(() {
         _saving = false;
         _error = e is AppException ? e.message : 'No se pudo quitar el archivo.';
+        _loadFailed = false;
       });
     }
   }
@@ -106,13 +113,17 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
   Future<void> _guardarBorrador({bool enviar = false}) async {
     final texto = _textoController.text.trim();
     if (enviar && texto.isEmpty && _archivosNuevos.isEmpty && (_entrega?.archivos.isEmpty ?? true)) {
-      setState(() => _error = 'Escribí una respuesta o adjuntá al menos un archivo.');
+      setState(() {
+        _error = 'Escribí una respuesta o adjuntá al menos un archivo.';
+        _loadFailed = false;
+      });
       return;
     }
 
     setState(() {
       _saving = true;
       _error = null;
+      _loadFailed = false;
     });
     try {
       final repo = ref.read(entregasRepositoryProvider);
@@ -162,6 +173,7 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
       setState(() {
         _saving = false;
         _error = e is AppException ? e.message : 'No se pudo guardar la entrega.';
+        _loadFailed = false;
       });
     }
   }
@@ -187,7 +199,19 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
                 color: AppColors.errorSurface(context.isDarkMode),
                 borderRadius: BorderRadius.circular(AppRadius.md),
               ),
-              child: Text(_error!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(_error!, style: const TextStyle(color: AppColors.error, fontSize: 13)),
+                  if (_loadFailed) ...[
+                    const SizedBox(height: 4),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(onPressed: _load, child: const Text('Reintentar')),
+                    ),
+                  ],
+                ],
+              ),
             ),
             const SizedBox(height: AppSpacing.sm),
           ],
@@ -202,7 +226,7 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
                     children: List.generate(
                       5,
                       (i) => Icon(
-                        Icons.star,
+                        Icons.star_rounded,
                         size: 20,
                         color: i < _entrega!.calificacion!.valoracion ? AppColors.warning : AppColors.neutral200,
                       ),
