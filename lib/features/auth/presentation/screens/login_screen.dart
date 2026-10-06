@@ -14,7 +14,7 @@ import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../providers/auth_controller.dart';
 
-/// Login — BLUEPRINT.md FASE 3.1.2.
+/// Login
 /// Teléfono (10 dígitos, prefijo fijo +57) + contraseña (mín. 6).
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

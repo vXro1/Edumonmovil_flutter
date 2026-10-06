@@ -11,10 +11,6 @@ class LoginResponse {
   final bool primerInicioSesion;
 }
 
-/// Data source remoto — BLUEPRINT.md FASE 10.1.
-/// authController.js real: login/register ya no devuelven un "token" en el
-/// body — la sesión viaja en cookies httpOnly (access_token/refresh_token)
-/// que el CookieManager de Dio maneja solo (ver core/network/api_client.dart).
 class AuthRemoteDataSource {
   const AuthRemoteDataSource(this._dio);
 
@@ -36,11 +32,6 @@ class AuthRemoteDataSource {
     }
   }
 
-  /// getProfile real devuelve `user` y, junto a él, `perfilActivo` — el
-  /// perfil familiar (titular o secundario) que está activo en esta sesión
-  /// (ver seleccionarPerfil en perfilFamiliarController.js). Antes acá se
-  /// descartaba `perfilActivo` por completo, así que no había forma de saber
-  /// qué perfil estaba seleccionado sin volver a listar /perfiles.
   Future<({UserModel user, PerfilActivoModel? perfilActivo})> fetchProfile() async {
     try {
       final response = await _dio.get('/auth/profile');
@@ -61,11 +52,11 @@ class AuthRemoteDataSource {
     try {
       await _dio.post('/auth/logout');
     } on DioException {
-      // Best-effort — BLUEPRINT.md FASE 10.1 (logout es best-effort en el backend).
+      // Best-effort (logout es best-effort en el backend).
     }
   }
 
-  /// logoutAll real (authRoutes.js: POST /auth/logout-all) revoca TODOS los
+  /// logoutAll (authRoutes.js: POST /auth/logout-all) revoca TODOS los
   /// refresh tokens del usuario (todas las sesiones/dispositivos), no solo
   /// la actual, y limpia las cookies de esta sesión también.
   Future<void> logoutAll() async {
@@ -78,10 +69,6 @@ class AuthRemoteDataSource {
 
   Future<void> forgotPasswordByEmail(String correo) => _post('/auth/forgot-password', {'correo': correo});
 
-  // authRoutes.js real: forgot-password-phone/reset-password-phone (WhatsApp
-  // vía Twilio) se eliminaron del backend junto con Twilio — recuperación
-  // de contraseña quedó solo por correo (ver .env.example: SMTP en vez de
-  // Twilio/Brevo). Los métodos que pegaban a esas rutas se sacaron de acá.
   Future<void> resetPasswordByEmail({
     required String correo,
     required String codigo,
@@ -89,8 +76,6 @@ class AuthRemoteDataSource {
   }) => _post('/auth/reset-password', {
     'correo': correo,
     'codigo': codigo,
-    // authController.js resetPassword real: destructura "contraseñaNueva" (con ñ),
-    // igual que el de teléfono — el blueprint lo documentó sin ñ para este, era incorrecto.
     'contraseñaNueva': contrasenaNueva,
   });
 

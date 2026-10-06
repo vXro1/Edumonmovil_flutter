@@ -5,7 +5,7 @@ import '../../../eventos/domain/entities/evento.dart';
 import '../../domain/entities/calendario_entry.dart';
 
 /// Data source remoto — verificado contra calendarioController.js/
-/// calendarioRoutes.js reales. Reemplaza la agregación 100% client-side que
+/// calendarioRoutes.js. Reemplaza la agregación 100% client-side que
 /// hacía calendario_aggregator.dart (combinar TareasRepository.fetchTareas +
 /// EventosRepository.fetchEventos a mano) por los endpoints dedicados, que ya
 /// traen colores/estado resueltos en servidor y no tienen el límite fijo de
@@ -15,7 +15,7 @@ class CalendarioRemoteDataSource {
 
   final Dio _dio;
 
-  /// obtenerCalendarioUsuario real (GET /calendario/calendario): agrega
+  /// obtenerCalendarioUsuario (GET /calendario/calendario): agrega
   /// tareas+eventos de TODOS los cursos accesibles al usuario (scoping por
   /// rol ya resuelto en backend).
   Future<List<CalendarioEntry>> fetchCalendarioUsuario() async {
@@ -27,7 +27,7 @@ class CalendarioRemoteDataSource {
     }
   }
 
-  /// obtenerCalendarioCurso real (GET /calendario/:cursoId).
+  /// obtenerCalendarioCurso (GET /calendario/:cursoId).
   Future<List<CalendarioEntry>> fetchCalendarioCurso(String cursoId) async {
     try {
       final response = await _dio.get('/calendario/$cursoId');
@@ -69,7 +69,7 @@ class CalendarioRemoteDataSource {
       return v == null || v.isEmpty ? null : v;
     }
 
-    // Tarea.estaVencida real (virtual) ya resuelve esto en el backend, pero
+    // Tarea.estaVencida (virtual) ya resuelve esto en el backend, pero
     // no viaja como booleano en el item de calendario — se recalcula acá con
     // el mismo criterio que Tarea.vencida en el resto de la app.
     final vencida = esTarea && json['estado'] == 'publicada' && fecha.isBefore(DateTime.now());

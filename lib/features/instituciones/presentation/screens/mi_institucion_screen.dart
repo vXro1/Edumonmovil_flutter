@@ -11,7 +11,7 @@ import '../../../dashboard/presentation/widgets/dashboard_stats_grid.dart';
 
 const _cursosLimit = 50;
 
-/// Mi Institución (admin, solo lectura) — BLUEPRINT.md FASE 3.3.2.
+/// Mi Institución (admin, solo lectura)
 class MiInstitucionScreen extends ConsumerWidget {
   const MiInstitucionScreen({super.key});
 

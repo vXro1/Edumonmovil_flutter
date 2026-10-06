@@ -16,11 +16,6 @@ import '../widgets/dashboard_stats_grid.dart';
 
 const _misCursosLimit = 20;
 
-/// Dashboard Padre/Tutor — BLUEPRINT.md FASE 3.2.4.
-/// A diferencia del original web (que dejaba "Notificaciones" y "Entregas
-/// pendientes" como placeholders "—" ⚠️), acá las 4 stat cards muestran datos
-/// reales — "Entregas pendientes" combina fetchTareas + fetchMiEntrega igual
-/// que MisEntregasScreen (ver entregasPendientesCountProvider).
 class PadreDashboard extends ConsumerWidget {
   const PadreDashboard({super.key});
 

@@ -8,19 +8,18 @@ import '../models/entrega_model.dart';
 
 typedef EntregasStats = ({int total, int enviadas, int tarde, int valoradas});
 
-/// Data source remoto — shapes verificados contra entregaController.js real.
 class EntregasRemoteDataSource {
   const EntregasRemoteDataSource(this._dio);
 
   final Dio _dio;
 
-  /// getEntregasByTarea real: excluye borradores (solo enviada/tarde) y
+  /// getEntregasByTarea: excluye borradores (solo enviada/tarde) y
   /// devuelve {tarea, entregas, estadisticas: {total,enviadas,tarde,valoradas},
   /// pagination} — se usan las estadisticas del backend en vez de calcularlas
   /// en cliente, porque con paginación el conteo client-side subestimaría el total.
   Future<({List<EntregaModel> items, EntregasStats stats})> fetchEntregasPorTarea(String tareaId) async {
     try {
-      // getEntregasByTarea real pagina con limit=10 por defecto (máx. 50):
+      // getEntregasByTarea pagina con limit=10 por defecto (máx. 50):
       // sin pedirlo explícito el docente solo veía las 10 primeras entregas.
       final response = await _dio.get('/entregas/tarea/$tareaId', queryParameters: {'limit': 50});
       final data = response.data as Map<String, dynamic>;
@@ -41,7 +40,7 @@ class EntregasRemoteDataSource {
     }
   }
 
-  /// getEntregasByPadreAndTarea real (detrás de /entregas/mis-entregas/:tareaId)
+  /// getEntregasByPadreAndTarea (detrás de /entregas/mis-entregas/:tareaId)
   /// devuelve {entregas: [...], total} — una LISTA, no un objeto suelto —
   /// aunque en la práctica solo puede haber 0 o 1 porque createEntrega
   /// rechaza duplicados por (tareaId, padreId).
@@ -70,7 +69,7 @@ class EntregasRemoteDataSource {
         'padreId': padreId,
         if (textoRespuesta != null && textoRespuesta.isNotEmpty) 'textoRespuesta': textoRespuesta,
         'estado': 'borrador',
-        // createEntrega real: sanitizarEnlaces(req.body.enlaces) acepta el
+        // createEntrega: sanitizarEnlaces(req.body.enlaces) acepta el
         // array como string JSON dentro del multipart.
         if (enlaces != null && enlaces.isNotEmpty) 'enlaces': jsonEncode([for (final e in enlaces) e.toJson()]),
         if (archivos != null)
@@ -93,7 +92,7 @@ class EntregasRemoteDataSource {
     try {
       final formData = FormData.fromMap({
         'textoRespuesta': ?textoRespuesta,
-        // updateEntrega real: si viene `enlaces` reemplaza la lista completa.
+        // updateEntrega: si viene `enlaces` reemplaza la lista completa.
         if (enlaces != null) 'enlaces': jsonEncode([for (final e in enlaces) e.toJson()]),
         if (archivosNuevos != null)
           'archivos': [for (final a in archivosNuevos) MultipartFile.fromBytes(a.bytes, filename: a.filename)],
@@ -133,7 +132,7 @@ class EntregasRemoteDataSource {
     }
   }
 
-  /// eliminarArchivoEntrega real (entregaRoutes.js: DELETE
+  /// eliminarArchivoEntrega (entregaRoutes.js: DELETE
   /// /entregas/:id/archivos/:archivoId) — quita UN archivo de una entrega en
   /// borrador sin borrar la entrega entera. [archivoId] es el `_id` del
   /// subdocumento (Archivo.id ya resuelve a eso), no el publicId de

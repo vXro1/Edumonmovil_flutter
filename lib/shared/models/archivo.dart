@@ -1,7 +1,6 @@
 import '../../core/config/env.dart';
 
-/// Adjunto compartido tarea/entrega/foro/evento — BLUEPRINT.md FASE 9.7.
-/// Verificado contra tareaController.js/entregaController.js reales: cada
+/// Adjunto compartido tarea/entrega/foro/evento. Cada
 /// dominio guarda el array bajo la clave "archivosAdjuntos" (no "archivos"),
 /// y los nombres de los campos internos varían un poco entre Tarea
 /// (nombre/formato/tamano) y Entrega (nombreOriginal/tipoArchivo/tamano).
@@ -35,7 +34,7 @@ class Archivo {
   /// Solo presente en adjuntos tipo 'enlace'.
   final String? descripcion;
 
-  /// Entrega real: adjunto bajo /uploads/priv, solo se sirve con sesión.
+  /// Entrega: adjunto bajo /uploads/priv, solo se sirve con sesión.
   final bool privado;
 
   bool get esEnlace => tipo == 'enlace';

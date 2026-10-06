@@ -16,7 +16,7 @@ const _bubbleColors = [
   Color(0xFFFC5891),
 ];
 
-/// Pantalla de carga full-screen — BLUEPRINT.md FASE 6.
+/// Pantalla de carga full-screen
 /// Logo animado + burbujas de colores flotando a su alrededor, en vez del
 /// spinner genérico anterior — mismo tratamiento que LoadingScreen.jsx web.
 class LoadingScreenWidget extends StatefulWidget {

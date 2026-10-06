@@ -11,7 +11,7 @@ import '../../../buzon/presentation/providers/buzon_providers.dart';
 import '../providers/dashboard_providers.dart';
 import '../widgets/dashboard_stats_grid.dart';
 
-/// Dashboard Superadmin — BLUEPRINT.md FASE 3.2.1.
+/// Dashboard Superadmin
 class SuperadminDashboard extends ConsumerWidget {
   const SuperadminDashboard({super.key});
 

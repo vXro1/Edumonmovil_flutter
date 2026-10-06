@@ -1,9 +1,5 @@
 enum CalendarioEntryTipo { tarea, evento }
 
-/// Entrada unificada del calendario — combina Tareas (fechaEntrega) y
-/// Eventos (fechaInicio) en un solo modelo para pintar el grid mensual.
-/// Poblada desde los endpoints reales de calendarioController.js (ver
-/// CalendarioRemoteDataSource) — verificados contra el controller real.
 class CalendarioEntry {
   const CalendarioEntry({
     required this.id,
@@ -36,8 +32,6 @@ class CalendarioEntry {
   final List<String> cursosNombres;
   final bool vencida;
 
-  // Datos que calendarioController.js real ya manda por item y antes se
-  // descartaban (solo eventos, salvo descripcion/estado que también trae tarea).
   final String? descripcion;
   final DateTime? fechaFin;
   final String? hora;

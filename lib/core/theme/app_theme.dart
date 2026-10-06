@@ -4,7 +4,7 @@ import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
 
-/// ThemeData de Material 3 fuertemente personalizado — BLUEPRINT.md FASE 2.12.
+/// ThemeData de Material 3 fuertemente personalizado
 /// No se adopta M3 "de fábrica": todos los tokens vienen de AppColors/AppTypography.
 class AppTheme {
   const AppTheme._();

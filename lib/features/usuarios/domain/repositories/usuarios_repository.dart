@@ -9,10 +9,6 @@ class UsuariosPage {
   final bool hasMore;
 }
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 3.3.4 / FASE 10.2, verificada
-/// contra userController.js real. (⚠️) getUsers real NO soporta búsqueda por
-/// texto server-side (solo rol/estado) — el filtro de texto se hace en
-/// cliente sobre lo ya paginado, por eso no hay parámetro `search` acá.
 abstract class UsuariosRepository {
   Future<UsuariosPage> fetchUsuarios({required int page, required int limit, UserRole? rol, String? estado});
 
@@ -29,11 +25,6 @@ abstract class UsuariosRepository {
     String? institucionId,
   });
 
-  /// userController.js real (updateUser): rol/estado/institucionId se borran
-  /// de updateData antes de guardar — ese endpoint no puede cambiarlos, así
-  /// que ni siquiera se aceptan acá para no sugerir que sí. Usá
-  /// [activarUsuario]/[suspenderUsuario] para estado; rol/institución no
-  /// tienen endpoint de reasignación en este backend.
   Future<User> updateUsuario({
     required String id,
     String? nombre,
@@ -43,14 +34,14 @@ abstract class UsuariosRepository {
     String? telefono,
   });
 
-  /// DELETE /users/:id real: soft-delete a estado 'suspendido'.
+  /// DELETE /users/:id: soft-delete a estado 'suspendido'.
   Future<void> suspenderUsuario(String id);
 
-  /// PATCH /users/:id/reactivar real — endpoint dedicado (updateUser real
+  /// PATCH /users/:id/reactivar — endpoint dedicado (updateUser
   /// borra "estado" del body, así que no se puede reactivar vía PUT genérico).
   Future<void> activarUsuario(String id);
 
-  /// GET /users/padre/:padreId/info real — info detallada de un padre/
+  /// GET /users/padre/:padreId/info — info detallada de un padre/
   /// acudiente (usado desde participantes_tab.dart para ver sus datos de
   /// contacto sin salir del curso).
   Future<PadreInfo> fetchPadreInfo(String padreId);

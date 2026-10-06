@@ -1,6 +1,3 @@
-/// Entidad de dominio — BLUEPRINT.md FASE 9.13.
-/// (⚠️) No vimos perfilFamiliarController.js real — shapes inferidos del
-/// blueprint.
 class Perfil {
   const Perfil({
     required this.id,

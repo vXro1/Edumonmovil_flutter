@@ -4,15 +4,12 @@ import '../../../../core/network/network_exceptions.dart';
 import '../../domain/entities/notificacion.dart';
 import '../models/notificacion_model.dart';
 
-/// Data source remoto — BLUEPRINT.md FASE 10.8.
+/// Data source remoto
 class NotificacionRemoteDataSource {
   const NotificacionRemoteDataSource(this._dio);
 
   final Dio _dio;
 
-  /// createNotificacion real (POST /notificaciones, admin/superadmin).
-  /// Notificacion.js real NO tiene campo `titulo` (el schema lo descarta), así
-  /// que el título viaja en `metadata.titulo`, que sí se persiste.
   Future<void> createNotificacion({
     required String usuarioId,
     required String titulo,
@@ -51,7 +48,7 @@ class NotificacionRemoteDataSource {
       final items = (rawList ?? const [])
           .map((e) => NotificacionModel.fromJson(e as Map<String, dynamic>))
           .toList();
-      // getMisNotificaciones real devuelve pagination: {total, page, limit,
+      // getMisNotificaciones devuelve pagination: {total, page, limit,
       // pages} — sin `hasNextPage`. Con esa key inexistente `hasMore` daba
       // siempre false y "Cargar más" nunca aparecía pasada la 1ra página.
       final pagination = data is Map ? data['pagination'] as Map<String, dynamic>? : null;
@@ -103,7 +100,7 @@ class NotificacionRemoteDataSource {
     }
   }
 
-  /// eliminarLeidasAntiguas real (DELETE /notificaciones/limpiar/antiguas)
+  /// eliminarLeidasAntiguas (DELETE /notificaciones/limpiar/antiguas)
   /// — borra las notificaciones ya leídas con más de [dias] días. Devuelve
   /// cuántas borró.
   Future<int> deleteLeidasAntiguas({int dias = 30}) async {

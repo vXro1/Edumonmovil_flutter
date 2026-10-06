@@ -18,7 +18,7 @@ class EntregaPadreModel {
       id: (json['id'] ?? json['_id']).toString(),
       nombre: json['nombre']?.toString() ?? '',
       apellido: json['apellido']?.toString(),
-      // Mismo campo que en todo el resto del backend real (User.fotoPerfilUrl).
+      // Mismo campo que en todo el resto del backend (User.fotoPerfilUrl).
       avatarUrl: Env.resolveUrl(json['fotoPerfilUrl']?.toString()),
       correo: json['correo']?.toString(),
     );
@@ -45,8 +45,7 @@ class CalificacionModel {
   final int? valoracionAnterior;
   final String? docenteNombre;
 
-  /// Confirmado contra entregaController.js/Entrega.js reales: calificarEntrega
-  /// guarda "valoracion" (1-5), "comentario" (retroalimentación) y el
+  /// calificarEntrega guarda "valoracion" (1-5), "comentario" (retroalimentación) y el
   /// docente que calificó en "docenteId" (populado con nombre/apellido).
   factory CalificacionModel.fromJson(Map<String, dynamic> json) {
     final valor = json['valoracion'] ?? json['nota'];
@@ -77,7 +76,6 @@ class CalificacionModel {
   );
 }
 
-/// DTO — BLUEPRINT.md FASE 9.6, verificado contra entregaController.js real.
 class EntregaModel {
   const EntregaModel({
     required this.id,
@@ -117,13 +115,11 @@ class EntregaModel {
     final tareaRaw = json['tareaId'];
     final tareaId = tareaRaw is Map ? (tareaRaw['id'] ?? tareaRaw['_id']).toString() : (tareaRaw ?? '').toString();
 
-    // createEntrega/updateEntrega real guardan el array bajo "archivosAdjuntos",
+    // createEntrega/updateEntrega guardan el array bajo "archivosAdjuntos",
     // no "archivos".
     final archivosRaw = json['archivosAdjuntos'] as List?;
     final archivos = (archivosRaw ?? const []).map((e) => Archivo.fromJson(e as Map<String, dynamic>)).toList();
 
-    // Entrega.js real: enlaces [{url, titulo, descripcion}] — antes se
-    // ignoraban por completo y el docente nunca veía los enlaces entregados.
     final enlacesRaw = json['enlaces'] as List?;
     final enlaces = (enlacesRaw ?? const []).whereType<Map>().map((e) {
       final url = e['url']?.toString() ?? '';
@@ -149,13 +145,10 @@ class EntregaModel {
       estado: json['estado']?.toString() ?? 'borrador',
       archivos: archivos,
       enlaces: enlaces,
-      // createEntrega/enviarEntrega reales escriben la fecha bajo la clave
+      // createEntrega/enviarEntrega escriben la fecha bajo la clave
       // "fechaEntrega" (mismo nombre que el campo de vencimiento en Tarea,
       // pero acá significa "cuándo se envió esta entrega").
       fechaEnvio: _fecha(json['fechaEntrega']),
-      // Entrega.js real: `calificacion` es un subobjeto que Mongoose puede
-      // devolver vacío ({}) aunque no esté valorada — solo cuenta si trae
-      // una valoración real 1-5.
       calificacion: calificacion != null && calificacion.valoracion >= 1 ? calificacion : null,
     );
   }

@@ -14,14 +14,6 @@ class Env {
     defaultValue: 'https://edumon.uniautonoma.edu.co/api',
   );
 
-  /// Origen del backend SIN el sufijo "/api" — cloudinaryUpload.js real
-  /// migró de Cloudinary a almacenamiento local en disco: `url` ahora es
-  /// una ruta relativa servida desde la raíz del backend (`/uploads/...`,
-  /// `/static/avatares/...`), no desde `/api`, y nunca una URL absoluta
-  /// como las de Cloudinary. Sin esto, cualquier imagen/adjunto de la app
-  /// (avatares, portadas de curso, adjuntos de tareas/entregas/foros/
-  /// eventos) le llega a Flutter como "/uploads/pub/..." y no se puede
-  /// resolver (no hay concepto de "página actual" como en un navegador).
   static String get _serverOrigin {
     final sinApi = apiBaseUrl.replaceFirst(RegExp(r'/api/?$'), '');
     return sinApi;

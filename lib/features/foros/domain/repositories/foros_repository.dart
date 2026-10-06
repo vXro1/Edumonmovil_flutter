@@ -10,19 +10,15 @@ class ArchivoUpload {
   final String filename;
 }
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 3.4.8 / 3.8.3 / FASE 10.6.
-/// (⚠️) No vimos foroController.js/mensajeForoController.js reales — shapes
-/// inferidos del blueprint.
 abstract class ForosRepository {
   Future<List<Foro>> fetchForosPorCurso(String cursoId);
 
   Future<Foro> fetchForoById(String id);
 
-  /// GET /foros/:id/dashboard real — analíticas del foro (mensajes
+  /// GET /foros/:id/dashboard — analíticas del foro (mensajes
   /// recientes, participantes activos, estadísticas, actividad 7 días).
   Future<ForoDashboard> fetchDashboard(String foroId);
 
-  /// crearForoValidator real: descripcion es obligatoria (10-2000 caracteres).
   Future<Foro> createForo({
     required String titulo,
     required String descripcion,
@@ -31,7 +27,7 @@ abstract class ForosRepository {
     List<ArchivoUpload>? archivos,
   });
 
-  /// actualizarForo real: solo título/descripción/público — no soporta
+  /// actualizarForo: solo título/descripción/público — no soporta
   /// reemplazar archivos, y el estado (abrir/cerrar) va por su propia acción.
   Future<Foro> updateForo({required String id, String? titulo, String? descripcion, bool? publico});
 

@@ -1,7 +1,7 @@
 import '../../../../core/config/constants.dart';
 import '../repositories/auth_repository.dart';
 
-/// Caso de uso — BLUEPRINT.md FASE 3.1.2.
+/// Caso de uso
 /// Valida el formato antes de llamar al repositorio (teléfono 10 dígitos,
 /// contraseña mínimo 6 caracteres); el prefijo +57 se antepone al enviar.
 class LoginUseCase {

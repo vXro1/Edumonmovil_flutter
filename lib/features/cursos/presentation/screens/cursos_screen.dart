@@ -16,21 +16,6 @@ import '../providers/cursos_providers.dart';
 
 const _pageSize = 15;
 
-/// Lista de cursos — BLUEPRINT.md FASE 3.4.1 / FASE 3.7.2. Docente y padre
-/// ven "mis cursos" (/cursos/mis-cursos, filtra por
-/// `participantes.usuarioId`); superadmin/admin ven todos los de la
-/// institución (/cursos) — mismo canónico para todos, sin replicar una
-/// pantalla "Familia · Cursos" aparte.
-/// BUG REAL corregido: cursoController.js real (getCursos) solo filtra por
-/// institucionId/estado/docenteId — NO scopea por participación del usuario
-/// pese a lo que decía este comentario antes. Un padre entrando a "Cursos"
-/// usando /cursos veía TODOS los cursos de la institución (con docente y
-/// participantes de cursos donde ni siquiera está inscrito), no solo los
-/// suyos. /cursos/mis-cursos sí filtra por `participantes.usuarioId` para
-/// cualquier rol (no es exclusivo de docente), así que padre debe usarlo igual.
-/// (⚠️) getCursos real no lee ningún parámetro de texto — solo filtra por
-/// estado/docenteId — así que la búsqueda es client-side sobre lo ya
-/// cargado, igual que en Usuarios/Docentes.
 class CursosScreen extends ConsumerStatefulWidget {
   const CursosScreen({super.key});
 
@@ -158,9 +143,6 @@ class _CursosScreenState extends ConsumerState<CursosScreen> {
     }
   }
 
-  /// cursoController.js real valida `color` como #RGB o #RRGGBB — acá se
-  /// parsea de forma defensiva por si algún curso viejo trae un valor
-  /// inválido (nunca debería, pero no vale la pena romper la lista por eso).
   Color? _parseCursoColor(String? hex) {
     if (hex == null || hex.isEmpty) return null;
     var value = hex.replaceFirst('#', '');

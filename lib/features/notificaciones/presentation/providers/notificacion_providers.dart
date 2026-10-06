@@ -13,7 +13,7 @@ final notificacionRepositoryProvider = Provider<NotificacionRepository>((ref) {
   return NotificacionRepositoryImpl(ref.watch(notificacionRemoteDataSourceProvider));
 });
 
-/// Conteo de no leídas para el badge del AppBar — BLUEPRINT.md FASE 5.2
+/// Conteo de no leídas para el badge del AppBar
 /// (FutureProvider + ref.invalidate(), equivalente al staleTime de TanStack
 /// Query). Se invalida tras marcar como leída/leídas desde la lista.
 final unreadCountProvider = FutureProvider<int>((ref) {

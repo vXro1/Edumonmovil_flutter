@@ -1,7 +1,6 @@
 import '../../../../shared/models/archivo.dart';
 import '../../domain/entities/tarea.dart';
 
-/// DTO — BLUEPRINT.md FASE 9.5, verificado contra tareaController.js real.
 class TareaModel {
   const TareaModel({
     required this.id,
@@ -44,8 +43,6 @@ class TareaModel {
   final int totalPendientes;
   final int totalCalificadas;
 
-  /// tareaController.js real popula docenteId (nombre apellido) y
-  /// moduloId (titulo) — antes se descartaban.
   final String? docenteNombre;
   final String? moduloTitulo;
   final DateTime? fechaCreacion;
@@ -78,7 +75,7 @@ class TareaModel {
         .map((e) => e is Map ? (e['id'] ?? e['_id']).toString() : e.toString())
         .toList();
 
-    // createTarea/updateTarea real guardan el array bajo "archivosAdjuntos",
+    // createTarea/updateTarea guardan el array bajo "archivosAdjuntos",
     // no "archivos" — incluye tanto tipo:'archivo' como tipo:'enlace'.
     final archivosRaw = json['archivosAdjuntos'] as List?;
     final archivos = (archivosRaw ?? const []).map((e) => Archivo.fromJson(e as Map<String, dynamic>)).toList();

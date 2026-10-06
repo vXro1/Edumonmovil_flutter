@@ -12,7 +12,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/institucion.dart';
 import '../providers/instituciones_providers.dart';
 
-/// Instituciones (superadmin) — BLUEPRINT.md FASE 3.3.1.
+/// Instituciones (superadmin)
 class InstitucionesScreen extends ConsumerStatefulWidget {
   const InstitucionesScreen({super.key});
 
@@ -36,7 +36,7 @@ class _InstitucionesScreenState extends ConsumerState<InstitucionesScreen> {
     super.dispose();
   }
 
-  // cambiarEstadoInstitucion real: getInstituciones solo lista activo:true
+  // cambiarEstadoInstitucion: getInstituciones solo lista activo:true
   // y no existe ningún endpoint para ver/filtrar instituciones inactivas —
   // desactivar una acá la deja invisible e inalcanzable desde la app (no hay
   // forma de revertirlo sin acceso directo a la base de datos). El diálogo

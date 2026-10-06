@@ -1,17 +1,5 @@
 import 'package:dio/dio.dart';
 
-/// Excepción de red humanizada — BLUEPRINT.md FASE 10 (footnote de formato de error)
-/// y FASE 11.6 (error_humanizer). El backend responde con 3 formatos distintos
-/// de error: {message}, {error} o {errors:[...]} (validación) — se intentan los 3.
-///
-/// BUG CONFIRMADO (revisión funcional): los `errors[]` que devuelve
-/// express-validator.array() en el backend real usan las claves `path`/`msg`
-/// (o `param`/`msg` en versiones viejas) — nunca `field`/`message`. Antes acá
-/// solo se buscaban `field`/`message`, así que ningún error de validación de
-/// express-validator se parseaba nunca: el array quedaba vacío y siempre caía
-/// al `message` genérico de nivel superior ("Errores de validación"), sin
-/// mostrar nunca la causa específica por campo. Esto afectaba a TODOS los
-/// formularios del backend (usuarios, cursos, instituciones, tareas, eventos...).
 class AppException implements Exception {
   const AppException(this.message, {this.statusCode, this.fieldErrors});
 
@@ -42,9 +30,6 @@ class AppException implements Exception {
         final fieldErrors = <String, String>{};
         for (final item in map['errors'] as List) {
           if (item is Map) {
-            // express-validator real: {type, value, msg, path, location} —
-            // `path` (o `param` en versiones viejas), nunca `field`; `msg`,
-            // nunca `message`. Se prueban todas las variantes por las dudas.
             final field = item['field'] ?? item['path'] ?? item['param'];
             final msg = item['message'] ?? item['msg'];
             if (field != null && msg != null) {

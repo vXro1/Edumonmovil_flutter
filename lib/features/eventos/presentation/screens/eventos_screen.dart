@@ -14,7 +14,7 @@ import '../../../auth/presentation/providers/auth_controller.dart';
 import '../../domain/entities/evento.dart';
 import '../providers/eventos_providers.dart';
 
-/// Eventos (gestión completa) — BLUEPRINT.md FASE 3.6. Ruta /eventos
+/// Eventos (gestión completa) Ruta /eventos
 /// (docente/admin). El toggle lista/calendario de la web no está completo
 /// ahí tampoco — se implementa solo la vista lista acá.
 class EventosScreen extends ConsumerStatefulWidget {
@@ -80,7 +80,7 @@ class _EventosScreenState extends ConsumerState<EventosScreen> {
     }
   }
 
-  // cancelarEvento real: soft-cancel (estado:'cancelado'), distinto de
+  // cancelarEvento: soft-cancel (estado:'cancelado'), distinto de
   // deleteEvento (elimina el documento) — se ofrecen ambas acciones porque
   // resuelven casos distintos: cancelar deja registro de que el evento
   // existió pero no va a pasar; eliminar lo saca por completo.

@@ -5,7 +5,7 @@ import '../../theme/app_colors.dart';
 import '../../theme/app_shadows.dart';
 import '../../theme/app_spacing.dart';
 
-/// Card claymórfica — BLUEPRINT.md FASE 2.1 / FASE 6.
+/// Card claymórfica
 class EdumonCard extends StatelessWidget {
   const EdumonCard({
     super.key,
@@ -47,7 +47,7 @@ class EdumonCard extends StatelessWidget {
   }
 }
 
-/// Stat card compacta para dashboards — BLUEPRINT.md FASE 3.2.
+/// Stat card compacta para dashboards
 class EdumonStatCard extends StatelessWidget {
   const EdumonStatCard({
     super.key,
@@ -154,7 +154,7 @@ class EdumonEmptyHint extends StatelessWidget {
 
 /// Igual que [EdumonEmptyHint] pero para una sección que SÍ falló al cargar
 /// (no un estado vacío legítimo) — agrega un botón "Reintentar" explícito.
-/// Sprint 8 (BLUEPRINT.md FASE 14): las pantallas que ya tienen pull-to-
+///: las pantallas que ya tienen pull-to-
 /// refresh a nivel de página igual se benefician de esto para una sección
 /// puntual, sin depender de que el usuario conozca el gesto.
 class EdumonErrorRetry extends StatelessWidget {

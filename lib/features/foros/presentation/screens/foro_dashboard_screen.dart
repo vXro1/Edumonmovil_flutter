@@ -11,7 +11,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/foro_dashboard.dart';
 import '../providers/foros_providers.dart';
 
-/// Dashboard del foro — GET /foros/:id/dashboard real. No reemplaza la vista
+/// Dashboard del foro — GET /foros/:id/dashboard. No reemplaza la vista
 /// de mensajes (ForumScreen), es una vista de analíticas aparte con un solo
 /// fetch: mensajes recientes, participantes activos, estadísticas y
 /// actividad de los últimos 7 días.

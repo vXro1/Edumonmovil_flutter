@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../models/institucion_model.dart';
 
-/// Data source remoto — shapes verificados contra institucionController.js real.
 class InstitucionesRemoteDataSource {
   const InstitucionesRemoteDataSource(this._dio);
 
@@ -78,11 +77,6 @@ class InstitucionesRemoteDataSource {
     }
   }
 
-  /// cambiarEstadoInstitucion real (institucionRoutes.js: PATCH
-  /// /instituciones/:id/estado). (⚠️) getInstituciones real solo lista
-  /// `activo:true` y no hay ningún endpoint para ver/filtrar inactivas — una
-  /// vez desactivada, esta llamada es la única forma de reactivarla (hay que
-  /// saber su id de antemano). No conectado a ningún botón de UI todavía.
   Future<InstitucionModel> cambiarEstadoInstitucion({required String id, required bool activo}) async {
     try {
       final response = await _dio.patch('/instituciones/$id/estado', data: {'activo': activo});

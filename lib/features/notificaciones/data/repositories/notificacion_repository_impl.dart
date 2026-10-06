@@ -2,7 +2,7 @@ import '../../domain/entities/notificacion.dart';
 import '../../domain/repositories/notificacion_repository.dart';
 import '../datasources/notificacion_remote_datasource.dart';
 
-/// Implementación — BLUEPRINT.md FASE 5.5.
+/// Implementación
 class NotificacionRepositoryImpl implements NotificacionRepository {
   const NotificacionRepositoryImpl(this._remote);
 

@@ -175,9 +175,6 @@ class _EdumonColorPickerDialogState extends State<_EdumonColorPickerDialog> with
   Widget _paletaTab() {
     return LayoutBuilder(
       builder: (context, constraints) {
-        // Columnas calculadas según el ancho real del diálogo en vez de un
-        // número fijo — 5 quedaba ajustado en pantallas angostas (el diálogo
-        // se achica con `insetPadding`, no siempre tiene los 380 de maxWidth).
         const targetSwatchSize = 52.0;
         final columns = (constraints.maxWidth / targetSwatchSize).floor().clamp(3, 6);
         return GridView.builder(

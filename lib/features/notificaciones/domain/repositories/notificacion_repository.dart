@@ -7,9 +7,9 @@ class NotificacionesPage {
   final bool hasMore;
 }
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 10.8.
+/// Interfaz de dominio
 abstract class NotificacionRepository {
-  /// POST /notificaciones real (solo administrador/superadmin) — envía una
+  /// POST /notificaciones (solo administrador/superadmin) — envía una
   /// notificación puntual a un usuario.
   Future<void> createNotificacion({
     required String usuarioId,
@@ -28,7 +28,7 @@ abstract class NotificacionRepository {
 
   Future<void> delete(String id);
 
-  /// DELETE /notificaciones/limpiar/antiguas real — borra las ya leídas con
+  /// DELETE /notificaciones/limpiar/antiguas — borra las ya leídas con
   /// más de [dias] días; devuelve cuántas borró.
   Future<int> deleteLeidasAntiguas({int dias = 30});
 }

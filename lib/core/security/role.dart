@@ -1,4 +1,4 @@
-/// Rol único y canónico — BLUEPRINT.md FASE 11.5.
+/// Rol único y canónico
 /// A diferencia de la web (2 taxonomías divergentes puenteadas por
 /// heurística de substring), acá hay un solo enum con mapeo exhaustivo.
 enum UserRole {
@@ -45,13 +45,11 @@ enum UserRole {
       case UserRole.padreTutor:
         return '/padre';
       case UserRole.estudiante:
-        // Sin flujo de login propio hoy (BLUEPRINT.md FASE 1.1 / 4.2).
+        // Sin flujo de login propio hoy / 4.2).
         return '/padre';
     }
   }
 
-  /// Valor canónico que espera el backend al crear/editar un usuario
-  /// (userController.js real: 'superadmin'|'docente'|'administrador'|'padre').
   String get toApiString {
     switch (this) {
       case UserRole.superAdmin:

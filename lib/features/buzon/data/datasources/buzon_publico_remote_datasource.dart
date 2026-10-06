@@ -2,12 +2,6 @@ import 'package:dio/dio.dart';
 
 import '../../../../core/network/network_exceptions.dart';
 
-/// (⚠️) No vimos buzonController.js real para el endpoint de creación
-/// pública — se infiere `POST /buzon` por convención con el resto de la API
-/// (mismo patrón: GET /recurso lista, POST /recurso crea) y porque
-/// BuzonRepository ya documentaba que ese POST público existe en la landing
-/// web real, solo que no vive en esta app. Verificar contra el controller
-/// real si el formulario devuelve 404/405.
 class BuzonPublicoRemoteDataSource {
   const BuzonPublicoRemoteDataSource(this._dio);
 

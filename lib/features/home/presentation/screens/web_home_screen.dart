@@ -9,7 +9,7 @@ import '../widgets/landing_navbar.dart';
 import '../widgets/landing_pilares_section.dart';
 import '../widgets/landing_quienes_section.dart';
 
-/// Home pública — BLUEPRINT: Home web de Edumont para padres/madres de
+/// Home pública: Home web de Edumont para padres/madres de
 /// familia. Reconstruida desde cero en Flutter Web a partir del diseño
 /// previo en React (misma distribución/UX de referencia, identidad visual
 /// completamente nueva: paleta AppColors, tipografía Nunito ya

@@ -24,10 +24,6 @@ class _Item {
 
 enum _Filtro { todas, pendientes, entregadas, calificadas }
 
-/// Entregas (rol padre) — BLUEPRINT.md FASE 3.7.4.
-/// entregaController.js real no expone un listado global de entregas del
-/// padre con los datos del reto, así que se combina fetchTareas (ya scopeado
-/// al padre por el backend) + fetchMiEntrega por cada una (en paralelo).
 class MisEntregasScreen extends ConsumerStatefulWidget {
   const MisEntregasScreen({super.key});
 
@@ -55,7 +51,6 @@ class _MisEntregasScreenState extends ConsumerState<MisEntregasScreen> {
     try {
       final tareasPage = await ref.read(tareasRepositoryProvider).fetchTareas(page: 1, limit: 50);
       final entregasRepo = ref.read(entregasRepositoryProvider);
-      // Antes se pedía una entrega por reto EN SERIE (N esperas seguidas).
       final entregas = await Future.wait(tareasPage.items.map((t) => entregasRepo.fetchMiEntrega(t.id)));
       final items = [for (var i = 0; i < tareasPage.items.length; i++) _Item(tarea: tareasPage.items[i], entrega: entregas[i])];
       // Primero lo que requiere acción (pendientes por fecha límite), luego el resto.

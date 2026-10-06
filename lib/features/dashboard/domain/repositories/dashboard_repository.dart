@@ -1,8 +1,8 @@
 import '../entities/curso_resumen.dart';
 import '../entities/institucion_resumen.dart';
 
-/// Datos agregados para los 4 dashboards — BLUEPRINT.md FASE 3.2.
-/// Cada método pega a un endpoint simple ya documentado en FASE 10 y deriva
+/// Datos agregados para los 4 dashboards
+/// Cada método pega a un endpoint simple ya documentado en y deriva
 /// el conteo/lista del propio resultado; no implica la feature completa
 /// (Instituciones/Usuarios/Cursos), que llega en sprints posteriores.
 abstract class DashboardRepository {

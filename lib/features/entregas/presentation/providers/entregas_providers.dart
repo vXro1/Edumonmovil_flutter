@@ -14,10 +14,6 @@ final entregasRepositoryProvider = Provider<EntregasRepository>((ref) {
   return EntregasRepositoryImpl(ref.watch(entregasRemoteDataSourceProvider));
 });
 
-/// Entregas pendientes (rol padre) — mismo criterio que MisEntregasScreen:
-/// sin entregaController.js real que exponga un conteo agregado por padre
-/// (ver comentario en mis_entregas_screen.dart), se cuenta combinando
-/// fetchTareas + fetchMiEntrega por cada una.
 final entregasPendientesCountProvider = FutureProvider<int>((ref) async {
   final tareasPage = await ref.watch(tareasRepositoryProvider).fetchTareas(page: 1, limit: 50);
   final entregasRepo = ref.watch(entregasRepositoryProvider);

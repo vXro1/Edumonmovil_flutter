@@ -3,7 +3,6 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../models/modulo_model.dart';
 
-/// Data source remoto — shapes verificados contra moduloController.js real.
 class ModulosRemoteDataSource {
   const ModulosRemoteDataSource(this._dio);
 

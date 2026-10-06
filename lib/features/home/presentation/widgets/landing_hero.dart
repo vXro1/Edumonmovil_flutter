@@ -10,7 +10,7 @@ import '../../../../core/utils/responsive.dart';
 import 'landing_decor.dart';
 import 'scroll_reveal.dart';
 
-/// Hero principal — BLUEPRINT visual: "Círculo Degradé" de fondo + "Edumont
+/// Hero principal: "Círculo Degradé" de fondo + "Edumont
 /// Cuerpo Completo" (assets/img/logo/avatarprincipal.svg) encima, como una
 /// sola composición centrada y responsive.
 class LandingHero extends StatelessWidget {
@@ -42,10 +42,6 @@ class LandingHero extends StatelessWidget {
               children: [
                 const Icon(LucideIcons.sparkles, size: 14, color: AppColors.primaryHover),
                 const SizedBox(width: 6),
-                // Flexible es necesario: con mainAxisSize.min el Row se mide a
-                // su ancho natural sin límite, así que en pantallas angostas
-                // este texto largo se salía del Row (RenderFlex overflow) en
-                // vez de ajustarse. Flexible le permite envolver en 2 líneas.
                 Flexible(
                   child: Text(
                     'Hecho para acompañar a las familias',

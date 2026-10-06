@@ -1,6 +1,6 @@
 import '../../../../core/security/role.dart';
 
-/// Entidad de dominio User — BLUEPRINT.md FASE 9.1.
+/// Entidad de dominio User
 class User {
   const User({
     required this.id,
@@ -30,14 +30,11 @@ class User {
   final String? correo;
   final String? institucionId;
   final List<String> permisos;
-  // Usados por la feature Usuarios (Sprint 3) — no siempre presentes en las
+  // Usados por la feature Usuarios — no siempre presentes en las
   // respuestas de auth (login/profile), por eso son opcionales acá.
   final DateTime? ultimoAcceso;
   final DateTime? fechaRegistro;
 
-  /// authController.js real: getProfile también devuelve este campo (además
-  /// de login) — se necesita acá para poder restaurarlo al reabrir la app
-  /// (ver AuthController._restoreSession).
   final bool primerInicioSesion;
 
   String get nombreCompleto => '$nombre $apellido';

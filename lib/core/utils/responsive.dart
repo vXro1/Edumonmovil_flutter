@@ -1,6 +1,6 @@
 import 'package:flutter/widgets.dart';
 
-/// Window Size Classes M3 — BLUEPRINT.md FASE 7.
+/// Window Size Classes M3
 /// compact <600dp · medium 600-839dp · expanded ≥840dp.
 /// Usado para decisiones de navegación/layout de alto nivel (Drawer vs
 /// NavigationRail, columna única vs multi-columna). Para decidir cuántas

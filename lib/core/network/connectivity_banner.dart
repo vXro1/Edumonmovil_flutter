@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_colors.dart';
 
-/// Banner "Sin conexión a internet" — BLUEPRINT.md FASE 14 Sprint 8
+/// Banner "Sin conexión a internet"
 /// (estados offline). Envuelve toda la app vía el `builder` de MaterialApp,
 /// sin que cada pantalla tenga que manejarlo por su cuenta.
 class ConnectivityBanner extends StatefulWidget {

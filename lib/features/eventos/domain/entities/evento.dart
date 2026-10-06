@@ -1,9 +1,5 @@
 import '../../../../shared/models/archivo.dart';
 
-/// Evento.js real: enum estricto de solo 3 valores — `reunion`/`actividad`/
-/// `otro` NO existen en el backend (BUG CONFIRMADO: el dropdown los ofrecía
-/// igual, así que elegirlos siempre devolvía 400 "La categoría debe ser:
-/// escuela_padres, tarea o institucional").
 enum EventoCategoria {
   escuelaPadres,
   tarea,
@@ -35,7 +31,7 @@ enum EventoCategoria {
   };
 }
 
-/// Entidad de dominio — verificada contra eventoController.js/Evento.js reales.
+/// Entidad de dominio
 class Evento {
   const Evento({
     required this.id,
@@ -66,13 +62,9 @@ class Evento {
   final List<String> cursosIds;
   final Archivo? adjunto;
 
-  /// Evento.js real: enum ["programado", "en_curso", "finalizado",
-  /// "cancelado"] — el pre('save') lo recalcula por fecha en cada save(),
-  /// salvo "cancelado" (cancelarEvento usa findByIdAndUpdate a propósito
-  /// para no pisarlo).
   final String estado;
 
-  /// getEventoById real popula cursosIds (nombre) y docenteId (nombre apellido).
+  /// getEventoById popula cursosIds (nombre) y docenteId (nombre apellido).
   final List<String> cursosNombres;
   final String? docenteNombre;
   final String? imagenPortadaUrl;

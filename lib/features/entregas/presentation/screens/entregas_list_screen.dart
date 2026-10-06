@@ -25,7 +25,7 @@ String _iniciales(EntregaPadre? p) {
 
 enum _Filtro { todas, porCalificar, calificadas }
 
-/// Entregas de un reto (vista docente) — BLUEPRINT.md FASE 3.4.5.
+/// Entregas de un reto (vista docente)
 /// Tocar una entrega abre la revisión completa (lo que entregó el padre +
 /// calificación por estrellas + retroalimentación).
 class EntregasListScreen extends ConsumerStatefulWidget {
@@ -224,7 +224,7 @@ class _EntregaResumenCard extends StatelessWidget {
 }
 
 /// Revisión de una entrega (docente): todo lo que envió el padre y el
-/// formulario de calificación. calificarEntrega real: valoracion entera 1-5 +
+/// formulario de calificación. calificarEntrega: valoracion entera 1-5 +
 /// comentario (retroalimentación, máx. 1000); se puede recalificar.
 class RevisarEntregaScreen extends ConsumerStatefulWidget {
   const RevisarEntregaScreen({super.key, required this.entrega});
@@ -372,7 +372,6 @@ class _RevisarEntregaScreenState extends ConsumerState<RevisarEntregaScreen> {
                   minLines: 3,
                   maxLines: 8,
                   keyboardType: TextInputType.multiline,
-                  // Entrega.js real: calificacion.comentario máx. 1000.
                   inputFormatters: [LengthLimitingTextInputFormatter(1000)],
                 ),
                 if (_error != null) ...[

@@ -1,6 +1,5 @@
 import '../../domain/entities/mensaje_buzon.dart';
 
-/// DTO — BLUEPRINT.md FASE 9.12, (⚠️) shape inferido del blueprint.
 class MensajeBuzonModel {
   const MensajeBuzonModel({
     required this.id,

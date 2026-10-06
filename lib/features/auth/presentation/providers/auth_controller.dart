@@ -51,7 +51,7 @@ class AuthState {
   }
 }
 
-/// Controlador de sesión — BLUEPRINT.md FASE 5.7 (equivalente a AuthContext).
+/// Controlador de sesión (equivalente a AuthContext).
 class AuthController extends Notifier<AuthState> {
   @override
   AuthState build() {
@@ -77,13 +77,6 @@ class AuthController extends Notifier<AuthState> {
   Future<void> _restoreSession() async {
     try {
       final result = await ref.read(authRepositoryProvider).fetchProfile();
-      // BUG CONFIRMADO: antes acá no se pasaba primerInicioSesion, así que
-      // copyWith() caía siempre al default de AuthState (false) — un usuario
-      // que cerraba la app a mitad del wizard de primer login (antes de
-      // cambiar la contraseña, el único paso que el backend marca como
-      // completado) volvía a entrar y el wizard ya no se le pedía más,
-      // aunque el backend siguiera con primerInicioSesion:true. getProfile
-      // real sí devuelve ese campo — ahora se usa.
       state = state.copyWith(
         status: AuthStatus.authenticated,
         user: result.user,
@@ -151,8 +144,6 @@ class AuthController extends Notifier<AuthState> {
 
   Future<void> logout() async {
     await ref.read(authRepositoryProvider).logout();
-    // Sin esto, el token de este dispositivo seguía "escuchando" al
-    // refresh de tokens del usuario anterior tras cerrar sesión.
     await ref.read(fcmServiceProvider).unregister();
     state = const AuthState(status: AuthStatus.unauthenticated);
   }

@@ -1,5 +1,3 @@
-/// Entidad de dominio — BLUEPRINT.md FASE 9.12.
-/// (⚠️) No vimos buzonController.js real — shapes inferidos del blueprint.
 class MensajeBuzon {
   const MensajeBuzon({
     required this.id,

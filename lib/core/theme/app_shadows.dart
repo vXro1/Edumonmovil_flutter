@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'app_colors.dart';
 
-/// Sombras — BLUEPRINT.md FASE 2.6.
+/// Sombras
 /// Las sombras "3D" de botones son offset sólido (sin blur), para el efecto
 /// de "hundimiento" al presionar (ver EdumonButton).
 class AppShadows {

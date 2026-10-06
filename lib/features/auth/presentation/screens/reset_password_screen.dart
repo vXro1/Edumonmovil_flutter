@@ -16,9 +16,6 @@ import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../providers/auth_providers.dart';
 
-/// Introducir código + nueva contraseña — BLUEPRINT.md FASE 3.1.4.
-/// authRoutes.js real: la recuperación de contraseña quedó solo por correo
-/// (WhatsApp/Twilio se eliminó del backend).
 class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key, required this.correo});
 

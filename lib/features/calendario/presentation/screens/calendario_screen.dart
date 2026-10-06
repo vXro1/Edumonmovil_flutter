@@ -15,7 +15,7 @@ import '../../data/calendario_aggregator.dart';
 import '../../domain/entities/calendario_entry.dart';
 import '../widgets/calendario_entry_tile.dart';
 
-/// Calendario global (agregado) — BLUEPRINT.md FASE 3.5. Vista agregada de
+/// Calendario global (agregado) Vista agregada de
 /// tareas+eventos de todos los cursos accesibles para el usuario.
 class CalendarioScreen extends ConsumerStatefulWidget {
   const CalendarioScreen({super.key});

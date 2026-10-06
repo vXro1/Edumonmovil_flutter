@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-/// Logo de marca EDUMON — BLUEPRINT.md original mostraba el ícono del
+/// Logo de marca EDUMON mostraba el ícono del
 /// monstruo + el wordmark "EDUMON" juntos en cada pantalla de alto impacto
 /// (login, olvidé/reseteé contraseña, wizard, drawer, footer). Decisión de
 /// producto (feedback directo: "exceso de imágenes"): un solo elemento de

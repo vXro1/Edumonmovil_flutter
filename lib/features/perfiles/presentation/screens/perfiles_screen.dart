@@ -18,7 +18,7 @@ import '../providers/perfiles_providers.dart';
 
 const _maxSecundarios = 5;
 
-/// Perfiles familiares — BLUEPRINT.md FASE 3.7.1.
+/// Perfiles familiares
 /// Máx 5 perfiles secundarios + titular. Seleccionar perfil activo reemplaza
 /// la sesión sin logout (ver perfiles_repository.dart).
 class PerfilesScreen extends ConsumerStatefulWidget {

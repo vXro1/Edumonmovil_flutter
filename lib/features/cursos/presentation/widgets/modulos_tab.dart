@@ -16,7 +16,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/modulo.dart';
 import '../providers/cursos_providers.dart';
 
-/// Tab Módulos — BLUEPRINT.md FASE 3.4.3.
+/// Tab Módulos
 /// El import CSV es 100% client-side (no hay endpoint masivo de módulos en
 /// el backend): se parsea el archivo acá y se itera un POST /modulos por fila.
 class ModulosTab extends ConsumerStatefulWidget {
@@ -146,7 +146,7 @@ class _ModulosTabState extends ConsumerState<ModulosTab> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Ocultar módulo'),
-        // deleteModulo real hace soft-delete (estado: 'inactivo'), no borra —
+        // deleteModulo hace soft-delete (estado: 'inactivo'), no borra —
         // queda oculto de la lista pero es recuperable desde el backend.
         content: Text('¿Ocultar "${modulo.titulo}"? Vas a dejar de verlo en la lista, pero se puede restaurar después.'),
         actions: [

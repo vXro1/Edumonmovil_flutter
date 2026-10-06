@@ -18,7 +18,7 @@ import '../../domain/entities/evento.dart';
 import '../../domain/repositories/eventos_repository.dart';
 import '../providers/eventos_providers.dart';
 
-/// Crear/editar evento — BLUEPRINT.md FASE 3.6.
+/// Crear/editar evento
 /// [eventoId] null = crear; con valor = editar.
 class EventoFormScreen extends ConsumerStatefulWidget {
   const EventoFormScreen({super.key, this.eventoId, this.initialCursoId});
@@ -114,10 +114,6 @@ class _EventoFormScreenState extends ConsumerState<EventoFormScreen> {
 
   Future<void> _pickFecha({required bool esInicio}) async {
     final inicial = (esInicio ? _fechaInicio : _fechaFin) ?? _fechaInicio ?? DateTime.now();
-    // Evento.js real: fechaInicio debe ser futura AL CREAR (custom validator
-    // en createEventoValidator) — permitir elegir hasta un año atrás siempre
-    // garantizaba un 400 al guardar. updateEventoValidator no tiene esa
-    // restricción, así que al editar se mantiene el rango amplio.
     final primerDiaPermitido = esInicio && !_isEditing
         ? DateTime.now()
         : DateTime.now().subtract(const Duration(days: 365));
@@ -147,10 +143,6 @@ class _EventoFormScreenState extends ConsumerState<EventoFormScreen> {
     setState(() => _adjuntoNuevo = file);
   }
 
-  // eventoValidator.js real: descripcion (mín. 10), ubicacion (mín. 3),
-  // fechaFin y cursosIds (array no vacío) son obligatorios — antes se
-  // mandaban vacíos/nulos sin avisar al usuario y el backend siempre
-  // rechazaba con 400.
   Future<void> _submit() async {
     final titulo = _tituloController.text.trim();
     final descripcion = _descripcionController.text.trim();

@@ -2,7 +2,7 @@ import '../../../../core/config/env.dart';
 import '../../../../core/security/role.dart';
 import '../../domain/entities/user.dart';
 
-/// DTO — BLUEPRINT.md FASE 9.1, verificado contra authController.js/userController.js reales.
+/// DTO
 class UserModel {
   const UserModel({
     required this.id,
@@ -36,10 +36,6 @@ class UserModel {
   final DateTime? fechaRegistro;
   final bool primerInicioSesion;
 
-  /// Sirve tanto para las respuestas envueltas de auth ({user: {...}}, ya
-  /// desenvueltas antes de llamar acá) como para los documentos Mongoose
-  /// crudos que devuelven getUsers/getUserById/createUser/updateUser
-  /// (userController.js real) — ambos comparten el mismo shape de campos.
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
       id: (json['id'] ?? json['_id']).toString(),
@@ -49,10 +45,6 @@ class UserModel {
       estado: json['estado']?.toString() ?? 'activo',
       cedula: json['cedula']?.toString() ?? '',
       telefono: json['telefono']?.toString() ?? '',
-      // El backend real (login/getProfile) manda "fotoPerfilUrl", no "avatarUrl".
-      // cloudinaryUpload.js real migró a almacenamiento local: esta URL llega
-      // como ruta relativa ("/uploads/..." o "/static/avatares/...") — hay
-      // que resolverla contra el origen del backend, no queda usable tal cual.
       avatarUrl: Env.resolveUrl(json['fotoPerfilUrl']?.toString()),
       correo: json['correo']?.toString(),
       institucionId: json['institucionId']?.toString(),

@@ -23,7 +23,7 @@ String _saludo() {
   return 'Buenas noches';
 }
 
-/// Dashboard Docente — BLUEPRINT.md FASE 3.2.3.
+/// Dashboard Docente
 class DocenteDashboard extends ConsumerWidget {
   const DocenteDashboard({super.key});
 

@@ -12,9 +12,9 @@ import '../../data/calendario_aggregator.dart';
 import '../../domain/entities/calendario_entry.dart';
 import 'calendario_entry_tile.dart';
 
-/// Tab Calendario (dentro de curso) — BLUEPRINT.md FASE 3.4.10.
+/// Tab Calendario (dentro de curso)
 /// Combina tareas + eventos del curso en un grid mensual, poblado desde
-/// GET /calendario/:cursoId real (ver calendario_aggregator.dart).
+/// GET /calendario/:cursoId (ver calendario_aggregator.dart).
 class CalendarioTab extends ConsumerStatefulWidget {
   const CalendarioTab({super.key, required this.cursoId, required this.canManage});
 

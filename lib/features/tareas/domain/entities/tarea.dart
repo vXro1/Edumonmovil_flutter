@@ -29,8 +29,7 @@ extension TipoEntregaX on TipoEntrega {
   }
 }
 
-/// Entidad de dominio — BLUEPRINT.md FASE 9.5, verificada contra
-/// tareaController.js/Tarea.js reales.
+/// Entidad de dominio.
 class Tarea {
   const Tarea({
     required this.id,
@@ -58,10 +57,6 @@ class Tarea {
   final String id;
   final String titulo;
   final String? descripcion;
-  // Tarea.js real: enum ["publicada", "cerrada"], default "publicada" — NO
-  // "activa" (BUG REAL corregido: con 'activa' como valor esperado, `vencida`
-  // nunca daba true porque el backend jamás manda ese string, así que ningún
-  // reto vencido se marcaba como tal en ninguna pantalla).
   final String estado;
   final DateTime? fechaEntrega;
   final String cursoId;
@@ -77,13 +72,11 @@ class Tarea {
   final int totalPendientes;
   final int totalCalificadas;
 
-  /// tareaController.js real popula docenteId (nombre apellido) y
-  /// moduloId (titulo) — antes se descartaban.
   final String? docenteNombre;
   final String? moduloTitulo;
   final DateTime? fechaCreacion;
 
-  /// Regla de negocio a portar siempre en cliente — BLUEPRINT.md FASE 9.5.
+  /// Regla de negocio a portar siempre en cliente
   bool get vencida => estado == 'publicada' && fechaEntrega != null && fechaEntrega!.isBefore(DateTime.now());
 
   bool get cerrada => estado == 'cerrada';

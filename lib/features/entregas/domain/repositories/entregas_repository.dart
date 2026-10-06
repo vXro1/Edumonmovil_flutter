@@ -2,7 +2,6 @@ import 'dart:typed_data';
 
 import '../entities/entrega.dart';
 
-/// Enlace externo de una entrega (Entrega.js real: {url, titulo, descripcion}).
 class EnlaceEntrega {
   const EnlaceEntrega({required this.url, this.titulo});
 
@@ -19,8 +18,6 @@ class ArchivoUpload {
   final String filename;
 }
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 3.4.5-3.4.7 / FASE 10.5,
-/// verificado contra entregaController.js real.
 abstract class EntregasRepository {
   /// GET /entregas/tarea/:tareaId — excluye borradores (solo enviada/tarde/
   /// calificada) y trae las estadísticas ya calculadas por el backend.
@@ -51,7 +48,7 @@ abstract class EntregasRepository {
 
   Future<void> deleteEntrega(String id);
 
-  /// DELETE /entregas/:id/archivos/:archivoId real: quita un solo adjunto de
+  /// DELETE /entregas/:id/archivos/:archivoId: quita un solo adjunto de
   /// una entrega en borrador (sin borrar la entrega completa).
   Future<Entrega> eliminarArchivoEntrega({required String id, required String archivoId});
 }

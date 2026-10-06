@@ -83,7 +83,7 @@ class DecorCircleSpec {
   final double rotation;
 }
 
-/// Capa de fondo con círculos decorativos dispersos — BLUEPRINT visual:
+/// Capa de fondo con círculos decorativos dispersos:
 /// "deben aparecer detrás del contenido, ayudar a generar profundidad, no
 /// dificultar la lectura, adaptarse al tamaño de cada pantalla". Se ignora
 /// en el hit-testing para no interceptar toques sobre el contenido real.

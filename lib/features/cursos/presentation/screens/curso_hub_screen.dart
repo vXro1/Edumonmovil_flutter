@@ -15,7 +15,7 @@ import '../widgets/modulos_tab.dart';
 import '../widgets/participantes_tab.dart';
 import '../widgets/tareas_tab.dart';
 
-/// Hub de curso — BLUEPRINT.md FASE 3.4.2. 5 tabs por permiso: Módulos,
+/// Hub de curso 5 tabs por permiso: Módulos,
 /// Tareas, Calendario, Foros (siempre), Participantes (oculto padre).
 class CursoHubScreen extends ConsumerStatefulWidget {
   const CursoHubScreen({super.key, required this.cursoId});
@@ -50,7 +50,7 @@ class _CursoHubScreenState extends ConsumerState<CursoHubScreen> with SingleTick
     final canManage = rol == UserRole.docente || rol == UserRole.administrador || rol == UserRole.superAdmin;
     // Módulos/Retos/Foros son contenido pedagógico: solo Docente (y
     // superAdmin, por privilegio de plataforma) puede crear/editar/eliminar.
-    // Administrador solo puede visualizar — ver BLUEPRINT.md permisos por rol.
+    // Administrador solo puede visualizar — ver permisos por rol.
     final canManageContent = rol == UserRole.docente || rol == UserRole.superAdmin;
     final showParticipantes = rol != UserRole.padreTutor;
 

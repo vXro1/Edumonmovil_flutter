@@ -19,14 +19,6 @@ const _channelDescription = 'Tareas, entregas, calificaciones, foros y eventos d
 
 final _localNotifications = FlutterLocalNotificationsPlugin();
 
-/// Handler de mensajes en background — FCM lo ejecuta en un isolate propio,
-/// aislado del estado de la app (por eso tiene que ser una función de nivel
-/// superior con `@pragma('vm:entry-point')`, nunca un método de instancia).
-/// No hace falta mostrar la notificación a mano acá: Android ya la renderiza
-/// solo con que el payload traiga `notification` (ver FCMStrategy.js en el
-/// backend real) — este handler solo existe porque firebase_messaging exige
-/// registrar uno para que el sistema entregue mensajes en background/cerrado
-/// en primer lugar.
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {}
 
@@ -46,10 +38,6 @@ class FcmService {
   StreamSubscription<String>? _tokenRefreshSub;
   bool _initialized = false;
 
-  /// Llamar una sola vez al arrancar la app (antes de runApp), independiente
-  /// de si hay sesión iniciada — deja el canal de Android y el listener de
-  /// foreground listos. No pide permiso ni registra token todavía (eso
-  /// requiere sesión, ver [registerForCurrentUser]).
   Future<void> init() async {
     if (_initialized) return;
     _initialized = true;
@@ -89,10 +77,6 @@ class FcmService {
     }
   }
 
-  /// El backend siempre manda data.url (ver FCMStrategy.js real: hoy
-  /// siempre es '/notificaciones', nunca un deep-link a la tarea/entrega/
-  /// foro puntual) — se navega ahí en vez de asumir una ruta fija, para que
-  /// esto siga funcionando si el backend empieza a mandar otras rutas.
   void _handleNotificationTap(RemoteMessage message) {
     final url = message.data['url'] as String? ?? '/notificaciones';
     try {
@@ -157,9 +141,6 @@ class FcmService {
     }
   }
 
-  /// Llamar al hacer logout — sin esto, el token del dispositivo sigue
-  /// registrado a nombre del usuario anterior y seguiría recibiendo sus
-  /// notificaciones tras cerrar sesión.
   Future<void> unregister() async {
     await _tokenRefreshSub?.cancel();
     _tokenRefreshSub = null;

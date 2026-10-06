@@ -1,16 +1,5 @@
 import 'package:dio/dio.dart';
 
-/// Interceptor de refresh — BLUEPRINT.md FASE 11.4.
-/// authController.js real usa sesión por cookies httpOnly (access_token +
-/// refresh_token con rotación), no un JWT en el body — el CookieManager de
-/// Dio persiste y reenvía esas cookies solo, no hay Authorization header que
-/// armar a mano. Ante un 401 (access_token vencido, code: TOKEN_EXPIRED) se
-/// llama a POST /auth/refresh (usa la cookie refresh_token) y se reintenta la
-/// request original una sola vez. El logout global solo se fuerza si el
-/// refresh en sí falla (refresh_token inválido/vencido = sesión terminada);
-/// si el refresh funciona pero la request reintentada igual devuelve 401,
-/// el error se deja pasar tal cual al llamador — es un problema de esa ruta
-/// puntual, no evidencia de que la sesión expiró.
 class RefreshInterceptor extends Interceptor {
   RefreshInterceptor({
     required this.refreshDio,
@@ -53,16 +42,11 @@ class RefreshInterceptor extends Interceptor {
 
     try {
       final options = err.requestOptions..extra['retried'] = true;
+      final data = options.data;
+      if (data is FormData) options.data = data.clone();
       final response = await retryDio.fetch(options);
       handler.resolve(response);
     } catch (retryError) {
-      // El refresh funcionó (la sesión es válida) pero la request original
-      // igual devolvió 401 — es un problema puntual de esa ruta/endpoint,
-      // no de la sesión. No forzamos un logout global por esto: ej.
-      // notificacionController.js real devuelve 401 "Usuario no autenticado"
-      // ante cualquier fallo interno de middleware, sin que eso signifique
-      // que la sesión del usuario expiró, y no tiene sentido sacarlo de
-      // toda la app por un endpoint puntual roto.
       handler.next(retryError is DioException ? retryError : err);
     }
   }

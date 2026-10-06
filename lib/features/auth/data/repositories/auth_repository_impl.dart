@@ -3,10 +3,6 @@ import '../../domain/entities/user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_remote_datasource.dart';
 
-/// Implementación — BLUEPRINT.md FASE 5.5.
-/// authController.js real guarda la sesión en cookies httpOnly (ver
-/// RefreshInterceptor/CookieManager en ApiClient) — no hay token que guardar
-/// a mano acá, el navegador/cliente HTTP la persiste solo.
 class AuthRepositoryImpl implements AuthRepository {
   const AuthRepositoryImpl(this._remote);
 

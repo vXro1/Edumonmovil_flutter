@@ -19,8 +19,6 @@ class ShapeSpec {
   /// Nombre de archivo dentro de `assets/img/<folder>/`.
   final String asset;
 
-  /// Subcarpeta bajo `assets/img/` (`circulos` por defecto — `assets/img/Shapes/`
-  /// ya no existe en el repo, ver README).
   final String folder;
   final double size;
   final double? top;

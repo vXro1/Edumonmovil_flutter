@@ -19,7 +19,7 @@ import '../../../entregas/presentation/widgets/calificacion_widgets.dart';
 import '../../domain/entities/tarea.dart';
 import '../providers/tareas_providers.dart';
 
-/// Detalle de reto — BLUEPRINT.md FASE 3.4.4. Footer condicionado por rol:
+/// Detalle de reto Footer condicionado por rol:
 /// docente/admin → "Ver entregas"; padre → "Ver mi entrega".
 class TareaDetailScreen extends ConsumerStatefulWidget {
   const TareaDetailScreen({super.key, required this.tareaId});
@@ -69,7 +69,7 @@ class _TareaDetailScreenState extends ConsumerState<TareaDetailScreen> {
     }
   }
 
-  // closeTarea y deleteTarea reales hacen exactamente lo mismo en el backend
+  // closeTarea y deleteTarea hacen exactamente lo mismo en el backend
   // (estado:'cerrada'), no hay borrado real — se deja una sola acción "Cerrar
   // reto" en vez de dos que sugerirían comportamientos distintos.
   Future<void> _cerrar() async {

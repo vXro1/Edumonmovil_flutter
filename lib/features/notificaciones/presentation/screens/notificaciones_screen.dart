@@ -14,7 +14,7 @@ const _pageSize = 15;
 
 enum _Filter { todas, noLeidas, leidas }
 
-/// Notificaciones — BLUEPRINT.md FASE 3.10.
+/// Notificaciones
 class NotificacionesScreen extends ConsumerStatefulWidget {
   const NotificacionesScreen({super.key});
 
@@ -115,7 +115,7 @@ class _NotificacionesScreenState extends ConsumerState<NotificacionesScreen> {
     }
   }
 
-  // eliminarLeidasAntiguas real: borra las notificaciones YA LEÍDAS con más
+  // eliminarLeidasAntiguas: borra las notificaciones YA LEÍDAS con más
   // de 30 días — nunca toca las no leídas, sin importar su antigüedad.
   Future<void> _limpiarAntiguas() async {
     try {

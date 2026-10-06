@@ -3,16 +3,11 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../models/perfil_model.dart';
 
-/// Data source remoto — verificado contra perfilFamiliarController.js real.
 class PerfilesRemoteDataSource {
   const PerfilesRemoteDataSource(this._dio);
 
   final Dio _dio;
 
-  /// getMisPerfiles real: `{titular: {_id, nombre, avatarUrl, esTitular:true},
-  /// perfiles: [...]}` — dos objetos separados, no un único array. Antes acá
-  /// se leía solo `perfiles` y `titular` se perdía por completo, así que la
-  /// cuenta principal nunca aparecía en el selector de perfiles.
   Future<({PerfilModel titular, List<PerfilModel> secundarios})> fetchPerfiles() async {
     try {
       final response = await _dio.get('/perfiles');
@@ -72,7 +67,7 @@ class PerfilesRemoteDataSource {
     }
   }
 
-  /// guardarFCMTokenPerfil real guarda el token FCM POR PERFIL (cada
+  /// guardarFCMTokenPerfil guarda el token FCM POR PERFIL (cada
   /// PerfilFamiliar tiene su propio fcmToken) — sin [perfilId] el backend lo
   /// asigna siempre al titular, sin importar qué perfil esté activo en este
   /// dispositivo. `null`/omitido selecciona explícitamente al titular (mismo

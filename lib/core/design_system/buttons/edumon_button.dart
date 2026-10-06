@@ -7,7 +7,7 @@ enum EdumonButtonVariant { primary, secondary, accent, success, danger, warning,
 
 enum EdumonButtonSize { xs, sm, md, lg, xl }
 
-/// Botón "Duolingo 3D-press" — BLUEPRINT.md FASE 2.1 / FASE 6.
+/// Botón "Duolingo 3D-press"
 /// Sombra inferior sólida que colapsa a 0 y el botón baja al presionar.
 class EdumonButton extends StatefulWidget {
   const EdumonButton({

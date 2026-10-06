@@ -30,7 +30,7 @@ class ThemeModeController extends Notifier<ThemeMode> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_prefsKey, mode.name);
 
-    // updateModoOscuro real solo modela un booleano — "Sistema" no tiene
+    // updateModoOscuro solo modela un booleano — "Sistema" no tiene
     // equivalente, así que no se sincroniza ese caso. Fire-and-forget: la
     // preferencia local (arriba) ya es la fuente de verdad de esta app; esto
     // solo mantiene el valor en BD al día para cuando el backend lo exponga

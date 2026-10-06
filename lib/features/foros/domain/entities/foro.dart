@@ -15,7 +15,7 @@ class ForoAutor {
   String get nombreCompleto => '$nombre ${apellido ?? ''}'.trim();
 }
 
-/// Entidad de dominio — verificada contra foroController.js/Foro.js reales.
+/// Entidad de dominio
 class Foro {
   const Foro({
     required this.id,
@@ -38,15 +38,9 @@ class Foro {
   final String? descripcion;
   final String? categoria;
 
-  // Foro.js real: enum ["abierto", "cerrado"], default "abierto" — NO
-  // "activo" (BUG REAL corregido: con 'activo' como default/valor esperado,
-  // reabrir un foro cerrado enviaba `estado:'activo'` al backend, que lo
-  // rechazaba siempre con 400 "Estado inválido" — ver toggleEstadoForo).
   final String estado;
   final String cursoId;
 
-  // Foro.js real: el creador se llama `docenteId` (no "creadorId" — ese
-  // nombre no existe en el schema; con él, este campo daba siempre null).
   final String? docenteId;
 
   /// Docente creador, populado por el backend (nombre apellido fotoPerfilUrl rol).
@@ -60,7 +54,6 @@ class Foro {
   bool get cerrado => estado == 'cerrado';
 }
 
-/// Entidad de dominio — verificada contra MensajeForo.js real.
 class MensajeForo {
   const MensajeForo({
     required this.id,

@@ -20,10 +20,6 @@ import '../providers/docentes_providers.dart';
 
 const _pageSize = 15;
 
-/// Docentes (admin) — BLUEPRINT.md FASE 3.3.3.
-/// El listado reutiliza GET /users?rol=docente (mismo endpoint que Usuarios,
-/// filtrado por rol) — no hay un GET dedicado de docentes en el blueprint,
-/// solo POST para crear/importar.
 class DocentesScreen extends ConsumerStatefulWidget {
   const DocentesScreen({super.key});
 
@@ -95,7 +91,7 @@ class _DocentesScreenState extends ConsumerState<DocentesScreen> {
   }
 
   Future<void> _importCsv() async {
-    // preregistrarDocentesCSV real exige Excel (.xlsx/.xlsm) desde que el
+    // preregistrarDocentesCSV exige Excel (.xlsx/.xlsm) desde que el
     // backend migró de CSV a ExcelJS — con 'csv' acá el picker nunca
     // dejaba elegir el archivo que el backend realmente acepta.
     final result = await FilePicker.pickFiles(type: FileType.custom, allowedExtensions: ['xlsx', 'xlsm'], withData: true);
@@ -324,9 +320,6 @@ class _ImportResultRow extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 6),
-          // Expanded: `text` es un mensaje de error dinámico (`e.motivo`) que
-          // puede ser largo — sin esto, Row(RenderFlex) desbordaba en pantallas
-          // angostas en vez de ajustar el texto a varias líneas.
           Expanded(child: Text(text, style: TextStyle(color: color))),
         ],
       ),

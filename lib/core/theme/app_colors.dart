@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Tokens de color de marca EDUMON — BLUEPRINT.md FASE 2.2.
+/// Tokens de color de marca EDUMON
 /// Única fuente de verdad para color en toda la app.
 class AppColors {
   const AppColors._();
@@ -213,7 +213,7 @@ class AppColors {
     paletteSlate,
   ];
 
-  // Modo oscuro — BLUEPRINT.md paleta oficial, fondo #121212 / superficie #1E1E1E.
+  // Modo oscuro paleta oficial, fondo #121212 / superficie #1E1E1E.
   static const Color backgroundDark = Color(0xFF121212);
   static const Color backgroundSoftDark = Color(0xFF121212);
   static const Color surfaceDark = Color(0xFF1E1E1E);

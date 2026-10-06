@@ -1,6 +1,6 @@
-/// Versión resumida de Curso — BLUEPRINT.md FASE 9.3 — solo lo que necesitan
+/// Versión resumida de Curso — solo lo que necesitan
 /// las cards de dashboard. La entidad Curso completa (con módulos,
-/// participantes, etc.) llega en Sprint 4 (feature Cursos).
+/// participantes, etc.) está en la feature Cursos.
 class CursoResumen {
   const CursoResumen({
     required this.id,

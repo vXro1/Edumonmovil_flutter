@@ -118,15 +118,6 @@ class _LandingContactoSectionState extends ConsumerState<LandingContactoSection>
           ),
         ),
         const SizedBox(height: AppSpacing.lg),
-        // "Edumont Soporte" es uno de los elementos visuales principales de
-        // la sección — debe sentirse como el personaje acompañando/
-        // orientando a la familia, no un ícono decorativo perdido. El halo
-        // de color detrás (sin blur, solo opacidad) le da profundidad barato
-        // en rendimiento y refuerza que "está ahí, presente". LayoutBuilder
-        // en vez de confiar solo en el breakpoint global: el ancho real de
-        // esta columna depende del flex que le tocó dentro del Row (5/11), y
-        // ese ancho puede ser menor que soporteSize cerca de los bordes de
-        // cada breakpoint — así nunca se desborda de su columna.
         LayoutBuilder(
           builder: (context, constraints) {
             final maxAvailable = constraints.maxWidth.isFinite ? constraints.maxWidth : soporteSize * 1.2;

@@ -49,9 +49,6 @@ class InstitucionModel {
   final InstitucionAdminModel? admin;
   final bool activo;
 
-  /// institucionController.js real: adminId siempre viene populado
-  /// (.populate('adminId', 'nombre apellido correo')) como objeto o null,
-  /// nunca como id suelto — a diferencia de institucionId en User.
   factory InstitucionModel.fromJson(Map<String, dynamic> json) {
     final adminRaw = json['adminId'];
     return InstitucionModel(

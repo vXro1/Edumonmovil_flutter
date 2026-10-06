@@ -17,10 +17,6 @@ class ModuloModel {
   final int? orden;
   final String estado;
 
-  /// moduloController.js real: getModulosByCurso NO puebla cursoId (queda
-  /// como string plano), pero create/updateModulo SÍ lo populan
-  /// (.populate('cursoId', ...)) — llega como objeto en esos casos. Se
-  /// soportan ambas formas.
   factory ModuloModel.fromJson(Map<String, dynamic> json) {
     final cursoIdRaw = json['cursoId'];
     final cursoId = cursoIdRaw is Map ? (cursoIdRaw['id'] ?? cursoIdRaw['_id']).toString() : (cursoIdRaw ?? '').toString();

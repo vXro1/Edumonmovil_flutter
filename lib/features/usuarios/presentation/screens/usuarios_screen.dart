@@ -30,10 +30,6 @@ Color _roleColor(UserRole rol) {
   };
 }
 
-/// Usuarios — BLUEPRINT.md FASE 3.3.4.
-/// (⚠️) getUsers real no soporta búsqueda por texto server-side (solo
-/// rol/estado) — el campo de búsqueda filtra en cliente sobre lo cargado,
-/// consistente con la recomendación de BLUEPRINT.md FASE 13.1.
 class UsuariosScreen extends ConsumerStatefulWidget {
   const UsuariosScreen({super.key});
 
@@ -129,7 +125,7 @@ class _UsuariosScreenState extends ConsumerState<UsuariosScreen> {
     }
   }
 
-  // createNotificacion real (POST /notificaciones, admin/superadmin) — envía
+  // createNotificacion (POST /notificaciones, admin/superadmin) — envía
   // una notificación puntual a un usuario, distinta de las que genera el
   // sistema automáticamente (nueva tarea, calificación, etc.).
   Future<void> _notificar(User user) async {

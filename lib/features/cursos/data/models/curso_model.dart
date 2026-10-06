@@ -19,10 +19,6 @@ class CursoDocenteModel {
   CursoDocente toEntity() => CursoDocente(id: id, nombre: nombre, apellido: apellido);
 }
 
-/// DTO — BLUEPRINT.md FASE 9.3, verificado contra cursoController.js real.
-/// "docente" llega poblado (create/getCursos/getMisCursos/getCursoById
-/// siempre corren formatearDocente); "docenteId" queda como fallback por si
-/// algún endpoint futuro no lo formatea.
 class CursoModel {
   const CursoModel({
     required this.id,
@@ -60,7 +56,7 @@ class CursoModel {
     }
     docenteId ??= json['docenteId']?.toString();
 
-    // participantes real: [{usuarioId, etiqueta}, ...] — cuenta directa de la lista.
+    // participantes: [{usuarioId, etiqueta}, ...] — cuenta directa de la lista.
     final participantes = json['participantes'];
     final totalParticipantes = participantes is List ? participantes.length : 0;
 
@@ -69,7 +65,6 @@ class CursoModel {
       nombre: json['nombre']?.toString() ?? '',
       descripcion: json['descripcion']?.toString(),
       estado: json['estado']?.toString() ?? 'activo',
-      // cloudinaryUpload.js real ahora es almacenamiento local: ruta relativa.
       imagenUrl: Env.resolveUrl(json['fotoPortadaUrl']?.toString()),
       docente: docente,
       docenteId: docenteId,

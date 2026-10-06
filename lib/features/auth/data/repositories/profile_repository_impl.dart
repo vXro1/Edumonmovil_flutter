@@ -1,7 +1,7 @@
 import '../../domain/repositories/profile_repository.dart';
 import '../datasources/profile_remote_datasource.dart';
 
-/// Implementación — BLUEPRINT.md FASE 5.5.
+/// Implementación
 class ProfileRepositoryImpl implements ProfileRepository {
   const ProfileRepositoryImpl(this._remote);
 

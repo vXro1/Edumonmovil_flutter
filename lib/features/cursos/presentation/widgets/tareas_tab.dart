@@ -12,7 +12,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../tareas/domain/entities/tarea.dart';
 import '../../../tareas/presentation/providers/tareas_providers.dart';
 
-/// Tab Tareas — BLUEPRINT.md FASE 3.4.4.
+/// Tab Tareas
 class TareasTab extends ConsumerStatefulWidget {
   const TareasTab({super.key, required this.cursoId, required this.canManage});
 

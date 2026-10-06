@@ -10,8 +10,6 @@ class CursoDocente {
   String get nombreCompleto => '$nombre ${apellido ?? ''}'.trim();
 }
 
-/// Entidad de dominio — BLUEPRINT.md FASE 9.3, verificada contra
-/// cursoController.js real.
 class Curso {
   const Curso({
     required this.id,
@@ -36,8 +34,6 @@ class Curso {
   final int totalParticipantes;
   final DateTime? fechaCreacion;
 
-  /// Hex opcional (#RGB o #RRGGBB) — cursoController.js real, agregado en el
-  /// pull 85fa452/e3e8d5a. Se usa para pintar la tarjeta/encabezado del curso.
   final String? color;
 
   bool get archivado => estado == 'archivado';

@@ -7,18 +7,11 @@ import '../../domain/entities/evento.dart';
 import '../../domain/repositories/eventos_repository.dart';
 import '../models/evento_model.dart';
 
-/// Data source remoto — BLUEPRINT.md FASE 10.7.
-/// (⚠️) No vimos eventoController.js real — shapes inferidos del blueprint.
 class EventosRemoteDataSource {
   const EventosRemoteDataSource(this._dio);
 
   final Dio _dio;
 
-  // getEventos real pagina con límite por defecto 10 (máx 50) y devuelve
-  // {eventos, pagination} — sin `limit` explícito, listas con más de 10
-  // eventos quedaban truncadas en silencio sin avisar que había más páginas.
-  // Se pide el máximo permitido; una lista con más de 50 eventos igual
-  // necesitaría "cargar más" real (no implementado en EventosScreen).
   Future<List<EventoModel>> fetchEventos({String? cursoId}) async {
     try {
       final response = await _dio.get('/eventos', queryParameters: {'cursoId': ?cursoId, 'limit': 50});
@@ -52,11 +45,6 @@ class EventosRemoteDataSource {
     }
   }
 
-  // eventoValidator.js real: descripcion (min 10), fechaFin (posterior a
-  // fechaInicio), hora y ubicacion son TODOS obligatorios al crear — antes
-  // acá eran opcionales y el formulario los etiquetaba "(opcional)", así que
-  // omitirlos siempre devolvía 400. cursosIds también debe ser un array NO
-  // vacío (sin default acá: el caller debe validar la selección mínima).
   Future<EventoModel> createEvento({
     required String titulo,
     required String descripcion,
@@ -130,7 +118,7 @@ class EventosRemoteDataSource {
     }
   }
 
-  /// cancelarEvento real (eventoRoutes.js: PATCH /eventos/:id/cancelar):
+  /// cancelarEvento (eventoRoutes.js: PATCH /eventos/:id/cancelar):
   /// soft-cancel — pone estado:'cancelado' sin borrar el evento (a
   /// diferencia de deleteEvento, que sí lo elimina y limpia sus adjuntos de
   /// Cloudinary). 400 si ya está cancelado o si ya finalizó.

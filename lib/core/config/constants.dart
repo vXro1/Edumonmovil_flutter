@@ -10,9 +10,7 @@ class AppConstants {
   static final RegExp phoneRegex = RegExp(r'^\d{10}$');
   static final RegExp cedulaRegex = RegExp(r'^\d{6,10}$');
   static final RegExp emailRegex = RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$');
-  // Igual que nombre/apellido en userValidator.js real (createUserValidator).
   static final RegExp nombreRegex = RegExp(r'^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$');
   static final RegExp recoveryCodeRegex = RegExp(r'^\d{4,8}$');
-  // cursoController.js real (createCurso/updateCurso, campo `color` nuevo).
   static final RegExp hexColorRegex = RegExp(r'^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{6})$');
 }

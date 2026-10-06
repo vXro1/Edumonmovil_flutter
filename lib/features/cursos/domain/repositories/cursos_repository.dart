@@ -18,8 +18,6 @@ class ParticipanteImportItem {
   final String motivo;
 }
 
-/// registrarUsuariosMasivo real distingue tres categorías, no dos: exitosos,
-/// duplicados (cédula/correo ya existente) y errores (falla real).
 class ParticipantesImportResult {
   const ParticipantesImportResult({
     required this.total,
@@ -38,10 +36,9 @@ class ParticipantesImportResult {
   final List<ParticipanteImportItem> detallesDuplicados;
 }
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 3.4, verificada contra
-/// cursoController.js/moduloController.js reales.
+/// Interfaz de dominio.
 abstract class CursosRepository {
-  // getCursos real no soporta búsqueda por texto (solo estado/docenteId) —
+  // getCursos no soporta búsqueda por texto (solo estado/docenteId) —
   // el filtro de texto en la UI se hace en cliente, ver CursosScreen.
   Future<CursosPage> fetchCursos({required int page, required int limit});
 
@@ -58,8 +55,6 @@ abstract class CursosRepository {
     String? fotoPortadaFilename,
   });
 
-  /// docenteId ya no es editable acá — cursoController.js real lo ignora si
-  /// viene en el body (ver CursosRemoteDataSource.updateCurso).
   Future<Curso> updateCurso({
     required String id,
     String? nombre,
@@ -69,10 +64,10 @@ abstract class CursosRepository {
     String? fotoPortadaFilename,
   });
 
-  /// DELETE /cursos/:id real: archiva (soft-delete), no elimina.
+  /// DELETE /cursos/:id: archiva (soft-delete), no elimina.
   Future<void> archiveCurso(String id);
 
-  /// PATCH /cursos/:id/restaurar real: revierte el archivado.
+  /// PATCH /cursos/:id/restaurar: revierte el archivado.
   Future<void> restoreCurso(String id);
 
   Future<List<Participante>> fetchParticipantes(String cursoId, {int limit});

@@ -20,7 +20,7 @@ import '../../../auth/presentation/providers/auth_controller.dart';
 import '../../../usuarios/presentation/providers/usuarios_providers.dart';
 import '../providers/cursos_providers.dart';
 
-/// Crear/editar curso — BLUEPRINT.md FASE 3.4.1.
+/// Crear/editar curso
 /// [cursoId] null = crear; con valor = editar.
 class CursoFormScreen extends ConsumerStatefulWidget {
   const CursoFormScreen({super.key, this.cursoId});
@@ -112,10 +112,6 @@ class _CursoFormScreenState extends ConsumerState<CursoFormScreen> {
 
     final errors = <String, String>{};
     if (nombre.isEmpty) errors['nombre'] = 'Ingresá el nombre del curso.';
-    // Curso.js real: descripcion es `required`, y createCursoValidator/
-    // updateCursoValidator exigen entre 10 y 500 caracteres — sin este
-    // chequeo cliente, guardar con la descripción vacía o corta siempre
-    // fallaba con un 400 genérico (la UI la mostraba como "(opcional)").
     if (descripcion.isEmpty) {
       errors['descripcion'] = 'Ingresá una descripción.';
     } else if (descripcion.length < 10) {
@@ -135,8 +131,6 @@ class _CursoFormScreenState extends ConsumerState<CursoFormScreen> {
     try {
       final repo = ref.read(cursosRepositoryProvider);
       if (_isEditing) {
-        // docenteId ya no se manda al editar — cursoController.js real lo
-        // ignora, y mostrar un dropdown editable acá era engañoso (ver build()).
         await repo.updateCurso(
           id: widget.cursoId!,
           nombre: nombre,
@@ -267,9 +261,6 @@ class _CursoFormScreenState extends ConsumerState<CursoFormScreen> {
                       child: Text(_fieldErrors['color']!, style: const TextStyle(color: AppColors.error, fontSize: 12)),
                     ),
                   const SizedBox(height: AppSpacing.sm),
-                  // El docente titular ya no se puede reasignar editando un
-                  // curso existente — cursoController.js real ignora docenteId
-                  // en el update. Se muestra solo informativo al editar.
                   if (_isEditing)
                     Text(
                       'Docente titular: ${_docenteNombreActual ?? 'sin asignar'}',

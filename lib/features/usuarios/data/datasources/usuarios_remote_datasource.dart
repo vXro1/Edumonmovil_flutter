@@ -5,9 +5,6 @@ import '../../../../core/security/role.dart';
 import '../../../auth/data/models/user_model.dart';
 import '../models/padre_info_model.dart';
 
-/// Data source remoto — shapes verificados contra userController.js real:
-/// getUsers → {users:[...], pagination}; getUserById → doc crudo;
-/// createUser/updateUser/deleteUser → {message, user: doc}.
 class UsuariosRemoteDataSource {
   const UsuariosRemoteDataSource(this._dio);
 
@@ -78,9 +75,6 @@ class UsuariosRemoteDataSource {
     }
   }
 
-  // userController.js real (updateUser): rol/estado/institucionId se borran
-  // de updateData antes del save, aunque el request los incluya — nunca se
-  // mandan más para no fingir un cambio que el backend descarta en silencio.
   Future<UserModel> updateUsuario({
     required String id,
     String? nombre,
@@ -115,9 +109,6 @@ class UsuariosRemoteDataSource {
     }
   }
 
-  // userController.js real (updateUser) borra "estado" de updateData antes
-  // de guardar — PUT /users/:id nunca reactiva a nadie. reactivateUser vive
-  // en su propia ruta dedicada.
   Future<void> activarUsuario(String id) async {
     try {
       await _dio.patch('/users/$id/reactivar');
@@ -126,7 +117,7 @@ class UsuariosRemoteDataSource {
     }
   }
 
-  /// getPadreInfo real (GET /users/padre/:padreId/info) — 400 si el usuario
+  /// getPadreInfo (GET /users/padre/:padreId/info) — 400 si el usuario
   /// consultado no tiene rol 'padre'.
   Future<PadreInfoModel> fetchPadreInfo(String padreId) async {
     try {

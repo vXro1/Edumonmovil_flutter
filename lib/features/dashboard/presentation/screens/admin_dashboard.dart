@@ -15,7 +15,7 @@ import '../widgets/dashboard_stats_grid.dart';
 
 const _cursosLimit = 10;
 
-/// Dashboard Administrador (institución) — BLUEPRINT.md FASE 3.2.2.
+/// Dashboard Administrador (institución)
 class AdminDashboard extends ConsumerWidget {
   const AdminDashboard({super.key});
 

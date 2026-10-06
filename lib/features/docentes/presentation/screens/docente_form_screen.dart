@@ -11,7 +11,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../providers/docentes_providers.dart';
 
-/// Crear docente individual — BLUEPRINT.md FASE 3.3.3.
+/// Crear docente individual
 class DocenteFormScreen extends ConsumerStatefulWidget {
   const DocenteFormScreen({super.key});
 

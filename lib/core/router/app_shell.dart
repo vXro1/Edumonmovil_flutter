@@ -58,19 +58,11 @@ List<_NavItem> _navItemsFor(UserRole rol) {
       const _NavItem(icon: LucideIcons.partyPopper, label: 'Eventos', route: '/eventos'),
     if (rol == UserRole.padreTutor)
       const _NavItem(icon: LucideIcons.users, label: 'Perfiles', route: '/familia/perfiles'),
-    // "Buzón" se sacó del navbar por decisión de producto — quedaba
-    // redundante con Notificaciones (ya accesible para todos los roles,
-    // incluido superadmin, desde la campana del AppBar). La pantalla/ruta
-    // /buzon y el endpoint real (superadmin-only, ver buzonRoutes.js) siguen
-    // intactos por si se decide reincorporarlo más adelante.
-    // Configuración (Mi perfil) — antes solo accesible desde el menú del
-    // avatar en el AppBar, ahora también como ítem propio del navbar para
-    // los 4 roles (BLUEPRINT.md FASE 3.11 / tabla 4.2: universal).
     const _NavItem(icon: LucideIcons.settings, label: 'Configuración', route: '/perfil'),
   ];
 }
 
-/// Shell responsivo — BLUEPRINT.md FASE 7 / FASE 5.6.
+/// Shell responsivo
 /// compact: Drawer. medium: NavigationRail solo-íconos. expanded: NavigationRail extendido.
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.child, required this.location});

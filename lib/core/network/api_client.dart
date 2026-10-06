@@ -6,10 +6,6 @@ import 'package:flutter/foundation.dart';
 import '../config/env.dart';
 import 'auth_interceptor.dart';
 
-/// Cliente HTTP central — BLUEPRINT.md FASE 5.6 / FASE 10.
-/// authController.js real usa cookies httpOnly para la sesión (ver
-/// RefreshInterceptor) — el [cookieJar] debe ser un PersistCookieJar creado
-/// una sola vez en main() para que la sesión sobreviva a reinicios de la app.
 class ApiClient {
   ApiClient({
     required CookieJar cookieJar,
@@ -45,27 +41,9 @@ class ApiClient {
 
   static BaseOptions get _baseOptions => BaseOptions(
     baseUrl: Env.apiBaseUrl,
-    // El backend ya no vive en Render (se movió a un despliegue Docker
-    // propio en edumon.uniautonoma.edu.co), pero se deja este margen amplio
-    // por si el hosting actual también tiene cold start o picos de latencia
-    // — antes, con Render (plan free hibernaba tras inactividad y tardaba
-    // 30-50s en despertar), 15s cortaba la espera antes de que respondiera.
     connectTimeout: const Duration(seconds: 45),
     receiveTimeout: const Duration(seconds: 45),
     headers: {'Accept': 'application/json'},
-    // BUG REAL (login no funcionaba en web): las cookies httpOnly de sesión
-    // vienen de un backend en otro origen (antes backend-edumon.onrender.com,
-    // ahora edumon.uniautonoma.edu.co), y
-    // el adaptador de Dio para navegador (dio_web_adapter) por defecto arma
-    // el XHR con `withCredentials: false` — el navegador entonces IGNORA por
-    // completo el `Set-Cookie` de la respuesta del login (nunca guarda la
-    // sesión) y tampoco reenvía cookies existentes en requests siguientes.
-    // El login "parecía" funcionar un instante porque el usuario sí llega en
-    // el body de la respuesta, pero cualquier request protegido después caía
-    // en 401 y terminaba en forceLogout(). `extra['withCredentials']` es la
-    // forma de fijar esto sin importar el adapter de navegador directamente
-    // (que no compila para Android/iOS) — en móvil esta clave simplemente se
-    // ignora, ahí la sesión ya la maneja dio_cookie_manager + PersistCookieJar.
     extra: const {'withCredentials': true},
   );
 }

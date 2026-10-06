@@ -4,7 +4,7 @@ import 'package:flutter/services.dart';
 import '../../theme/app_colors.dart';
 import '../../theme/app_spacing.dart';
 
-/// Input estilo Duolingo — BLUEPRINT.md FASE 2.12 / FASE 6.
+/// Input estilo Duolingo
 /// Estados error (shake + borde rojo) y success (borde verde).
 class EdumonTextField extends StatefulWidget {
   const EdumonTextField({

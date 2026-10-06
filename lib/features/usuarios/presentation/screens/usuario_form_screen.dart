@@ -15,7 +15,7 @@ import '../../../auth/presentation/providers/auth_controller.dart';
 import '../../../dashboard/presentation/providers/dashboard_providers.dart';
 import '../providers/usuarios_providers.dart';
 
-/// Crear/editar usuario — BLUEPRINT.md FASE 3.3.4.
+/// Crear/editar usuario
 /// [userId] null = modo crear; con valor = modo editar/detalle.
 class UsuarioFormScreen extends ConsumerStatefulWidget {
   const UsuarioFormScreen({super.key, this.userId});
@@ -108,9 +108,6 @@ class _UsuarioFormScreenState extends ConsumerState<UsuarioFormScreen> {
     }
     if (!AppConstants.cedulaRegex.hasMatch(cedula)) errors['cedula'] = 'La cédula debe tener entre 6 y 10 dígitos.';
     if (!AppConstants.phoneRegex.hasMatch(telefono)) errors['telefono'] = 'El teléfono debe tener 10 dígitos.';
-    // userValidator.js real: createUserValidator exige correo (.notEmpty()),
-    // updateUserValidator lo deja opcional (.optional()) — la regla difiere
-    // según si se está creando o editando.
     if (!_isEditing && correo.isEmpty) {
       errors['correo'] = 'El correo es requerido.';
     } else if (correo.isNotEmpty && !AppConstants.emailRegex.hasMatch(correo)) {
@@ -124,20 +121,8 @@ class _UsuarioFormScreenState extends ConsumerState<UsuarioFormScreen> {
     setState(() => _saving = true);
     try {
       final repo = ref.read(usuariosRepositoryProvider);
-      // userValidator.js real (createUserValidator/updateUserValidator) exige
-      // el teléfono en formato +57XXXXXXXXXX — igual que loginValidator. El
-      // campo acá solo captura los 10 dígitos locales, así que hay que anteponer
-      // "+57" antes de mandarlo, igual que ya hace AuthRemoteDataSource.login().
-      // Sin esto, el usuario quedaba guardado con el teléfono en un formato
-      // distinto al que login normaliza para buscarlo → "credenciales inválidas"
-      // aunque la contraseña fuera la correcta.
       final telefonoConPrefijo = '+57$telefono';
       if (_isEditing) {
-        // userValidator.js real (updateUser): el controlador borra
-        // rol/estado/institucionId de updateData ANTES de guardar — no se
-        // mandan más porque el backend los ignora en silencio (no es un
-        // "no autorizado", el request "funciona" pero el cambio nunca se
-        // aplica). Ver el bloque de solo-lectura en build() más abajo.
         await repo.updateUsuario(
           id: widget.userId!,
           nombre: nombre,
@@ -153,11 +138,6 @@ class _UsuarioFormScreenState extends ConsumerState<UsuarioFormScreen> {
           cedula: cedula,
           telefono: telefonoConPrefijo,
           rol: _rol,
-          // BUG REAL corregido: createUserValidator.contraseña exige al
-          // menos una minúscula, una mayúscula y un dígito — la cédula sola
-          // (todo dígitos) nunca cumplía eso y el alta fallaba siempre con
-          // 400. "Cc" + cédula es la contraseña que ya se le mostraba al
-          // admin en pantalla, pero nunca era la que en verdad se mandaba.
           contrasena: 'Cc$cedula',
           correo: correo.isEmpty ? null : correo,
           institucionId: _needsInstitucion ? _institucionId : null,
@@ -215,11 +195,6 @@ class _UsuarioFormScreenState extends ConsumerState<UsuarioFormScreen> {
                   const SizedBox(height: AppSpacing.sm),
                   const Text('Rol', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 13)),
                   const SizedBox(height: 6),
-                  // userController.js real (updateUser) borra "rol" de
-                  // updateData antes de guardar — PUT /users/:id no puede
-                  // reasignar el rol de un usuario existente. Mostrarlo
-                  // editable acá era engañoso (mismo patrón ya corregido
-                  // para el docente titular en curso_form_screen.dart).
                   _isEditing
                       ? Text(_rol.label, style: TextStyle(color: AppColors.mutedText(context)))
                       : DropdownButtonFormField<UserRole>(

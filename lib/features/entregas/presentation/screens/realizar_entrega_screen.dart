@@ -21,10 +21,10 @@ import '../../domain/repositories/entregas_repository.dart';
 import '../providers/entregas_providers.dart';
 import '../widgets/calificacion_widgets.dart';
 
-/// Mi entrega (rol padre) — BLUEPRINT.md FASE 3.4.7.
+/// Mi entrega (rol padre)
 /// Muestra el reto, el estado de la entrega y, una vez calificada, las
 /// estrellas y la retroalimentación del docente. Solo se edita mientras no
-/// exista entrega o esté en borrador (updateEntrega real rechaza lo demás).
+/// exista entrega o esté en borrador (updateEntrega rechaza lo demás).
 class RealizarEntregaScreen extends ConsumerStatefulWidget {
   const RealizarEntregaScreen({super.key, required this.tareaId});
 
@@ -129,7 +129,6 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
               onPressed: () {
                 var url = urlController.text.trim();
                 if (url.isNotEmpty && !url.contains('://')) url = 'https://$url';
-                // Entrega.js real: solo acepta http/https.
                 final uri = Uri.tryParse(url);
                 if (uri == null || !(uri.scheme == 'http' || uri.scheme == 'https') || uri.host.isEmpty) {
                   setDialogState(() => error = 'Escribe un enlace válido.');
@@ -150,7 +149,7 @@ class _RealizarEntregaScreenState extends ConsumerState<RealizarEntregaScreen> {
     });
   }
 
-  // eliminarArchivoEntrega real: quita un solo adjunto ya subido sin borrar
+  // eliminarArchivoEntrega: quita un solo adjunto ya subido sin borrar
   // toda la entrega.
   Future<void> _eliminarArchivoExistente(Archivo archivo) async {
     if (_entrega == null) return;

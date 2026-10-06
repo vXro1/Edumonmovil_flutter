@@ -11,7 +11,7 @@ import '../../../../core/theme/theme_extensions.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../providers/instituciones_providers.dart';
 
-/// Crear institución + admin inicial en un solo formulario — BLUEPRINT.md FASE 3.3.1.
+/// Crear institución + admin inicial en un solo formulario
 class InstitucionFormScreen extends ConsumerStatefulWidget {
   const InstitucionFormScreen({super.key});
 

@@ -20,11 +20,6 @@ import '../../domain/repositories/foros_repository.dart';
 import '../providers/foros_providers.dart';
 import '../widgets/create_foro_sheet.dart';
 
-/// Vista canónica de Foro — BLUEPRINT.md FASE 3.8.3. Todos los roles usan
-/// esta misma página. Layout 3 columnas (Discord-like): sidebar (foros del
-/// curso), centro (mensajes+compositor), panel de actividad — colapsa en
-/// móvil/tablet según Breakpoint. Polling cada 60s.
-/// Permisos por mensaje verificados contra mensajeForoController.js real.
 class ForumScreen extends ConsumerStatefulWidget {
   const ForumScreen({super.key, required this.cursoId, required this.foroId});
 
@@ -134,8 +129,6 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
   }
 
   Future<void> _pickArchivos() async {
-    // mensajeForoRoutes.js real: solo imágenes, videos y PDF — el resto lo
-    // rechaza multer o se descarta en silencio.
     final result = await FilePicker.pickFiles(
       allowMultiple: true,
       withData: true,
@@ -196,7 +189,7 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Eliminar mensaje'),
-        // eliminarMensaje real borra también todas las respuestas del mensaje.
+        // eliminarMensaje borra también todas las respuestas del mensaje.
         content: Text(
           m.respuestas.isNotEmpty
               ? '¿Eliminar este mensaje y sus ${m.respuestas.length} respuesta(s)? Esta acción no se puede deshacer.'
@@ -244,14 +237,14 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
     // Administrador solo visualiza. No depende del foro que se esté viendo
     // ahora — cualquier docente puede crear foros en cursos que enseña.
     final canCreateForo = rol == UserRole.docente || rol == UserRole.superAdmin;
-    // Cerrar/reabrir ESTE foro puntual: cambiarEstadoForo real exige además
+    // Cerrar/reabrir ESTE foro puntual: cambiarEstadoForo exige además
     // ser el docente CREADOR de ese foro (no cualquier docente) — sin este
     // chequeo, un docente que enseña el curso pero no creó este foro en
     // particular (ej. lo creó un administrador en su curso) veía el botón y
     // el backend le devolvía 403 al usarlo.
     final canManageThisForo =
         (rol == UserRole.docente && _foro?.docenteId == currentUserId) || rol == UserRole.superAdmin;
-    // Docente titular del curso: eliminarMensaje real solo deja moderar a un
+    // Docente titular del curso: eliminarMensaje solo deja moderar a un
     // docente en cursos donde él es curso.docenteId.
     final cursoDocenteId = ref.watch(cursoDetailProvider(widget.cursoId)).value?.docenteId ?? _foro?.docenteId;
     final breakpoint = Breakpoint.of(context);
@@ -260,7 +253,7 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
       appBar: AppBar(
         title: Text(_foro?.titulo ?? 'Foro'),
         actions: [
-          // getDashboardForo real: accesible a cualquiera con acceso al
+          // getDashboardForo: accesible a cualquiera con acceso al
           // foro, no solo a quien lo gestiona.
           IconButton(
             icon: const Icon(LucideIcons.barChart2),
@@ -504,13 +497,13 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
   Widget _mensajeCard(MensajeForo m, UserRole? rol, String? currentUserId, String? cursoDocenteId) {
     final isOwn = currentUserId != null && currentUserId == m.autorId;
     final foroAbierto = _foro?.cerrado != true;
-    // eliminarMensaje real: el autor siempre; el administrador modera los
+    // eliminarMensaje: el autor siempre; el administrador modera los
     // mensajes de su institución; el docente SOLO mensajes de padres y solo
     // en cursos donde él es el docente titular. superadmin no tiene bypass
     // en ese endpoint (le devolvería 403), así que no se le muestra.
     final puedeModerar = rol == UserRole.administrador ||
         (rol == UserRole.docente && m.autor?.rol == UserRole.padreTutor && cursoDocenteId == currentUserId);
-    // crearMensaje real: (1) solo se puede responder a un mensaje RAÍZ; (2)
+    // crearMensaje: (1) solo se puede responder a un mensaje RAÍZ; (2)
     // un padre solo puede responder a mensajes de docente/administrador.
     final autorEsStaff = m.autor?.rol == UserRole.docente || m.autor?.rol == UserRole.administrador;
     final puedeResponder = m.respuestaA == null && (rol != UserRole.padreTutor || autorEsStaff);
@@ -521,7 +514,7 @@ class _ForumScreenState extends ConsumerState<ForumScreen> {
       isOwn: isOwn,
       esDocenteDelCurso: m.autorId != null && m.autorId == cursoDocenteId,
       canDelete: isOwn || puedeModerar,
-      // actualizarMensaje real: solo el autor, y nunca en un foro cerrado.
+      // actualizarMensaje: solo el autor, y nunca en un foro cerrado.
       canEdit: isOwn && foroAbierto,
       canReply: foroAbierto && puedeResponder,
       onLike: () => _toggleLike(m),
@@ -747,7 +740,7 @@ class _ArchivoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    // MensajeForo.js/Foro.js reales: tipo ∈ imagen | video | pdf.
+    // MensajeForo.js/Foro.js: tipo ∈ imagen | video | pdf.
     final icon = switch (tipo) {
       'imagen' => LucideIcons.image,
       'video' => LucideIcons.video,
@@ -774,7 +767,7 @@ class _ArchivoChip extends StatelessWidget {
   }
 }
 
-/// Tarjeta de mensaje con edición inline propia — BLUEPRINT.md FASE 3.8.3.
+/// Tarjeta de mensaje con edición inline propia
 class _MensajeCard extends StatefulWidget {
   const _MensajeCard({
     super.key,

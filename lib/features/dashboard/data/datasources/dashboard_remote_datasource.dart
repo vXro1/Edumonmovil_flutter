@@ -4,7 +4,7 @@ import '../../../../core/network/network_exceptions.dart';
 import '../models/curso_resumen_model.dart';
 import '../models/institucion_resumen_model.dart';
 
-/// Data source remoto para los 4 dashboards — BLUEPRINT.md FASE 10.3 / 10.4 / 10.2.
+/// Data source remoto para los 4 dashboards / 10.4 / 10.2.
 class DashboardRemoteDataSource {
   const DashboardRemoteDataSource(this._dio);
 
@@ -42,8 +42,6 @@ class DashboardRemoteDataSource {
     }
   }
 
-  /// GET /users?rol=X&limit=1 — solo nos interesa pagination.totalUsers,
-  /// shape confirmada contra userController.js real.
   Future<int> fetchUsersCount({String? rol}) async {
     try {
       final response = await _dio.get(

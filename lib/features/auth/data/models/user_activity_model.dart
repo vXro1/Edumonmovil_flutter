@@ -1,6 +1,6 @@
 import '../../domain/entities/user_activity.dart';
 
-/// DTO — mapea la fila que devuelve getUltimasSesiones real para superadmin:
+/// DTO — mapea la fila que devuelve getUltimasSesiones para superadmin:
 /// { userId, nombre, correo, rol, estado, ultimoAcceso }.
 class UserActivityModel {
   const UserActivityModel({

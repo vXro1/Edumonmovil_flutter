@@ -14,12 +14,12 @@ import '../providers/foros_providers.dart';
 
 const _maxArchivos = 5;
 
-/// Bottom sheet "Nuevo foro" / "Editar foro" — BLUEPRINT.md FASE 3.4.8 /
+/// Bottom sheet "Nuevo foro" / "Editar foro" /
 /// 3.8.3 (también se crea desde el sidebar del ForumScreen canónico).
 /// Devuelve true si se creó/guardó. Permite adjuntar hasta 5 archivos
 /// (imagen/video/PDF) al CREAR, igual que el compositor de mensajes de foro
 /// — el backend ya acepta `archivos` en POST /foros vía multipart/form-data
-/// (foroController.crearForo). actualizarForo real NO soporta reemplazar
+/// (foroController.crearForo). actualizarForo NO soporta reemplazar
 /// archivos ni el estado (eso va por toggleEstadoForo aparte), así que en
 /// modo edición solo se editan título/descripción/público.
 Future<bool?> showCreateForoSheet(BuildContext context, WidgetRef ref, String cursoId, {Foro? existing}) {

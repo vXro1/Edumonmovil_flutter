@@ -2,7 +2,7 @@ import '../../../../core/config/env.dart';
 import '../../../../shared/models/archivo.dart';
 import '../../domain/entities/evento.dart';
 
-/// DTO — verificado contra Evento.js/eventoController.js reales.
+/// DTO
 class EventoModel {
   const EventoModel({
     required this.id,
@@ -50,9 +50,6 @@ class EventoModel {
         .whereType<String>()
         .toList();
 
-    // BUG REAL corregido: Evento.js guarda el archivo en "adjuntos" (objeto
-    // {url, publicId, nombre}, con url null si no hay) — se leía "adjunto",
-    // que no existe, así que el adjunto de un evento nunca se mostraba.
     final adjuntoRaw = json['adjuntos'] ?? json['adjunto'];
     final adjunto = adjuntoRaw is Map && adjuntoRaw['url'] != null
         ? Archivo.fromJson({...adjuntoRaw.cast<String, dynamic>(), 'nombre': adjuntoRaw['nombre'] ?? 'Adjunto del evento'})

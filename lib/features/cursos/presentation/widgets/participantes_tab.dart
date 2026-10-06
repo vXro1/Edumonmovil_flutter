@@ -18,7 +18,7 @@ import '../../../usuarios/presentation/providers/usuarios_providers.dart';
 import '../../domain/entities/participante.dart';
 import '../providers/cursos_providers.dart';
 
-/// Tab Participantes — BLUEPRINT.md FASE 3.4.9.
+/// Tab Participantes
 /// A diferencia de Módulos, acá SÍ hay endpoint masivo real
 /// (POST /cursos/:id/usuarios-masivo, parseo server-side).
 class ParticipantesTab extends ConsumerStatefulWidget {
@@ -151,7 +151,7 @@ class _ParticipantesTabState extends ConsumerState<ParticipantesTab> {
     if (saved == true) _load();
   }
 
-  // getPadreInfo real: solo acepta usuarios con rol 'padre' (400 en
+  // getPadreInfo: solo acepta usuarios con rol 'padre' (400 en
   // cualquier otro caso) — acá ya se filtra a esos participantes antes de
   // ofrecer la acción.
   Future<void> _verInfoPadre(Participante participante) async {
@@ -434,9 +434,6 @@ class _ImportResultRow extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: color),
           const SizedBox(width: 6),
-          // Expanded: `text` es un mensaje de error dinámico (`e.motivo`) que
-          // puede ser largo — sin esto, Row(RenderFlex) desbordaba en pantallas
-          // angostas en vez de ajustar el texto a varias líneas.
           Expanded(child: Text(text, style: TextStyle(color: color))),
         ],
       ),

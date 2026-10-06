@@ -15,10 +15,6 @@ import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../providers/auth_providers.dart';
 
-/// Recuperar contraseña — BLUEPRINT.md FASE 3.1.3.
-/// authRoutes.js real: forgot-password-phone/reset-password-phone (WhatsApp
-/// vía Twilio) se eliminaron del backend junto con Twilio — recuperación de
-/// contraseña quedó solo por correo, ya no hay elección de método.
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
 

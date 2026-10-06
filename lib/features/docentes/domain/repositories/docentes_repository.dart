@@ -28,8 +28,6 @@ class CsvImportResult {
   final List<CsvImportItem> detallesDuplicados;
 }
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 3.3.3, verificada contra
-/// institucionController.js real (preregistrarDocente/preregistrarDocentesCSV).
 abstract class DocentesRepository {
   /// [correo] es opcional — si se omite, el backend genera `${cedula}@temp.com`.
   Future<void> createDocente({

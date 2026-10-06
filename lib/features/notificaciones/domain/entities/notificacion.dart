@@ -1,9 +1,5 @@
-/// Entidad de dominio — BLUEPRINT.md FASE 9.11.
-/// Categorías reales de notificacionController.js/notificacionValidator.js
-/// (`isIn(['tarea', 'entrega', 'calificacion', 'foro', 'evento', 'sistema'])`)
-/// — el enum anterior (info/exito/warning/error/bienvenida) era un nivel de
-/// severidad inventado que el backend real nunca envía, así que todas las
-/// notificaciones caían siempre en el mismo ícono/color por defecto.
+/// Categorías de notificación que acepta el backend
+/// (`isIn(['tarea', 'entrega', 'calificacion', 'foro', 'evento', 'sistema'])`).
 enum NotificacionTipo {
   tarea,
   entrega,

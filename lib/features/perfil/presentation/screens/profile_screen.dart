@@ -17,7 +17,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/theme/theme_mode_controller.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
 
-/// Perfil propio — BLUEPRINT.md FASE 3.11.
+/// Perfil propio
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
@@ -149,7 +149,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
                 if (user.correo != null) _InfoRow(icon: LucideIcons.mail, label: 'Correo', value: user.correo!),
                 _InfoRow(icon: LucideIcons.phone, label: 'Teléfono', value: user.telefono),
-                // La cédula no es editable desde acá — updateOwnProfile real
+                // La cédula no es editable desde acá — updateOwnProfile
                 // solo acepta nombre/apellido/correo/telefono, nunca cedula.
                 _InfoRow(icon: LucideIcons.idCard, label: 'Cédula', value: user.cedula),
               ],
@@ -328,7 +328,7 @@ class _ChangePasswordSheetState extends ConsumerState<_ChangePasswordSheet> {
     super.dispose();
   }
 
-  /// Mismo criterio que exige el backend real (changePasswordValidator):
+  /// Mismo criterio que exige el backend (changePasswordValidator):
   /// mínimo 6 caracteres, con minúscula, mayúscula y número.
   bool _passwordMeetsRequirements(String pw) {
     return pw.length >= 6 &&
@@ -426,8 +426,8 @@ class _ChangePasswordSheetState extends ConsumerState<_ChangePasswordSheet> {
 
 /// Editar nombre/apellido/correo/teléfono — disponible para los 4 roles,
 /// tanto en el primer ingreso (wizard) como en cualquier momento después
-/// (BLUEPRINT.md FASE 3.11 ampliado). La cédula queda afuera a propósito:
-/// updateOwnProfile real no la acepta (ver ProfileRemoteDataSource).
+/// ampliado). La cédula queda afuera a propósito:
+/// updateOwnProfile no la acepta (ver ProfileRemoteDataSource).
 class _EditProfileSheet extends ConsumerStatefulWidget {
   const _EditProfileSheet();
 

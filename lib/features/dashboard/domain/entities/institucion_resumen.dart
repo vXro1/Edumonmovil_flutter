@@ -1,6 +1,6 @@
-/// Versión resumida de Institución — BLUEPRINT.md FASE 9.2 — solo lo que
-/// necesita el dashboard de superadmin. La feature Instituciones completa
-/// llega en Sprint 3.
+/// Versión resumida de Institución — solo lo que
+/// necesita el dashboard de superadmin. La entidad completa está en la
+/// feature Instituciones.
 class InstitucionResumen {
   const InstitucionResumen({required this.id, required this.nombre, this.nit, this.direccion});
 

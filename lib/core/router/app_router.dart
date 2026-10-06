@@ -44,16 +44,10 @@ import '../../features/usuarios/presentation/screens/usuarios_screen.dart';
 import '../design_system/loading/loading_screen.dart';
 import 'app_shell.dart';
 
-/// Router — BLUEPRINT.md FASE 5.3 / FASE 4.1.
+/// Router
 /// Replica ProtectedRoute/PublicOnlyRoute/RoleRedirect de la web vía `redirect`,
 /// sin los guards muertos (RoleGuard/RequireRole/RequireAuth no se portan).
 
-// '/' (landing web) es pública siempre, con o sin sesión — a diferencia de
-// login/forgot/reset, que solo tienen sentido SIN sesión. Antes estaba en
-// _publicOnlyRoutes junto con esas, así que el chequeo de más abajo
-// (línea ~92) mandaba a la fuerza a un usuario autenticado que visitaba '/'
-// a su home de rol, sin poder quedarse a ver la landing — mismo bug que
-// tenía LandingPage.jsx en la web (ver ese fix).
 const _alwaysPublicRoutes = {'/'};
 const _publicOnlyRoutes = {'/login', '/forgot-password', '/reset-password'};
 
@@ -77,15 +71,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final location = state.matchedLocation;
 
       if (auth.status == AuthStatus.unknown) {
-        // BUG REAL: antes acá solo se dejaba pasar '/' y '/splash' — si el
-        // usuario tocaba "Iniciar sesión" en el Home mientras la sesión
-        // todavía se estaba verificando en segundo plano (fetchProfile puede
-        // tardar hasta 30-50s si el backend en Render está dormido), el
-        // redirect mandaba /login de vuelta a /splash y ahí se quedaba
-        // colgado — el botón "no hacía nada". Ninguna ruta pública (login,
-        // recuperar contraseña) necesita esperar a que termine ese chequeo:
-        // si resulta que ya había sesión, las ramas de abajo lo corrigen
-        // solas apenas el estado se resuelve (refreshListenable reevalúa).
         return (_alwaysPublicRoutes.contains(location) || _publicOnlyRoutes.contains(location)) ? null : '/splash';
       }
 
@@ -124,7 +109,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/notificaciones', builder: (context, state) => const NotificacionesScreen()),
       GoRoute(path: '/perfil', builder: (context, state) => const ProfileScreen()),
 
-      // Gestión institucional (Sprint 3) — pantallas top-level con su propio
+      // Gestión institucional — pantallas top-level con su propio
       // AppBar/back button, alcanzadas por push desde el nav del Shell.
       GoRoute(path: '/institucion', builder: (context, state) => const MiInstitucionScreen()),
       GoRoute(path: '/instituciones', builder: (context, state) => const InstitucionesScreen()),
@@ -142,7 +127,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/docentes', builder: (context, state) => const DocentesScreen()),
       GoRoute(path: '/docentes/nuevo', builder: (context, state) => const DocenteFormScreen()),
 
-      // Cursos (Sprint 4).
+      // Cursos.
       GoRoute(path: '/cursos', builder: (context, state) => const CursosScreen()),
       GoRoute(path: '/cursos/nuevo', builder: (context, state) => const CursoFormScreen()),
       GoRoute(
@@ -154,7 +139,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => CursoHubScreen(cursoId: state.pathParameters['id']!),
       ),
 
-      // Tareas/Retos + Entregas (Sprint 5).
+      // Tareas/Retos + Entregas.
       GoRoute(path: '/tareas', builder: (context, state) => const RetosScreen()),
       GoRoute(
         path: '/cursos/:cursoId/tareas/nueva',
@@ -177,8 +162,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => RealizarEntregaScreen(tareaId: state.pathParameters['id']!),
       ),
 
-      // Foros (Sprint 6) — vista canónica, ruta singular "curso" tal cual
-      // documenta BLUEPRINT.md FASE 3.8.3 (distinta del hub plural /cursos/:id).
+      // Foros — vista canónica, ruta singular "curso" tal cual
+      // documenta (distinta del hub plural /cursos/:id).
       GoRoute(
         path: '/curso/:cursoId/foro/:foroId',
         builder: (context, state) => ForumScreen(
@@ -191,7 +176,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ForoDashboardScreen(foroId: state.pathParameters['foroId']!),
       ),
 
-      // Calendario/Eventos (Sprint 6).
+      // Calendario/Eventos.
       GoRoute(path: '/calendario', builder: (context, state) => const CalendarioScreen()),
       GoRoute(path: '/eventos', builder: (context, state) => const EventosScreen()),
       GoRoute(
@@ -210,12 +195,12 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         ),
       ),
 
-      // Familia (Sprint 7) — Cursos/Retos/Foros/Calendario reutilizan las
+      // Familia — Cursos/Retos/Foros/Calendario reutilizan las
       // pantallas canónicas (ver comentarios en cursos_screen.dart/retos_screen.dart).
       GoRoute(path: '/familia/perfiles', builder: (context, state) => const PerfilesScreen()),
       GoRoute(path: '/familia/entregas', builder: (context, state) => const MisEntregasScreen()),
 
-      // Buzón (Sprint 7).
+      // Buzón.
       GoRoute(path: '/buzon', builder: (context, state) => const BuzonScreen()),
 
       ShellRoute(

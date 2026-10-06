@@ -19,8 +19,7 @@ import '../../domain/entities/tarea.dart';
 import '../../domain/repositories/tareas_repository.dart';
 import '../providers/tareas_providers.dart';
 
-/// Crear/editar reto (Tarea) — BLUEPRINT.md FASE 3.4.4, verificado contra
-/// tareaController.js/tareaValidator.js/Tarea.js reales.
+/// Crear/editar reto (Tarea).
 /// [tareaId] null = crear; con valor = editar.
 class TareaFormScreen extends ConsumerStatefulWidget {
   const TareaFormScreen({super.key, required this.cursoId, this.tareaId});
@@ -120,11 +119,6 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
   }
 
   Future<void> _pickFechaEntrega() async {
-    // createTareaValidator real: fechaEntrega es obligatoria y debe ser
-    // futura (`new Date(value) < new Date()` rechaza con 400) — permitir
-    // elegir hasta un año atrás garantizaba ese 400 al crear.
-    // updateTareaValidator no tiene esa restricción, así que al editar se
-    // mantiene el rango amplio.
     final primerDiaPermitido = _isEditing
         ? DateTime.now().subtract(const Duration(days: 365))
         : DateTime.now();
@@ -197,9 +191,6 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
       EdumonDialog.show(context, message: 'Seleccioná al menos un participante.');
       return;
     }
-    // createTareaValidator real: fechaEntrega es obligatoria (`notEmpty()`)
-    // — sin este chequeo, crear un reto sin elegir fecha se mandaba con
-    // "fechaEntrega" ausente del FormData y el backend siempre respondía 400.
     if (!_isEditing && _fechaEntrega == null) {
       EdumonDialog.show(context, message: 'Seleccioná la fecha de entrega.');
       return;
@@ -207,8 +198,6 @@ class _TareaFormScreenState extends ConsumerState<TareaFormScreen> {
 
     setState(() => _saving = true);
     try {
-      // tareaController.js real ignora docenteId en el body y siempre usa el
-      // token de quien crea la tarea — ya no hace falta resolverlo acá.
       final archivos = _archivosNuevos
           .map((f) => ArchivoUpload(bytes: f.bytes!, filename: f.name))
           .toList();

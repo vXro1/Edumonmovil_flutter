@@ -6,13 +6,12 @@ import '../../../../core/network/network_exceptions.dart';
 import '../models/curso_model.dart';
 import '../models/participante_model.dart';
 
-/// Data source remoto — shapes verificados contra cursoController.js real.
 class CursosRemoteDataSource {
   const CursosRemoteDataSource(this._dio);
 
   final Dio _dio;
 
-  // getCursos real solo filtra por estado/docenteId, no por texto — no se
+  // getCursos solo filtra por estado/docenteId, no por texto — no se
   // manda ningún parámetro de búsqueda (ver CursosScreen para el filtro cliente).
   Future<({List<CursoModel> items, bool hasMore})> fetchCursos({required int page, required int limit}) {
     return _fetchList('/cursos', {'page': page, 'limit': limit});
@@ -70,10 +69,6 @@ class CursosRemoteDataSource {
     }
   }
 
-  /// cursoController.js real (pull 85fa452/e3e8d5a): updateCurso ya no permite
-  /// reasignar docenteId ni institucionId — si vienen en el body se ignoran
-  /// en silencio. No se manda más para no sugerir en el cliente una acción
-  /// que el backend descarta sin avisar.
   Future<CursoModel> updateCurso({
     required String id,
     String? nombre,
@@ -98,7 +93,7 @@ class CursosRemoteDataSource {
     }
   }
 
-  /// archivarCurso real: 400 si ya está archivado, 403 si un docente intenta
+  /// archivarCurso: 400 si ya está archivado, 403 si un docente intenta
   /// archivar un curso que no es suyo — ambos casos ya llegan como mensaje
   /// legible vía AppException.
   Future<void> archiveCurso(String id) async {
@@ -109,7 +104,7 @@ class CursosRemoteDataSource {
     }
   }
 
-  /// restaurarCurso real (cursoRoutes.js: PATCH /cursos/:id/restaurar): 400
+  /// restaurarCurso (cursoRoutes.js: PATCH /cursos/:id/restaurar): 400
   /// si ya está activo; permiso de docente dueño, admin de la institución o
   /// superadmin (más amplio que archivarCurso, que no deja archivar a un
   /// admin de otra institución — acá si el curso es de la suya sí puede).
@@ -125,7 +120,7 @@ class CursosRemoteDataSource {
     try {
       final response = await _dio.get('/cursos/$cursoId/participantes', queryParameters: {'limit': limit});
       final data = response.data as Map<String, dynamic>;
-      // getParticipantesCurso real: cada item viene FLAT (nombre/apellido/etiqueta
+      // getParticipantesCurso: cada item viene FLAT (nombre/apellido/etiqueta
       // al mismo nivel, no anidado bajo "usuario") — ParticipanteModel ya lo soporta.
       return (data['participantes'] as List)
           .map((e) => ParticipanteModel.fromJson(e as Map<String, dynamic>))
@@ -145,7 +140,7 @@ class CursosRemoteDataSource {
     try {
       await _dio.post(
         '/cursos/$cursoId/participantes',
-        // agregarParticipante real destructura "contraseña" (con ñ) del body
+        // agregarParticipante destructura "contraseña" (con ñ) del body
         // y cae a la cédula si no viene — se manda explícito por claridad.
         data: {'nombre': nombre, 'apellido': apellido, 'cedula': cedula, 'telefono': telefono, 'contraseña': cedula},
       );
@@ -162,7 +157,7 @@ class CursosRemoteDataSource {
     }
   }
 
-  /// registrarUsuariosMasivo real: {message, docente, resumen: {total,
+  /// registrarUsuariosMasivo: {message, docente, resumen: {total,
   /// exitosos, errores, duplicados}, detalles: {exitosos, errores, duplicados}}
   /// — mismo shape que preregistrarDocentesCSV en institucionController.js.
   Future<({int total, int exitosos, int duplicados, int errores, List<CsvParticipanteItem> detallesErrores, List<CsvParticipanteItem> detallesDuplicados})>

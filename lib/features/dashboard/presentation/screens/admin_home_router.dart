@@ -6,8 +6,8 @@ import '../../../auth/presentation/providers/auth_controller.dart';
 import 'admin_dashboard.dart';
 import 'superadmin_dashboard.dart';
 
-/// /admin es la misma ruta para superadmin y administrador (BLUEPRINT.md
-/// FASE 3.2.1 / 3.2.2) — el dashboard que se renderiza depende del rol real.
+/// /admin es la misma ruta para superadmin y administrador
+/// / 3.2.2) — el dashboard que se renderiza depende del rol real.
 class AdminHomeRouter extends ConsumerWidget {
   const AdminHomeRouter({super.key});
 

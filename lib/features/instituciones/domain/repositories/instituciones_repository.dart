@@ -1,7 +1,5 @@
 import '../entities/institucion.dart';
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 3.3.1, verificada contra
-/// institucionController.js real.
 abstract class InstitucionesRepository {
   Future<List<Institucion>> fetchInstituciones();
 
@@ -26,7 +24,7 @@ abstract class InstitucionesRepository {
     required String correo,
   });
 
-  /// PATCH /instituciones/:id/estado real — ver nota en el datasource sobre
+  /// PATCH /instituciones/:id/estado — ver nota en el datasource sobre
   /// por qué esto no está conectado a ningún botón de UI todavía.
   Future<Institucion> cambiarEstadoInstitucion({required String id, required bool activo});
 }

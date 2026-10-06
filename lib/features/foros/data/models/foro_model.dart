@@ -34,7 +34,7 @@ class ForoAutorModel {
   ForoAutor toEntity() => ForoAutor(id: id, nombre: nombre, apellido: apellido, rol: rol, avatarUrl: avatarUrl);
 }
 
-/// DTO — verificado contra foroController.js/Foro.js reales.
+/// DTO
 class ForoModel {
   const ForoModel({
     required this.id,
@@ -70,7 +70,6 @@ class ForoModel {
     final cursoRaw = json['cursoId'];
     final cursoId = cursoRaw is Map ? (cursoRaw['id'] ?? cursoRaw['_id']).toString() : (cursoRaw ?? '').toString();
 
-    // Foro.js real: el creador es "docenteId", no "creadorId".
     final docenteRaw = json['docenteId'];
     final docente = docenteRaw is Map ? ForoAutorModel.fromJson(docenteRaw as Map<String, dynamic>) : null;
     final docenteId = docente?.id ?? docenteRaw?.toString();
@@ -117,7 +116,7 @@ class ForoModel {
   );
 }
 
-/// DTO — verificado contra mensajeForoController.js/MensajeForo.js reales:
+/// DTO:
 /// el autor viene populado en `usuarioId` (nombre apellido fotoPerfilUrl rol),
 /// los likes son un contador `likes` + array `likedBy`, y la fecha es
 /// `fechaCreacion`.
@@ -155,9 +154,6 @@ class MensajeForoModel {
   final bool fijado;
 
   factory MensajeForoModel.fromJson(Map<String, dynamic> json) {
-    // BUG REAL corregido: el backend popula el autor en "usuarioId" (y el
-    // virtual "usuario"), nunca en "autorId"/"autor" — con las claves viejas
-    // todos los mensajes salían como "Usuario", sin avatar ni rol.
     final autorRaw = json['usuarioId'] ?? json['usuario'] ?? json['autorId'] ?? json['autor'];
     ForoAutorModel? autor;
     String? autorId;
@@ -184,9 +180,6 @@ class MensajeForoModel {
     final respuestaARaw = json['respuestaA'];
     final respuestaA = respuestaARaw is Map ? (respuestaARaw['id'] ?? respuestaARaw['_id'])?.toString() : respuestaARaw?.toString();
 
-    // MensajeForo.js real: `likes` es un contador numérico y `likedBy` el
-    // array de ids — el listado (lean) no trae `yaLeDioLike`, se calcula en
-    // la pantalla cruzando `likedBy` con el usuario actual.
     final likesRaw = json['likes'] ?? json['totalLikes'];
     final likedBy = (json['likedBy'] is List ? json['likedBy'] as List : const [])
         .map((e) => e is Map ? (e['id'] ?? e['_id']).toString() : e.toString())

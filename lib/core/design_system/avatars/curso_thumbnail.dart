@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Miniatura circular de portada de curso (`curso.imagenUrl`).
-///
-/// A diferencia de un `CircleAvatar(backgroundImage: NetworkImage(...))`
-/// directo, cae al ícono de respaldo si la imagen falla en vez de dejar la
-/// excepción sin manejar (`onBackgroundImageError` ausente) — la falla se
-/// repetía en consola en cada repintado y el círculo quedaba en blanco. Es
-/// más probable en web: el `<canvas>` de CanvasKit exige cabeceras CORS
-/// para pintar imágenes cross-origin, algo que Android/iOS no restringe.
 class CursoThumbnail extends StatefulWidget {
   const CursoThumbnail({
     super.key,

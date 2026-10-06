@@ -1,7 +1,6 @@
 import '../../../../core/config/env.dart';
 import '../../domain/entities/perfil.dart';
 
-/// DTO — verificado contra perfilFamiliarController.js real.
 class PerfilModel {
   const PerfilModel({required this.id, required this.nombre, this.avatarUrl, this.esTitular = false});
 
@@ -10,7 +9,7 @@ class PerfilModel {
   final String? avatarUrl;
   final bool esTitular;
 
-  /// getMisPerfiles real (`GET /perfiles`) devuelve `{titular, perfiles}` —
+  /// getMisPerfiles (`GET /perfiles`) devuelve `{titular, perfiles}` —
   /// el titular es un objeto SEPARADO, no un elemento más del array
   /// `perfiles`. Este factory parsea un ítem cualquiera de cualquiera de los
   /// dos; `esTitular` no siempre viene en el JSON del array `perfiles` (los

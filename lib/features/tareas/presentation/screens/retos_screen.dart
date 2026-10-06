@@ -16,11 +16,6 @@ import '../../../cursos/presentation/providers/cursos_providers.dart';
 import '../../domain/entities/tarea.dart';
 import '../providers/tareas_providers.dart';
 
-/// Retos — gestión global de tareas del docente, across todos sus cursos —
-/// BLUEPRINT.md FASE 3.12 / FASE 3.7.3 (padre: solo lectura, mismo canónico).
-/// (⚠️) fetchTareas sin cursoId asume que el backend scopea automáticamente
-/// al usuario autenticado (docente → sus cursos, padre → cursos de sus
-/// hijos), igual que /cursos/mis-cursos.
 class RetosScreen extends ConsumerStatefulWidget {
   const RetosScreen({super.key});
 

@@ -15,11 +15,6 @@ import '../providers/auth_providers.dart';
 
 const _pageSize = 8;
 
-/// Sesiones / actividad — GET /users/sesiones/ultimas (getUltimasSesiones real).
-/// El backend NO trackea dispositivos/IP por usuario (a diferencia de lo que
-/// describía originalmente el blueprint): para la mayoría de roles solo
-/// devuelve la propia última conexión; solo superadmin ve la lista paginada
-/// de actividad de todos los usuarios.
 class SessionsScreen extends ConsumerStatefulWidget {
   const SessionsScreen({super.key});
 

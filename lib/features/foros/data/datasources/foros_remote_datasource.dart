@@ -5,9 +5,6 @@ import '../../domain/repositories/foros_repository.dart';
 import '../models/foro_dashboard_model.dart';
 import '../models/foro_model.dart';
 
-/// Data source remoto — BLUEPRINT.md FASE 10.6.
-/// (⚠️) No vimos foroController.js/mensajeForoController.js reales — shapes
-/// inferidos del blueprint.
 class ForosRemoteDataSource {
   const ForosRemoteDataSource(this._dio);
 
@@ -24,7 +21,7 @@ class ForosRemoteDataSource {
     }
   }
 
-  /// getDashboardForo real (GET /foros/:id/dashboard) — accesible a
+  /// getDashboardForo (GET /foros/:id/dashboard) — accesible a
   /// cualquier usuario con acceso al foro (foro.tieneAcceso), no solo
   /// docente/administrador.
   Future<ForoDashboardModel> fetchDashboard(String foroId) async {
@@ -47,9 +44,6 @@ class ForosRemoteDataSource {
     }
   }
 
-  // crearForoValidator real: descripcion es obligatoria (10-2000 caracteres),
-  // no opcional — create_foro_sheet.dart ya la validaba así en la UI, esto
-  // solo alinea la firma para que no quede como opcional "por las dudas".
   Future<ForoModel> createForo({
     required String titulo,
     required String descripcion,
@@ -75,7 +69,7 @@ class ForosRemoteDataSource {
     }
   }
 
-  /// actualizarForo real (PUT /foros/:id) — solo título/descripción/público;
+  /// actualizarForo (PUT /foros/:id) — solo título/descripción/público;
   /// el estado (abrir/cerrar) tiene su propio endpoint (toggleEstadoForo) y
   /// no soporta reemplazar archivos adjuntos.
   Future<ForoModel> updateForo({required String id, String? titulo, String? descripcion, bool? publico}) async {
@@ -92,9 +86,6 @@ class ForosRemoteDataSource {
     }
   }
 
-  // BUG REAL corregido: Foro.js real solo acepta estado "abierto"/"cerrado"
-  // — "activo" no existe en el enum, así que reabrir un foro (cerrado→false)
-  // siempre devolvía 400 "Estado inválido".
   Future<void> toggleEstadoForo({required String id, required bool cerrado}) async {
     try {
       await _dio.patch('/foros/$id/estado', data: {'estado': cerrado ? 'cerrado' : 'abierto'});

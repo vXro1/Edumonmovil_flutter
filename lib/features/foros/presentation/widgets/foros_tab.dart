@@ -14,7 +14,7 @@ import '../../domain/entities/foro.dart';
 import '../providers/foros_providers.dart';
 import 'create_foro_sheet.dart';
 
-/// Tab Foros (dentro de curso) — BLUEPRINT.md FASE 3.4.8.
+/// Tab Foros (dentro de curso)
 /// Los foros creados desde acá siempre van con publico:false.
 class ForosTab extends ConsumerStatefulWidget {
   const ForosTab({super.key, required this.cursoId, required this.canManage});

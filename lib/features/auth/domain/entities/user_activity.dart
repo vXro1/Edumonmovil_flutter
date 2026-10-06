@@ -1,6 +1,3 @@
-/// Fila de actividad de un usuario — solo visible para superadmin, vía
-/// GET /users/sesiones/ultimas (getUltimasSesiones real, no el "sesiones por
-/// dispositivo" que describía originalmente el blueprint).
 class UserActivity {
   const UserActivity({
     required this.userId,

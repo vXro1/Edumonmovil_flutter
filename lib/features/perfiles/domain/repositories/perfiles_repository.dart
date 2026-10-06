@@ -1,8 +1,5 @@
 import '../entities/perfil.dart';
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 3.7.1, verificado contra
-/// perfilFamiliarController.js real. Máx 5 perfiles secundarios + titular
-/// (regla validada también en cliente antes de llamar a createPerfil).
 abstract class PerfilesRepository {
   /// [activePerfilId] es el id del perfil activo en la sesión actual (ver
   /// PerfilActivo, de GET /auth/profile) — se usa para marcar `esActivo` en
@@ -16,7 +13,7 @@ abstract class PerfilesRepository {
 
   Future<void> deletePerfil(String id);
 
-  /// seleccionarPerfil real reemplaza la cookie access_token con una que
+  /// seleccionarPerfil reemplaza la cookie access_token con una que
   /// incluye el nuevo perfilId — no hay token que leer del body. El caller
   /// debe refrescar el estado de sesión después (ver AuthController.refreshUser)
   /// para que PerfilActivo refleje el cambio.

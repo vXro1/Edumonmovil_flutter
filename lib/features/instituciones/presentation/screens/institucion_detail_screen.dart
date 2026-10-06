@@ -13,7 +13,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/institucion.dart';
 import '../providers/instituciones_providers.dart';
 
-/// Detalle/edición de institución — BLUEPRINT.md FASE 3.3.1.
+/// Detalle/edición de institución
 /// Solo se editan datos de la institución (no NIT ni el admin). El admin se
 /// muestra con los datos que el propio backend ya trae poblados
 /// (institucionController.js: .populate('adminId', 'nombre apellido correo')),

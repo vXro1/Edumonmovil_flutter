@@ -19,7 +19,7 @@ import '../providers/eventos_providers.dart';
 
 /// Detalle completo de un evento — se abre al tocarlo en el calendario.
 /// Pinta al instante lo que ya trae el item del calendario ([inicial]) y lo
-/// completa con getEventoById real (docente, cursos, portada, adjunto).
+/// completa con getEventoById (docente, cursos, portada, adjunto).
 /// getEventoById devuelve 403 a un docente que no creó el evento: en ese
 /// caso se muestra lo del calendario en vez de un error.
 class EventoDetalleScreen extends ConsumerStatefulWidget {
@@ -68,7 +68,7 @@ class _EventoDetalleScreenState extends ConsumerState<EventoDetalleScreen> {
   @override
   Widget build(BuildContext context) {
     final rol = ref.watch(authControllerProvider).user?.rol;
-    // updateEvento real: admin de la institución, o el docente creador (que
+    // updateEvento: admin de la institución, o el docente creador (que
     // es el único docente al que getEventoById le responde).
     final canEdit =
         _evento != null && (rol == UserRole.administrador || rol == UserRole.superAdmin || rol == UserRole.docente);

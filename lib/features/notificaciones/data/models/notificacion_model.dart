@@ -1,8 +1,5 @@
 import '../../domain/entities/notificacion.dart';
 
-/// DTO — BLUEPRINT.md FASE 9.11.
-/// Shape verificado contra notificacionController.js real (documento
-/// `.lean()` de Mongoose): `{_id, titulo, mensaje, tipo, leido, fecha}`.
 class NotificacionModel {
   const NotificacionModel({
     required this.id,
@@ -23,9 +20,6 @@ class NotificacionModel {
   factory NotificacionModel.fromJson(Map<String, dynamic> json) {
     return NotificacionModel(
       id: (json['id'] ?? json['_id']).toString(),
-      // Notificacion.js real no tiene `titulo`: se lee de metadata.titulo
-      // (notificaciones enviadas desde la app) o se deriva del tipo, igual
-      // que hace obtenerTitulo() del backend para push/email.
       titulo: _titulo(json),
       mensaje: (json['mensaje'] ?? json['descripcion'])?.toString() ?? '',
       tipo: NotificacionTipo.fromApiString(json['tipo']?.toString()),

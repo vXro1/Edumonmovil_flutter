@@ -9,8 +9,6 @@ import '../models/tarea_model.dart';
 
 List<Map<String, dynamic>> _enlacesJson(List<EnlaceInput>? enlaces) => [for (final e in enlaces ?? const []) e.toJson()];
 
-/// Data source remoto — BLUEPRINT.md FASE 10.5.
-/// (⚠️) No vimos tareaController.js real — shapes inferidos del blueprint.
 class TareasRemoteDataSource {
   const TareasRemoteDataSource(this._dio);
 
@@ -48,10 +46,6 @@ class TareasRemoteDataSource {
     }
   }
 
-  /// tareaController.js real (pull 85fa452/e3e8d5a): el `docenteId` del body
-  /// se ignora siempre — el backend usa el userId del token. Ya no se manda.
-  /// [moduloId] es obligatorio: Tarea.js lo marca `required` y
-  /// createTareaValidator devuelve 400 "El ID del módulo es obligatorio" sin él.
   Future<TareaModel> createTarea({
     required String titulo,
     String? descripcion,
@@ -118,7 +112,7 @@ class TareasRemoteDataSource {
         if (participantesSeleccionados != null) 'participantesSeleccionados': jsonEncode(participantesSeleccionados),
         if (etiquetas != null) 'etiquetas': jsonEncode(etiquetas),
         'criterios': ?criterios,
-        // updateTarea real lee los enlaces nuevos de "nuevosEnlaces" (o
+        // updateTarea lee los enlaces nuevos de "nuevosEnlaces" (o
         // "enlaces" si ese no viene) — se manda "nuevosEnlaces" explícito
         // para no chocar con el nombre que usa createTarea.
         if (enlacesNuevos != null && enlacesNuevos.isNotEmpty) 'nuevosEnlaces': jsonEncode(_enlacesJson(enlacesNuevos)),
@@ -135,9 +129,6 @@ class TareasRemoteDataSource {
     }
   }
 
-  // BUG REAL corregido: tareaRoutes.js real expone PATCH /tareas/:id/close
-  // (en inglés) — con "/cerrar" esto daba 404 siempre, así que cerrar un
-  // reto nunca funcionó.
   Future<void> cerrarTarea(String id) async {
     try {
       await _dio.patch('/tareas/$id/close');

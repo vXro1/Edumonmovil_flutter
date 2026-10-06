@@ -1,6 +1,6 @@
 import 'foro.dart';
 
-/// GET /foros/:id/dashboard real (foroController.js: getDashboardForo) — no
+/// GET /foros/:id/dashboard (foroController.js: getDashboardForo) — no
 /// reemplaza los endpoints ya usados (fetchForoById/fetchMensajes), solo
 /// agrega una vista de analíticas con un único fetch.
 class ForoDashboard {
@@ -58,7 +58,7 @@ class ForoEstadisticas {
 }
 
 /// Un día de la ventana de actividad (últimos 7 días — foroController.js
-/// real: getDashboardForo).
+///: getDashboardForo).
 class ForoActividadDia {
   const ForoActividadDia({required this.fecha, required this.mensajes});
 

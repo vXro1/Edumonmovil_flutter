@@ -8,7 +8,7 @@ final calendarioRemoteDataSourceProvider = Provider<CalendarioRemoteDataSource>(
   return CalendarioRemoteDataSource(ref.watch(apiClientProvider).dio);
 });
 
-/// Carga el calendario desde los endpoints reales de calendarioController.js
+/// Carga el calendario desde los endpoints de calendarioController.js
 /// — [cursoId] null trae el agregado de todos los cursos del usuario
 /// (GET /calendario/calendario); con [cursoId] trae solo ese curso
 /// (GET /calendario/:cursoId). Reemplaza la agregación anterior que combinaba

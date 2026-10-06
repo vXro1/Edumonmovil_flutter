@@ -1,4 +1,4 @@
-/// Escala de espaciado — BLUEPRINT.md FASE 2.4 (base 4px).
+/// Escala de espaciado (base 4px).
 class AppSpacing {
   const AppSpacing._();
 
@@ -26,7 +26,7 @@ class AppSpacing {
   static const double xl = s12;
 }
 
-/// Escala de border-radius — BLUEPRINT.md FASE 2.5.
+/// Escala de border-radius
 class AppRadius {
   const AppRadius._();
 
@@ -40,7 +40,7 @@ class AppRadius {
   static const double full = 9999;
 }
 
-/// Duraciones y curvas de animación — BLUEPRINT.md FASE 2.8 / FASE 12.
+/// Duraciones y curvas de animación
 /// La inconsistencia 120ms/150ms de la web se unifica aquí en un único valor.
 class AppDurations {
   const AppDurations._();

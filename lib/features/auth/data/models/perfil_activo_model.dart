@@ -1,8 +1,8 @@
 import '../../../../core/config/env.dart';
 import '../../domain/entities/perfil_activo.dart';
 
-/// DTO — sub-objeto `perfilActivo` de GET /auth/profile (authController.js
-/// real: getProfile), verificado contra el controller.
+/// DTO — sub-objeto `perfilActivo` de GET /auth/profile (authController.js:
+/// getProfile).
 class PerfilActivoModel {
   const PerfilActivoModel({required this.id, required this.nombre, this.avatarUrl, required this.esTitular});
 

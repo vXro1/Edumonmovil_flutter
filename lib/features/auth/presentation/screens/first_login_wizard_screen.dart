@@ -15,13 +15,6 @@ import '../../../../core/theme/app_shadows.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../providers/auth_providers.dart';
 
-/// Wizard de primer login (4 pasos) — BLUEPRINT.md FASE 3.1.4.
-/// ⚠️ En la web esta ruta estaba desconectada (bug) — acá está implementada
-/// completa y funcional. Bloquea el botón "atrás" del sistema mientras el
-/// wizard esté incompleto, salvo para retroceder un paso dentro del wizard.
-///
-/// Orden: Foto → Datos personales (nombre/apellido/teléfono/correo) →
-/// Contraseña → Confirmación.
 class FirstLoginWizardScreen extends ConsumerStatefulWidget {
   const FirstLoginWizardScreen({super.key});
 

@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../../domain/repositories/docentes_repository.dart';
 
-/// Data source remoto — shapes verificados contra institucionController.js real.
 class DocentesRemoteDataSource {
   const DocentesRemoteDataSource(this._dio);
 
@@ -34,7 +33,7 @@ class DocentesRemoteDataSource {
     }
   }
 
-  /// preregistrarDocentesCSV real: institucionRoutes.js confirma
+  /// preregistrarDocentesCSV: institucionRoutes.js confirma
   /// `uploadCSVCloudinary.single('archivoCSV')`.
   Future<CsvImportResult> importCsv({required Uint8List bytes, required String filename}) async {
     try {

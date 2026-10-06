@@ -120,11 +120,6 @@ class LandingQuienesSection extends StatelessWidget {
                     children: [
                       Expanded(flex: 6, child: textColumn),
                       const SizedBox(width: AppSpacing.xl),
-                      // Antes un SizedBox(width: 220) fijo: en anchos "medium"
-                      // apenas por encima del breakpoint compacto dejaba muy
-                      // poco espacio a textColumn. flex + maxWidth deja que
-                      // se achique en vez de exprimir el resto del layout, y
-                      // no crece sin límite en pantallas ultrawide.
                       Expanded(
                         flex: 3,
                         child: ConstrainedBox(

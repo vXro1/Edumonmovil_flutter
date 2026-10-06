@@ -8,7 +8,7 @@ class PagedResult<T> {
   final bool hasMore;
 }
 
-/// Resultado de GET /users/sesiones/ultimas — el backend real devuelve una
+/// Resultado de GET /users/sesiones/ultimas — el backend devuelve una
 /// forma u otra según el rol del usuario autenticado, nunca ambas:
 /// - No superadmin: solo [ultimoAcceso] (su propia última conexión).
 /// - Superadmin: [usersActivity] paginado (actividad de todos los usuarios).
@@ -31,7 +31,7 @@ class SessionsInfo {
 
 /// Interfaz de dominio para el Wizard de primer login y la pantalla de
 /// último acceso/actividad — agrupados bajo la feature auth porque así los
-/// ubica BLUEPRINT.md FASE 5.6.
+/// ubica
 /// Solo avatares predeterminados del sistema — sin subida de foto propia
 /// (decisión de producto explícita, aunque el backend técnicamente la soporta).
 abstract class ProfileRepository {
@@ -39,7 +39,6 @@ abstract class ProfileRepository {
 
   Future<void> selectDefaultAvatar(String avatarUrl);
 
-  /// updateOwnProfile real: el id sale siempre del token, nunca se manda.
   Future<void> updateProfile({
     String? nombre,
     String? apellido,
@@ -51,12 +50,12 @@ abstract class ProfileRepository {
 
   Future<SessionsInfo> fetchSessionsInfo({required int page, required int limit});
 
-  /// PATCH /users/me/modo-oscuro real — sincroniza la preferencia de tema al
+  /// PATCH /users/me/modo-oscuro — sincroniza la preferencia de tema al
   /// backend (best-effort, no lanza si falla). "Sistema" no tiene equivalente
   /// booleano, así que solo se llama para Claro/Oscuro explícitos.
   Future<void> updateModoOscuro(bool modoOscuro);
 
-  /// PUT /users/me/fcm-token real — registra el token FCM de este
+  /// PUT /users/me/fcm-token — registra el token FCM de este
   /// dispositivo para recibir notificaciones push reales (ver FcmService).
   Future<void> updateFcmToken(String fcmToken);
 }

@@ -3,8 +3,6 @@ import 'package:dio/dio.dart';
 import '../../../../core/network/network_exceptions.dart';
 import '../models/mensaje_buzon_model.dart';
 
-/// Data source remoto — BLUEPRINT.md FASE 10.8.
-/// (⚠️) No vimos buzonController.js real — shapes inferidos del blueprint.
 class BuzonRemoteDataSource {
   const BuzonRemoteDataSource(this._dio);
 

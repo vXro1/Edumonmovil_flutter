@@ -16,7 +16,7 @@ class ArchivoUpload {
   final String filename;
 }
 
-/// Enlace nuevo a adjuntar (createTarea real los toma de `enlaces`,
+/// Enlace nuevo a adjuntar (createTarea los toma de `enlaces`,
 /// updateTarea de `nuevosEnlaces`/`enlaces`).
 class EnlaceInput {
   const EnlaceInput({required this.url, required this.nombre, this.descripcion});
@@ -28,17 +28,12 @@ class EnlaceInput {
   Map<String, dynamic> toJson() => {'url': url, 'nombre': nombre, if (descripcion != null) 'descripcion': descripcion};
 }
 
-/// Interfaz de dominio — BLUEPRINT.md FASE 3.4.4 / FASE 10.5, verificada
-/// contra tareaController.js/tareaValidator.js/Tarea.js reales.
+/// Interfaz de dominio.
 abstract class TareasRepository {
   Future<TareasPage> fetchTareas({String? cursoId, required int page, required int limit});
 
   Future<Tarea> fetchTareaById(String id);
 
-  /// tareaController.js real ignora `docenteId` en el body — el docente
-  /// titular se toma siempre del token de quien crea la tarea.
-  /// [moduloId] es obligatorio en el backend (Tarea.js: `required`) — sin él
-  /// el POST /tareas devuelve 400.
   Future<Tarea> createTarea({
     required String titulo,
     String? descripcion,

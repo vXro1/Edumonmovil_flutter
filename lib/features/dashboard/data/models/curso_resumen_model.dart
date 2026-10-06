@@ -1,9 +1,6 @@
 import '../../../../core/config/env.dart';
 import '../../domain/entities/curso_resumen.dart';
 
-/// DTO — (⚠️) shape de /cursos/mis-cursos no verificado contra el backend
-/// real (solo vimos userController/authController) — parseo defensivo con
-/// los alias que documenta BLUEPRINT.md FASE 9.3 para imagenUrl.
 class CursoResumenModel {
   const CursoResumenModel({
     required this.id,

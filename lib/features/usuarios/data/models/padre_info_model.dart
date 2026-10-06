@@ -1,7 +1,7 @@
 import '../../../../core/config/env.dart';
 import '../../domain/entities/padre_info.dart';
 
-/// DTO — getPadreInfo real (userController.js), respuesta anidada bajo `padre`.
+/// DTO — getPadreInfo (userController.js), respuesta anidada bajo `padre`.
 class PadreInfoModel {
   const PadreInfoModel({
     required this.id,
